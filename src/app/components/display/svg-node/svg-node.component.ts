@@ -6,7 +6,7 @@ import { Coords } from '../../../classes/json-petri-net';
     selector: 'g[app-svg-node]',
     imports: [],
     templateUrl: './svg-node.component.html',
-    styleUrls: ['./svg-node.component.css'],
+    styleUrl: './svg-node.component.css',
 })
 export class SvgNodeComponent {
     readonly RADIUS = 25;
