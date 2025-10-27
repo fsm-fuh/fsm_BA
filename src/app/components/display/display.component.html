@@ -4,6 +4,6 @@
      (dragover)="prevent($event)">
 
     @for (node of diagram()?.nodes; track node.id) {
-        <g SvgNode [diagramNode]="node"/>
+        <g app-svg-node [diagramNode]="node"/>
     }
 </svg>
