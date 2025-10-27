@@ -31,4 +31,6 @@ export class ExampleButtonComponent {
     processMouseClick(e: MouseEvent) {
         this.buttonPressed.emit();
     }
+
+    protected readonly KeyboardEvent = KeyboardEvent;
 }
