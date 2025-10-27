@@ -3,7 +3,7 @@ import { DiagramNode } from '../../../classes/diagram/diagram-node';
 import { Coords } from '../../../classes/json-petri-net';
 
 @Component({
-    selector: 'g[app-svg-node]',
+    selector: 'g[appSvgNode]',
     imports: [],
     templateUrl: './svg-node.component.html',
     styleUrl: './svg-node.component.css',
