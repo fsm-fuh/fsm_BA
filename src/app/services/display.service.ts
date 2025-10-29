@@ -31,5 +31,4 @@ export class DisplayService implements OnDestroy {
     public clear() {
         this._diagram$.next(new Diagram([]));
     }
-
 }
