@@ -1,37 +1,32 @@
 import { DiagramNode } from './diagram-node';
 import { DiagramArc } from './diagram-arc';
+import { DiagramPlace } from './diagram-place';
+import { DiagramTransition } from './diagram-transition';
 
 export class Diagram {
-    private readonly _nodes: DiagramNode[];
+    private readonly _places: DiagramPlace[];
+    private readonly _transitions: DiagramTransition[];
     private readonly _arcs: DiagramArc[];
-    private readonly _marking: Record<string, number>;
-    private readonly _labels: Record<string, string>;
 
-    constructor(
-        elements: DiagramNode[],
-        arcs: DiagramArc[] = [],
-        marking: Record<string, number> = {},
-        labels: Record<string, string> = {},
-    ) {
-        this._nodes = elements;
+    constructor(places: DiagramPlace[] = [], transitions: DiagramTransition[] = [], arcs: DiagramArc[] = []) {
+        this._places = places;
+        this._transitions = transitions;
         this._arcs = arcs;
-        this._marking = marking;
-        this._labels = labels;
     }
 
-    get nodes(): DiagramNode[] {
-        return this._nodes;
+    get places(): DiagramNode[] {
+        return this._places;
     }
 
     get arcs(): DiagramArc[] {
         return this._arcs;
     }
 
-    get marking(): Record<string, number> {
-        return this._marking;
+    get transitions(): DiagramTransition[] {
+        return this._transitions;
     }
 
-    get labels(): Record<string, string> {
-        return this._labels;
+    get allNodes(): (DiagramPlace | DiagramTransition)[] {
+        return [...this._places, ...this._transitions];
     }
 }

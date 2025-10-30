@@ -2,6 +2,8 @@ import { Component, computed, input } from '@angular/core';
 import { DiagramArc } from '../../../classes/diagram/diagram-arc';
 import { DiagramNode } from '../../../classes/diagram/diagram-node';
 import { Coords } from '../../../classes/json-petri-net';
+import { DiagramPlace } from '../../../classes/diagram/diagram-place';
+import { DiagramTransition } from '../../../classes/diagram/diagram-transition';
 
 @Component({
     selector: 'g[appSvgArc]',
@@ -15,7 +17,7 @@ export class SvgArcComponent {
     readonly RECT_HEIGHT = 30;
 
     readonly diagramArc = input<DiagramArc>();
-    readonly nodes = input<DiagramNode[]>([]);
+    readonly nodes = input<(DiagramNode | DiagramPlace | DiagramTransition)[]>([]);
 
     readonly sourceNode = computed(() => {
         const arc = this.diagramArc();
@@ -122,7 +124,7 @@ export class SvgArcComponent {
         let radius: number;
 
         // Determine if this is a place (circle) or transition (rectangle)
-        if (node.id.startsWith('p')) {
+        if (node instanceof DiagramPlace) {
             // Place - circle
             radius = this.RADIUS;
             return {

@@ -1,6 +1,6 @@
 import { Component, computed, input, signal } from '@angular/core';
-import { DiagramNode } from '../../../classes/diagram/diagram-node';
 import { Coords } from '../../../classes/json-petri-net';
+import { DiagramNode, SHAPE } from '../../../classes/diagram/diagram-node';
 
 @Component({
     selector: 'g[appSvgNode]',
@@ -12,11 +12,8 @@ export class SvgNodeComponent {
     readonly RADIUS = 25;
     readonly RECT_WIDTH = 50;
     readonly RECT_HEIGHT = 30;
-    readonly TOKEN_RADIUS = 4;
 
     readonly diagramNode = input<DiagramNode>();
-    readonly marking = input<Record<string, number>>({});
-    readonly labels = input<Record<string, string>>({});
 
     readonly fillColor = signal('white');
 
@@ -29,33 +26,19 @@ export class SvgNodeComponent {
     });
 
     readonly isTransition = computed(() => {
-        const node = this.diagramNode();
-        return node ? node.id.startsWith('t') : false;
+        return this.diagramNode()?.shape === SHAPE.RECT;
     });
 
     readonly isPlace = computed(() => {
-        const node = this.diagramNode();
-        return node ? node.id.startsWith('p') : false;
+        return this.diagramNode()?.shape === SHAPE.CIRCLE;
     });
 
     readonly displayLabel = computed(() => {
-        const node = this.diagramNode();
-        const labelsData = this.labels();
-
-        if (!node) return '';
-
-        // For transitions, use the label if available, otherwise use the id
-        if (this.isTransition() && labelsData[node.id]) {
-            return labelsData[node.id];
-        }
-
-        return node.id;
+        return this.diagramNode()?.displayLabel || '';
     });
 
     readonly tokenCount = computed(() => {
-        const node = this.diagramNode();
-        const markingData = this.marking();
-        return node && markingData ? markingData[node.id] || 0 : 0;
+        return this.diagramNode()?.tokenCount || 0;
     });
 
     readonly circleX = computed(() => {
