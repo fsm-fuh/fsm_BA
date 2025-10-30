@@ -1,0 +1,8 @@
+.node-label {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    fill: #333;
+    font-weight: bold;
+    pointer-events: none; /* Prevent text from interfering with mouse events */
+}
+

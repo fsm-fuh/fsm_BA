@@ -4,3 +4,12 @@
     [attr.fill]="fillColor()"
     (mousedown)="mouseDown($event)"
     (mouseup)="mouseUp($event)" />
+<svg:text
+    xmlns:svg="http://www.w3.org/2000/svg"
+    [attr.x]="textX()"
+    [attr.y]="textY()"
+    text-anchor="middle"
+    dominant-baseline="central"
+    class="node-label">
+    {{ diagramNode()?.id }}
+</svg:text>

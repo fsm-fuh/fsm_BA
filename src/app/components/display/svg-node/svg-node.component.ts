@@ -22,6 +22,16 @@ export class SvgNodeComponent {
     });
     readonly fillColor = signal('black');
 
+    readonly textX = computed(() => {
+        const node = this.diagramNode();
+        return node ? node.x + this.RADIUS + 10 : 0;
+    });
+
+    readonly textY = computed(() => {
+        const node = this.diagramNode();
+        return node ? node.y : 0;
+    });
+
     private computePoints(rotation: number): Coords[] {
         const node = this.diagramNode();
         if (!node) {
