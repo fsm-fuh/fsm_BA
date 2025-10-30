@@ -20,7 +20,9 @@
             <mat-icon class="tab-icon">graph_3</mat-icon>
             Reachability Graph
         </ng-template>
-        <app-reachability-graph (clearAll)="onClearAll()" (fileContent)="onFileContent($event)"></app-reachability-graph>
+        <app-reachability-graph
+            (clearAll)="onClearAll()"
+            (fileContent)="onFileContent($event)"></app-reachability-graph>
     </mat-tab>
 
     <mat-tab>

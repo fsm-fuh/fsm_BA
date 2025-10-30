@@ -1,5 +1,5 @@
 import { Component, inject, output } from '@angular/core';
-import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
 import { DrawingStateService } from '../../services/drawing.state.service';
 import { DrawComponent } from '../tab-toolbar/draw/draw.component';

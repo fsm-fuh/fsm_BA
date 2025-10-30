@@ -8,14 +8,7 @@ export class DiagramArc {
     private readonly _label?: string;
     private readonly _bendPoints: Coords[];
 
-    constructor(
-        id: string,
-        source: string,
-        target: string,
-        weight: number = 1,
-        label?: string,
-        bendPoints: Coords[] = [],
-    ) {
+    constructor(id: string, source: string, target: string, weight = 1, label?: string, bendPoints: Coords[] = []) {
         this._id = id;
         this._source = source;
         this._target = target;
