@@ -1,4 +1,6 @@
-export abstract class DiagramNode {
+import { DisplayableNode } from '../displayable-graph.interface';
+
+export abstract class DiagramNode implements DisplayableNode {
     private readonly _id: string;
     private _x: number;
     private _y: number;

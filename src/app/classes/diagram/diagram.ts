@@ -2,8 +2,9 @@ import { DiagramNode } from './diagram-node';
 import { DiagramArc } from './diagram-arc';
 import { DiagramPlace } from './diagram-place';
 import { DiagramTransition } from './diagram-transition';
+import { DisplayableEdge, DisplayableGraph, DisplayableNode } from '../displayable-graph.interface';
 
-export class Diagram {
+export class Diagram implements DisplayableGraph {
     private readonly _places: DiagramPlace[];
     private readonly _transitions: DiagramTransition[];
     private readonly _arcs: DiagramArc[];
@@ -28,5 +29,13 @@ export class Diagram {
 
     get allNodes(): (DiagramPlace | DiagramTransition)[] {
         return [...this._places, ...this._transitions];
+    }
+
+    getNodes(): DisplayableNode[] {
+        return this.allNodes;
+    }
+
+    getEdges(): DisplayableEdge[] {
+        return this._arcs;
     }
 }

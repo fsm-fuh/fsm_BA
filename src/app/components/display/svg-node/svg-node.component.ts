@@ -1,6 +1,7 @@
 import { Component, computed, input, signal } from '@angular/core';
 import { Coords } from '../../../classes/json-petri-net';
-import { DiagramNode, SHAPE } from '../../../classes/diagram/diagram-node';
+import { SHAPE } from '../../../classes/diagram/diagram-node';
+import { DisplayableNode } from '../../../classes/displayable-graph.interface';
 
 @Component({
     selector: 'g[appSvgNode]',
@@ -13,7 +14,7 @@ export class SvgNodeComponent {
     readonly RECT_WIDTH = 50;
     readonly RECT_HEIGHT = 30;
 
-    readonly diagramNode = input<DiagramNode>();
+    readonly diagramNode = input<DisplayableNode>();
 
     readonly fillColor = signal('white');
 

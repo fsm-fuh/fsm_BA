@@ -1,6 +1,7 @@
 import { Coords } from '../json-petri-net';
+import { DisplayableEdge } from '../displayable-graph.interface';
 
-export class DiagramArc {
+export class DiagramArc implements DisplayableEdge {
     private readonly _id: string;
     private readonly _source: string;
     private readonly _target: string;
@@ -33,8 +34,8 @@ export class DiagramArc {
         return this._weight;
     }
 
-    get label(): string | undefined {
-        return this._label;
+    get displayLabel(): string {
+        return this.weight > 1 ? `${this.weight}` : '';
     }
 
     get bendPoints(): Coords[] {

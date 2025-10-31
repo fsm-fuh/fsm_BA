@@ -5,11 +5,11 @@
     preserveAspectRatio="xMidYMid meet"
     (drop)="processDropEvent($event)"
     (dragover)="prevent($event)">
-    @for (arc of diagram()?.arcs; track arc.id) {
-        <g appSvgArc [diagramArc]="arc" [nodes]="diagram()?.allNodes || []" />
+    @for (edge of diagram()?.getEdges(); track edge.id) {
+        <g appSvgArc [diagramArc]="edge" [nodes]="diagram()?.getNodes() || []" />
     }
 
-    @for (node of diagram()?.allNodes; track node.id) {
+    @for (node of diagram()?.getNodes(); track node.id) {
         <g appSvgNode [diagramNode]="node" />
     }
 </svg>

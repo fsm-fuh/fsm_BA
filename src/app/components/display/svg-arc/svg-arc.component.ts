@@ -1,9 +1,7 @@
 import { Component, computed, input } from '@angular/core';
-import { DiagramArc } from '../../../classes/diagram/diagram-arc';
-import { DiagramNode } from '../../../classes/diagram/diagram-node';
+import { SHAPE } from '../../../classes/diagram/diagram-node';
 import { Coords } from '../../../classes/json-petri-net';
-import { DiagramPlace } from '../../../classes/diagram/diagram-place';
-import { DiagramTransition } from '../../../classes/diagram/diagram-transition';
+import { DisplayableEdge, DisplayableNode } from '../../../classes/displayable-graph.interface';
 
 @Component({
     selector: 'g[appSvgArc]',
@@ -16,8 +14,8 @@ export class SvgArcComponent {
     readonly RECT_WIDTH = 50;
     readonly RECT_HEIGHT = 30;
 
-    readonly diagramArc = input<DiagramArc>();
-    readonly nodes = input<(DiagramNode | DiagramPlace | DiagramTransition)[]>([]);
+    readonly diagramArc = input<DisplayableEdge>();
+    readonly nodes = input<DisplayableNode[]>([]);
 
     readonly sourceNode = computed(() => {
         const arc = this.diagramArc();
@@ -100,18 +98,15 @@ export class SvgArcComponent {
 
     readonly hasLabel = computed(() => {
         const arc = this.diagramArc();
-        return arc?.weight && arc.weight > 1;
+        return arc?.displayLabel && arc.displayLabel.length > 0;
     });
 
     readonly displayText = computed(() => {
         const arc = this.diagramArc();
-        if (!arc) return '';
-
-        // Only show weight if it's greater than 1
-        return arc.weight && arc.weight > 1 ? arc.weight.toString() : '';
+        return arc?.displayLabel || '';
     });
 
-    private getConnectionPoint(node: DiagramNode, otherNode: DiagramNode, isSource: boolean): Coords {
+    private getConnectionPoint(node: DisplayableNode, otherNode: DisplayableNode, isSource: boolean): Coords {
         const dx = otherNode.x - node.x;
         const dy = otherNode.y - node.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
@@ -124,7 +119,7 @@ export class SvgArcComponent {
         let radius: number;
 
         // Determine if this is a place (circle) or transition (rectangle)
-        if (node instanceof DiagramPlace) {
+        if (node.shape === SHAPE.CIRCLE) {
             // Place - circle
             radius = this.RADIUS;
             return {

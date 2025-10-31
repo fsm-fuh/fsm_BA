@@ -1,7 +1,6 @@
 import { Component, computed, inject, OnDestroy, OnInit, output, signal } from '@angular/core';
 import { DisplayService } from '../../services/display.service';
 import { catchError, of, Subscription, take } from 'rxjs';
-import { Diagram } from '../../classes/diagram/diagram';
 import { ExampleFileComponent } from '../example-file/example-file.component';
 import { FileReaderService } from '../../services/file-reader.service';
 import { HttpClient } from '@angular/common/http';
@@ -9,6 +8,7 @@ import { SvgNodeComponent } from './svg-node/svg-node.component';
 import { SvgArcComponent } from './svg-arc/svg-arc.component';
 import { TabStateService } from '../../services/tab-state.service';
 import { Tab } from '../../classes/tabs';
+import { DisplayableGraph } from '../../classes/displayable-graph.interface';
 
 @Component({
     selector: 'app-display',
@@ -20,7 +20,7 @@ import { Tab } from '../../classes/tabs';
 export class DisplayComponent implements OnInit, OnDestroy {
     readonly fileContent = output<string>();
 
-    readonly diagram = signal<Diagram | undefined>(undefined);
+    readonly diagram = signal<DisplayableGraph | undefined>(undefined);
 
     private _sub?: Subscription;
 

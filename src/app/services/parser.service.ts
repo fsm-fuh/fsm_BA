@@ -50,7 +50,7 @@ export class ParserService {
             return [];
         }
         return transitionIds.map((id) => {
-            const label = labels[id] || id; // Nutze ID als Fallback-Label
+            const label = labels[id] || id;
             return new DiagramTransition(id, label);
         });
     }
@@ -65,9 +65,6 @@ export class ParserService {
             if (source && target) {
                 const bendPoints = this.getBendPoints(arcId, layout);
 
-                // Wir übergeben das Transition-Label hier NICHT mehr.
-                // Ein Arc hat ein 'weight' (Gewicht), keine 'action' (Aktion).
-                // Das 'label' der DiagramArc-Klasse könnte für die Anzeige des Gewichts genutzt werden.
                 const weightLabel = weight > 1 ? `${weight}` : undefined;
 
                 result.push(new DiagramArc(arcId, source, target, weight, weightLabel, bendPoints));

@@ -10,11 +10,11 @@
         </marker>
     </defs>
 
-    @for (arc of diagram()?.arcs; track arc.id) {
-        <g appSvgArc [diagramArc]="arc" [nodes]="diagram()?.allNodes || []" />
+    @for (arc of diagram()?.getEdges(); track arc.id) {
+        <g appSvgArc [diagramArc]="arc" [nodes]="diagram()?.getNodes() || []" />
     }
 
-    @for (node of diagram()?.allNodes; track node.id) {
+    @for (node of diagram()?.getNodes(); track node.id) {
         <g appSvgNode [diagramNode]="node" />
     }
 </svg>
