@@ -2,7 +2,6 @@
     class="canvas"
     viewBox="200 -50 900 450"
     preserveAspectRatio="xMidYMid meet"
-    [class.disabled]="!isDrawingEnabled()"
     (drop)="processDropEvent($event)"
     (dragover)="prevent($event)">
     <defs>

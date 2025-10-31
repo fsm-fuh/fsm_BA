@@ -1,12 +1,12 @@
 import { Component, inject, output } from '@angular/core';
-import { MatTabsModule } from '@angular/material/tabs';
+import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
-import { DrawingStateService } from '../../services/drawing.state.service';
 import { DrawComponent } from '../tab-toolbar/draw/draw.component';
 import { PlayComponent } from '../tab-toolbar/play/play.component';
 import { ReachabilityGraphComponent } from '../tab-toolbar/reachability-graph/reachability-graph.component';
 import { ProcessNetComponent } from '../tab-toolbar/process-net/process-net.component';
 import { Tab } from '../../classes/tabs';
+import { TabStateService } from '../../services/tab-state.service';
 
 @Component({
     selector: 'app-main-tab',
@@ -26,13 +26,13 @@ export class MainTabComponent {
     readonly clearAll = output<void>();
     readonly fileContent = output<string>();
 
-    private drawingStateService: DrawingStateService = inject(DrawingStateService);
+    private _tabStateService: TabStateService = inject(TabStateService);
+    private readonly _tabs: Tab[] = [Tab.DRAW, Tab.PLAY, Tab.REACHABILITY_GRAPH, Tab.PROCESS_NET];
 
     selectedIndex = Tab.DRAW; // Select which tab to show by default
 
-    onTabChange() {
-        // Enable drawing for all tabs to allow file dropdowns everywhere
-        this.drawingStateService.set(true);
+    onTabChange(event: MatTabChangeEvent) {
+        this._tabStateService.switchTo(this._tabs[event.index]);
     }
 
     onClearAll() {
