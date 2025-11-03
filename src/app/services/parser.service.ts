@@ -65,9 +65,7 @@ export class ParserService {
             if (source && target) {
                 const bendPoints = this.getBendPoints(arcId, layout);
 
-                const weightLabel = weight > 1 ? `${weight}` : undefined;
-
-                result.push(new DiagramArc(arcId, source, target, weight, weightLabel, bendPoints));
+                result.push(new DiagramArc(arcId, source, target, weight, bendPoints));
             }
         }
         return result;

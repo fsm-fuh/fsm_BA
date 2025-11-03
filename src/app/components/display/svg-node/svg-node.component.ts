@@ -1,4 +1,4 @@
-import { Component, computed, input, signal } from '@angular/core';
+import { Component, computed, input, signal, TemplateRef, untracked, viewChild } from '@angular/core';
 import { Coords } from '../../../classes/json-petri-net';
 import { SHAPE } from '../../../classes/diagram/diagram-node';
 import { DisplayableNode } from '../../../classes/displayable-graph.interface';
@@ -33,6 +33,8 @@ export class SvgNodeComponent {
     readonly isPlace = computed(() => {
         return this.diagramNode()?.shape === SHAPE.CIRCLE;
     });
+
+    placeTemplate = viewChild('place', { read: TemplateRef });
 
     readonly displayLabel = computed(() => {
         return this.diagramNode()?.displayLabel || '';
@@ -122,4 +124,6 @@ export class SvgNodeComponent {
     public mouseUp(e: MouseEvent) {
         this.fillColor.set('white');
     }
+
+    protected readonly untracked = untracked;
 }

@@ -6,15 +6,13 @@ export class DiagramArc implements DisplayableEdge {
     private readonly _source: string;
     private readonly _target: string;
     private readonly _weight: number;
-    private readonly _label?: string;
     private readonly _bendPoints: Coords[];
 
-    constructor(id: string, source: string, target: string, weight = 1, label?: string, bendPoints: Coords[] = []) {
+    constructor(id: string, source: string, target: string, weight = 1, bendPoints: Coords[] = []) {
         this._id = id;
         this._source = source;
         this._target = target;
         this._weight = weight;
-        this._label = label;
         this._bendPoints = bendPoints;
     }
 

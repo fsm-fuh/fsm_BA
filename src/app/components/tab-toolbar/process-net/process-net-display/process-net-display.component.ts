@@ -17,7 +17,6 @@ export class ProcessNetDisplayComponent extends DisplayComponent {
     }
 
     override prevent(e: DragEvent) {
-        console.log('ProcessNetDisplayComponent: Prevent event received', e);
         super.prevent(e);
     }
 
