@@ -1,12 +1,12 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, output } from '@angular/core';
 import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
-import { DrawingStateService } from '../../services/drawing.state.service';
 import { DrawComponent } from '../tab-toolbar/draw/draw.component';
 import { PlayComponent } from '../tab-toolbar/play/play.component';
 import { ReachabilityGraphComponent } from '../tab-toolbar/reachability-graph/reachability-graph.component';
 import { ProcessNetComponent } from '../tab-toolbar/process-net/process-net.component';
 import { Tab } from '../../classes/tabs';
+import { TabStateService } from '../../services/tab-state.service';
 
 @Component({
     selector: 'app-main-tab',
@@ -23,9 +23,25 @@ import { Tab } from '../../classes/tabs';
     styleUrl: './main-tab.component.css',
 })
 export class MainTabComponent {
-    private drawingStateService: DrawingStateService = inject(DrawingStateService);
+    readonly clearAll = output<void>();
+    readonly fileContent = output<string>();
+
+    private _tabStateService: TabStateService = inject(TabStateService);
+    private readonly _tabs: Tab[] = [Tab.DRAW, Tab.PLAY, Tab.REACHABILITY_GRAPH, Tab.PROCESS_NET];
+
+    selectedIndex = Tab.DRAW; // Select which tab to show by default
 
     onTabChange(event: MatTabChangeEvent) {
-        this.drawingStateService.set(event.index === Tab.DRAW);
+        this._tabStateService.switchTo(this._tabs[event.index]);
+    }
+
+    onClearAll() {
+        this.clearAll.emit();
+        console.log('MainTabComponent: Clear all event emitted');
+    }
+
+    onFileContent(content: string) {
+        this.fileContent.emit(content);
+        console.log('MainTabComponent: File content event emitted');
     }
 }

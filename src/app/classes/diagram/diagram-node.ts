@@ -1,10 +1,12 @@
-export class DiagramNode {
+import { DisplayableNode } from '../displayable-graph.interface';
+
+export abstract class DiagramNode implements DisplayableNode {
     private readonly _id: string;
     private _x: number;
     private _y: number;
     private _svgElement: SVGElement | undefined;
 
-    constructor(id: string) {
+    protected constructor(id: string) {
         this._id = id;
         this._x = 0;
         this._y = 0;
@@ -30,6 +32,17 @@ export class DiagramNode {
         this._y = value;
     }
 
+    abstract get shape(): SHAPE.CIRCLE | SHAPE.RECT;
+
+    // eslint-disable-next-line @typescript-eslint/class-literal-property-style
+    get tokenCount(): number {
+        return 0;
+    }
+
+    get displayLabel(): string {
+        return this._id;
+    }
+
     public registerSvg(svg: SVGElement) {
         this._svgElement = svg;
         this._svgElement.onmousedown = (event) => {
@@ -53,4 +66,9 @@ export class DiagramNode {
         }
         this._svgElement.setAttribute('fill', 'black');
     }
+}
+
+export enum SHAPE {
+    CIRCLE = 'circle',
+    RECT = 'rect',
 }

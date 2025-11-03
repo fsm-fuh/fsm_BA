@@ -1,10 +1,15 @@
 <svg
     #drawingArea
     class="canvas"
-    [class.disabled]="!isDrawingEnabled()"
+    viewBox="200 -50 900 450"
+    preserveAspectRatio="xMidYMid meet"
     (drop)="processDropEvent($event)"
     (dragover)="prevent($event)">
-    @for (node of diagram()?.nodes; track node.id) {
+    @for (edge of diagram()?.getEdges(); track edge.id) {
+        <g appSvgArc [diagramArc]="edge" [nodes]="diagram()?.getNodes() || []" />
+    }
+
+    @for (node of diagram()?.getNodes(); track node.id) {
         <g appSvgNode [diagramNode]="node" />
     }
 </svg>

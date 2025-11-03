@@ -2,7 +2,6 @@ import { Component, signal, inject } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ParserService } from './services/parser.service';
 import { DisplayService } from './services/display.service';
-import { DisplayComponent } from './components/display/display.component';
 import { ExampleButtonComponent } from './components/example-button/example-button.component';
 import { ExampleFileComponent } from './components/example-file/example-file.component';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
@@ -16,7 +15,6 @@ import { MainTabComponent } from './components/main-tab/main-tab.component';
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.css'],
     imports: [
-        DisplayComponent,
         ExampleButtonComponent,
         ExampleFileComponent,
         MatFormField,
@@ -50,5 +48,10 @@ export class AppComponent {
 
     public processButtonClick() {
         this.buttonClickCount.set(this.buttonClickCount() + 1);
+    }
+
+    public onClearAll() {
+        this.textareaFc.setValue('');
+        console.log('AppComponent: File content field cleared');
     }
 }

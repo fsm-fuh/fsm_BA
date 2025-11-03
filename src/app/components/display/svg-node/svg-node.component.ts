@@ -1,6 +1,7 @@
-import { Component, computed, input, signal } from '@angular/core';
-import { DiagramNode } from '../../../classes/diagram/diagram-node';
+import { Component, computed, input, signal, TemplateRef, untracked, viewChild } from '@angular/core';
 import { Coords } from '../../../classes/json-petri-net';
+import { SHAPE } from '../../../classes/diagram/diagram-node';
+import { DisplayableNode } from '../../../classes/displayable-graph.interface';
 
 @Component({
     selector: 'g[appSvgNode]',
@@ -10,45 +11,119 @@ import { Coords } from '../../../classes/json-petri-net';
 })
 export class SvgNodeComponent {
     readonly RADIUS = 25;
-    readonly VERTICES = 5;
-    readonly CLICK_ROTATION_STEP = (2 * Math.PI) / 20;
+    readonly RECT_WIDTH = 50;
+    readonly RECT_HEIGHT = 30;
 
-    readonly diagramNode = input<DiagramNode>();
+    readonly diagramNode = input<DisplayableNode>();
 
-    private readonly _rotation = signal(0);
-    readonly points = computed(() => {
-        const pointList = this.computePoints(this._rotation());
-        return this.serialisePoints(pointList);
+    readonly fillColor = signal('white');
+
+    readonly transitionFillColor = computed(() => {
+        return this.fillColor() === 'lightgray' ? 'gray' : 'black';
     });
-    readonly fillColor = signal('black');
 
-    private computePoints(rotation: number): Coords[] {
+    readonly placeFillColor = computed(() => {
+        return this.fillColor();
+    });
+
+    readonly isTransition = computed(() => {
+        return this.diagramNode()?.shape === SHAPE.RECT;
+    });
+
+    readonly isPlace = computed(() => {
+        return this.diagramNode()?.shape === SHAPE.CIRCLE;
+    });
+
+    placeTemplate = viewChild('place', { read: TemplateRef });
+
+    readonly displayLabel = computed(() => {
+        return this.diagramNode()?.displayLabel || '';
+    });
+
+    readonly tokenCount = computed(() => {
+        return this.diagramNode()?.tokenCount || 0;
+    });
+
+    readonly circleX = computed(() => {
         const node = this.diagramNode();
-        if (!node) {
+        return node ? node.x : 0;
+    });
+
+    readonly circleY = computed(() => {
+        const node = this.diagramNode();
+        return node ? node.y : 0;
+    });
+
+    readonly rectX = computed(() => {
+        const node = this.diagramNode();
+        return node ? node.x - this.RECT_WIDTH / 2 : 0;
+    });
+
+    readonly rectY = computed(() => {
+        const node = this.diagramNode();
+        return node ? node.y - this.RECT_HEIGHT / 2 : 0;
+    });
+
+    readonly textX = computed(() => {
+        const node = this.diagramNode();
+        return node ? node.x : 0;
+    });
+
+    readonly textY = computed(() => {
+        const node = this.diagramNode();
+        if (!node) return 0;
+
+        // For transitions, center text inside the rectangle
+        // For places, position text below the circle
+        if (this.isTransition()) {
+            return node.y;
+        } else {
+            return node.y + this.RADIUS + 15;
+        }
+    });
+
+    readonly tokenPositions = computed(() => {
+        const node = this.diagramNode();
+        const tokens = this.tokenCount();
+
+        if (!node || !this.isPlace() || tokens === 0) return [];
+
+        const positions: Coords[] = [];
+
+        if (tokens === 1) {
+            // Single token in center
+            positions.push({ x: node.x, y: node.y });
+        } else if (tokens <= 6) {
+            // Multiple tokens arranged in a circle
+            const angleStep = (2 * Math.PI) / tokens;
+            const tokenRadius = this.RADIUS * 0.6;
+
+            for (let i = 0; i < tokens; i++) {
+                const angle = i * angleStep;
+                positions.push({
+                    x: node.x + Math.cos(angle) * tokenRadius,
+                    y: node.y + Math.sin(angle) * tokenRadius,
+                });
+            }
+        } else {
+            // For many tokens, just show the number
             return [];
         }
 
-        const pts: Coords[] = [];
-        const radStep = (2 * Math.PI) / this.VERTICES;
-        for (let i = 0; i < this.VERTICES; i++) {
-            pts.push({
-                x: node.x + Math.sin(rotation + i * radStep) * this.RADIUS,
-                y: node.y - Math.cos(rotation + i * radStep) * this.RADIUS,
-            });
-        }
-        return pts;
-    }
+        return positions;
+    });
 
-    private serialisePoints(points: Coords[]): string {
-        return points.map((pt) => `${pt.x},${pt.y}`).join(' ');
-    }
+    readonly showTokenNumber = computed(() => {
+        return this.isPlace() && this.tokenCount() > 6;
+    });
 
     public mouseDown(e: MouseEvent) {
-        this._rotation.set(this._rotation() + this.CLICK_ROTATION_STEP);
-        this.fillColor.set('red');
+        this.fillColor.set('lightgray');
     }
 
     public mouseUp(e: MouseEvent) {
-        this.fillColor.set('black');
+        this.fillColor.set('white');
     }
+
+    protected readonly untracked = untracked;
 }

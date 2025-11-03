@@ -1,32 +1,38 @@
-import { Component, OnDestroy, output, signal, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit, output, signal } from '@angular/core';
 import { DisplayService } from '../../services/display.service';
 import { catchError, of, Subscription, take } from 'rxjs';
-import { Diagram } from '../../classes/diagram/diagram';
 import { ExampleFileComponent } from '../example-file/example-file.component';
 import { FileReaderService } from '../../services/file-reader.service';
 import { HttpClient } from '@angular/common/http';
 import { SvgNodeComponent } from './svg-node/svg-node.component';
-import { DrawingStateService } from '../../services/drawing.state.service';
+import { SvgArcComponent } from './svg-arc/svg-arc.component';
+import { TabStateService } from '../../services/tab-state.service';
+import { Tab } from '../../classes/tabs';
+import { DisplayableGraph } from '../../classes/displayable-graph.interface';
 
 @Component({
     selector: 'app-display',
+    standalone: true,
     templateUrl: './display.component.html',
-    imports: [SvgNodeComponent],
+    imports: [SvgNodeComponent, SvgArcComponent],
     styleUrls: ['./display.component.css'],
 })
 export class DisplayComponent implements OnInit, OnDestroy {
     readonly fileContent = output<string>();
 
-    readonly diagram = signal<Diagram | undefined>(undefined);
+    readonly diagram = signal<DisplayableGraph | undefined>(undefined);
 
     private _sub?: Subscription;
 
     private _displayService = inject(DisplayService);
     private _fileReaderService = inject(FileReaderService);
-    private drawingStateService = inject(DrawingStateService);
+    private _tabStateService = inject(TabStateService);
     private _http = inject(HttpClient);
 
-    readonly isDrawingEnabled = this.drawingStateService.isDrawingEnabled;
+    readonly isDrawingEnabled = computed(() => this._tabStateService.currentTab() === Tab.DRAW);
+    readonly isPlayingEnabled = computed(() => this._tabStateService.currentTab() === Tab.PLAY);
+    readonly isReachabilityGraphEnabled = computed(() => this._tabStateService.currentTab() === Tab.REACHABILITY_GRAPH);
+    readonly isProcessNetEnabled = computed(() => this._tabStateService.currentTab() === Tab.PROCESS_NET);
 
     ngOnInit(): void {
         this._sub = this._displayService.diagram$.subscribe((diagram) => {
