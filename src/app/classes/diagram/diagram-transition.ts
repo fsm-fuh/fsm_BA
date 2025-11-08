@@ -42,4 +42,19 @@ export class DiagramTransition extends DiagramNode {
             place.tokenCount >= this._inputArcs[index].weight
         );
     }
+
+    public processClick(): boolean {
+        if (!this.isActivated()) return false;
+        this._inputArcs.forEach((arc, i) => {
+            const place = this._inputPlaces[i];
+            place.tokens = place.tokenCount - arc.weight;
+            console.log(`Transition ${this.label}: Removed ${arc.weight} tokens from Place ${place.id}, new token count: ${place.tokenCount}`);
+        });
+        this._outputArcs.forEach((arc, i) => {
+            const place = this._outputPlaces[i];
+            place.tokens = place.tokenCount + arc.weight;
+            console.log(`Transition ${this.label}: Added ${arc.weight} tokens to Place ${place.id}, new token count: ${place.tokenCount}`);
+        });
+        return true;
+    }
 }
