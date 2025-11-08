@@ -238,6 +238,14 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
     onElementMouseDown(event: MouseEvent, element: DrawnElement) {
         console.log('Drawing area: Mouse down on element', element.id);
 
+        // Middle click (button 1) deletes the element and its connections
+        if (event.button === 1) {
+            event.stopImmediatePropagation();
+            event.preventDefault();
+            this.deleteElement(element);
+            return;
+        }
+
         // Only start dragging for left mouse button
         if (event.button !== 0) {
             return;
@@ -317,7 +325,14 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
 
     // Increment connection weight (used by left click)
     onConnectionMouseDown(event: MouseEvent, connectionId: string) {
-        // Accept left click only
+        // Middle click deletes connection
+        if (event.button === 1) {
+            event.stopImmediatePropagation();
+            event.preventDefault();
+            this.deleteConnection(connectionId);
+            return;
+        }
+        // Left click decrements weight
         if (event.button !== 0) return;
         event.stopImmediatePropagation();
         event.preventDefault();
@@ -453,6 +468,10 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
         if (this.selectedElementId() === element.id) {
             this.selectedElementId.set(null);
         }
+    }
+
+    private deleteConnection(connectionId: string) {
+        this.connections.update((cs) => cs.filter((c) => c.id !== connectionId));
     }
 
     // Helpers for template
