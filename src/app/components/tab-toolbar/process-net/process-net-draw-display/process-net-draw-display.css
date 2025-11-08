@@ -105,3 +105,15 @@ svg text {
     background: white; /* not visible in SVG, but kept for potential future foreignObject */
     pointer-events: none;
 }
+
+.connection-line {
+    stroke: #000;
+    stroke-width: 2;
+    pointer-events: none; /* do not capture, hit target handles */
+}
+
+.connection-hit-target {
+    stroke: rgba(0,0,0,0); /* invisible */
+    stroke-width: 14; /* larger clickable area */
+    cursor: pointer;
+}

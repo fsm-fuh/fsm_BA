@@ -2,6 +2,7 @@
     <div class="toolbar">
         <h3>Drawing Area</h3>
         <button class="clear-btn" (click)="clearDrawing()">Clear Drawing</button>
+        <button class="log-btn" (click)="logGraph()">Log Graph</button>
     </div>
     <svg
         class="drawing-canvas"
@@ -10,7 +11,8 @@
         preserveAspectRatio="xMidYMid meet"
         (drop)="onDrop($event)"
         (dragover)="onDragOver($event)"
-        (dragleave)="onDragLeave($event)">
+        (dragleave)="onDragLeave($event)"
+        (contextmenu)="preventContext($event)">
         <defs>
             <marker id="arrowhead-draw" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
                 <polygon points="0 0, 10 3.5, 0 7" fill="black" />
@@ -26,27 +28,31 @@
         <!-- Render connection lines behind nodes -->
         @for (line of connectionLines(); track line.id) {
             <g class="connection-group" [attr.data-connection-id]="line.id">
-                <svg:line
-                    xmlns:svg="http://www.w3.org/2000/svg"
+                <!-- Invisible wider hit target -->
+                <line
+                    class="connection-hit-target"
                     [attr.x1]="line.x1"
                     [attr.y1]="line.y1"
                     [attr.x2]="line.x2"
                     [attr.y2]="line.y2"
-                    stroke="black"
-                    stroke-width="2"
-                    style="cursor: pointer;"
                     (mousedown)="onConnectionMouseDown($event, line.id)"
                     (contextmenu)="onConnectionRightClick($event, line.id)" />
+                <!-- Visible thin line -->
+                <line
+                    class="connection-line"
+                    [attr.x1]="line.x1"
+                    [attr.y1]="line.y1"
+                    [attr.x2]="line.x2"
+                    [attr.y2]="line.y2" />
                 @if (line.weight > 1) {
-                    <svg:text
-                        xmlns:svg="http://www.w3.org/2000/svg"
+                    <text
                         [attr.x]="(line.x1 + line.x2) / 2"
                         [attr.y]="(line.y1 + line.y2) / 2 - 6"
                         text-anchor="middle"
                         dominant-baseline="central"
                         class="connection-weight-label">
                         {{ line.weight }}
-                    </svg:text>
+                    </text>
                 }
             </g>
         }
@@ -56,9 +62,8 @@
             <g class="element-wrapper" [attr.data-element-id]="element.id">
                 <g appSvgNode [diagramNode]="element.node" [selected]="selectedElementId() === element.id" />
                 <!-- Transparent overlay to capture mouse events -->
-                <svg:rect
+                <rect
                     class="drag-overlay"
-                    xmlns:svg="http://www.w3.org/2000/svg"
                     [attr.x]="element.node.x - 60"
                     [attr.y]="element.node.y - 60"
                     width="120"

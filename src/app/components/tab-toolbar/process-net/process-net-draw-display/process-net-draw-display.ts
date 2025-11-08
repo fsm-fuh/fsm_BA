@@ -156,7 +156,7 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
         this.isDragOver.set(true);
     }
 
-    onDragLeave(event: DragEvent) {
+    onDragLeave(_event: DragEvent) {
         this.isDragOver.set(false);
     }
 
@@ -474,8 +474,83 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
         this.connections.update((cs) => cs.filter((c) => c.id !== connectionId));
     }
 
+    // Suppress browser context menu on the drawing canvas (right click still used for interactions)
+    preventContext(event: MouseEvent) {
+        event.preventDefault();
+    }
+
     // Helpers for template
     getElementById(id: string): DrawnElement | undefined {
         return this.drawnElements().find((e) => e.id === id);
+    }
+
+    // Debug: log all elements and connections with weights
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- used via template (click handler)
+    logGraph() {
+        const elements = this.drawnElements();
+        const connections = this.connections();
+
+        console.group('Process Net Debug Snapshot');
+        if (elements.length === 0) {
+            console.info('No elements drawn.');
+        } else {
+            console.groupCollapsed(`Elements (${elements.length})`);
+            elements.forEach((el) => {
+                const type =
+                    el.node instanceof DiagramPlace
+                        ? 'Place'
+                        : el.node instanceof DiagramTransition
+                          ? 'Transition'
+                          : 'Unknown';
+                const label = el.node.displayLabel;
+                const tokens = el.node instanceof DiagramPlace ? el.node.tokenCount : undefined;
+                console.log({
+                    id: el.id,
+                    type,
+                    label,
+                    tokens,
+                    x: el.node.x,
+                    y: el.node.y,
+                });
+            });
+            console.groupEnd();
+        }
+
+        if (connections.length === 0) {
+            console.info('No connections.');
+        } else {
+            console.groupCollapsed(`Connections (${connections.length})`);
+            connections.forEach((c) => {
+                const a = this.getElementById(c.aId);
+                const b = this.getElementById(c.bId);
+                console.log({
+                    id: c.id,
+                    aId: c.aId,
+                    aLabel: a?.node.displayLabel,
+                    bId: c.bId,
+                    bLabel: b?.node.displayLabel,
+                    weight: c.weight,
+                });
+            });
+            console.groupEnd();
+        }
+
+        // Simple adjacency representation
+        const adjacency: Record<string, { to: string; weight: number }[]> = {};
+        connections.forEach((c) => {
+            if (!adjacency[c.aId]) adjacency[c.aId] = [];
+            if (!adjacency[c.bId]) adjacency[c.bId] = [];
+            adjacency[c.aId].push({ to: c.bId, weight: c.weight });
+            adjacency[c.bId].push({ to: c.aId, weight: c.weight });
+        });
+        console.groupCollapsed('Adjacency List');
+        Object.entries(adjacency).forEach(([id, edges]) => {
+            const el = this.getElementById(id);
+            console.log(
+                `${id} (${el?.node.displayLabel}) -> ${edges.map((e) => `${e.to} (w=${e.weight})`).join(', ')}`,
+            );
+        });
+        console.groupEnd();
+        console.groupEnd();
     }
 }
