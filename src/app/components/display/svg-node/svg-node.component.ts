@@ -129,7 +129,7 @@ export class SvgNodeComponent {
         this.fillColor.set('white');
     }
 
-    public click(e: MouseEvent) {
+    public click() {
         const node = this.diagramNode();
         if (node instanceof DiagramTransition) {
             const isActivated = node.processClick();
