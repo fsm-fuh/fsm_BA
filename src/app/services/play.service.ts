@@ -6,8 +6,8 @@ export class PlayService {
     /**
      * To be implemented:
      * - get endMarking
-     * - reset firingEntries when net is cleared 
-     * */ 
+     * - reset firingEntries when net is cleared
+     * */
     firingEntries = signal<FiringEntry[]>([{ id: 1, firingSequence: '', transitionCount: 0, endMarking: '' }]);
 
     processTransitionClick(label: string, isActivated: boolean): void {
