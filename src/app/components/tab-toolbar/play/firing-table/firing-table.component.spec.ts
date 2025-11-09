@@ -5,25 +5,21 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { FiringTableComponent } from './firing-table.component';
 
 describe('FiringTableComponent', () => {
-  let component: FiringTableComponent;
-  let fixture: ComponentFixture<FiringTableComponent>;
+    let component: FiringTableComponent;
+    let fixture: ComponentFixture<FiringTableComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [FiringTableComponent],
-      providers: [
-          provideHttpClient(),
-          provideHttpClientTesting(),
-      ],
-    })
-    .compileComponents();
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({
+            imports: [FiringTableComponent],
+            providers: [provideHttpClient(), provideHttpClientTesting()],
+        }).compileComponents();
 
-    fixture = TestBed.createComponent(FiringTableComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+        fixture = TestBed.createComponent(FiringTableComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 });

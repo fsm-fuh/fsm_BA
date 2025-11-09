@@ -47,32 +47,32 @@ export class ParserService {
         });
     }
 
-    private parseTransitions(transitionIds: string[] | undefined, labels: Record<string, string>, places: DiagramPlace[], arcs: DiagramArc[]): DiagramTransition[] {
+    private parseTransitions(
+        transitionIds: string[] | undefined,
+        labels: Record<string, string>,
+        places: DiagramPlace[],
+        arcs: DiagramArc[],
+    ): DiagramTransition[] {
         if (!transitionIds || !Array.isArray(transitionIds)) {
             return [];
         }
-        
+
         return transitionIds.map((id) => {
             const label = labels[id] || id;
 
-            const inputArcs = arcs.filter(arc => arc.target === id);
-            const outputArcs = arcs.filter(arc => arc.source === id);
+            const inputArcs = arcs.filter((arc) => arc.target === id);
+            const outputArcs = arcs.filter((arc) => arc.source === id);
 
-            const inputPlaces = inputArcs
-                .map(arc => places.find(place => place.id === arc.source))
-                .filter((place): place is DiagramPlace => place !== undefined) || [];
-            const outputPlaces = outputArcs
-                .map(arc => places.find(place => place.id === arc.target))
-                .filter((place): place is DiagramPlace => place !== undefined) || [];
-
-            return new DiagramTransition(
-                id,
-                label,
-                inputPlaces,
-                outputPlaces,
-                inputArcs,
+            const inputPlaces =
+                inputArcs
+                    .map((arc) => places.find((place) => place.id === arc.source))
+                    .filter((place): place is DiagramPlace => place !== undefined) || [];
+            const outputPlaces =
                 outputArcs
-            );
+                    .map((arc) => places.find((place) => place.id === arc.target))
+                    .filter((place): place is DiagramPlace => place !== undefined) || [];
+
+            return new DiagramTransition(id, label, inputPlaces, outputPlaces, inputArcs, outputArcs);
         });
     }
 

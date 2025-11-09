@@ -11,10 +11,7 @@ describe('PlayComponent', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [PlayComponent],
-            providers: [
-                provideHttpClient(),
-                provideHttpClientTesting(),
-            ],
+            providers: [provideHttpClient(), provideHttpClientTesting()],
         }).compileComponents();
 
         fixture = TestBed.createComponent(PlayComponent);

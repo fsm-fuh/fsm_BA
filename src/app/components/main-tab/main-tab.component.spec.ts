@@ -11,10 +11,7 @@ describe('MainTabComponent', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [MainTabComponent],
-            providers: [
-                provideHttpClient(),
-                provideHttpClientTesting(),
-            ],
+            providers: [provideHttpClient(), provideHttpClientTesting()],
         }).compileComponents();
 
         fixture = TestBed.createComponent(MainTabComponent);

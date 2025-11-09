@@ -3,9 +3,7 @@ import { FiringEntry } from '../classes/firing-entry';
 
 @Injectable({ providedIn: 'root' })
 export class PlayService {
-    firingEntries = signal<FiringEntry[]>([
-        { id: 1, firingSequence: '', transitionCount: 0, endMarking: '' },
-    ]);
+    firingEntries = signal<FiringEntry[]>([{ id: 1, firingSequence: '', transitionCount: 0, endMarking: '' }]);
 
     processTransitionClick(label: string, isActivated: boolean): void {
         if (isActivated) this.addTransitionToFiringSequence(label);

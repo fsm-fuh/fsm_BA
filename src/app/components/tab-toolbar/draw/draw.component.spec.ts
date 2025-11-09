@@ -11,10 +11,7 @@ describe('DrawComponent', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [DrawComponent],
-            providers: [
-                provideHttpClient(),
-                provideHttpClientTesting(),
-            ],
+            providers: [provideHttpClient(), provideHttpClientTesting()],
         }).compileComponents();
 
         fixture = TestBed.createComponent(DrawComponent);

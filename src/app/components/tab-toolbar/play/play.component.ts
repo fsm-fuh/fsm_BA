@@ -9,11 +9,7 @@ import { FiringTableComponent } from './firing-table/firing-table.component';
 @Component({
     selector: 'app-play',
     standalone: true,
-    imports: [
-        DisplayComponent,
-        ClearNetButtonComponent,
-        FiringTableComponent
-    ],
+    imports: [DisplayComponent, ClearNetButtonComponent, FiringTableComponent],
     templateUrl: './play.component.html',
     styleUrl: './play.component.css',
 })

@@ -11,10 +11,7 @@ describe('ProcessNetComponent', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [ProcessNetComponent],
-            providers: [
-                provideHttpClient(),
-                provideHttpClientTesting(),
-            ],
+            providers: [provideHttpClient(), provideHttpClientTesting()],
         }).compileComponents();
 
         fixture = TestBed.createComponent(ProcessNetComponent);

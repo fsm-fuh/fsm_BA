@@ -11,10 +11,7 @@ describe('ReachabilityGraphComponent', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [ReachabilityGraphComponent],
-            providers: [
-                provideHttpClient(),
-                provideHttpClientTesting(),
-            ],
+            providers: [provideHttpClient(), provideHttpClientTesting()],
         }).compileComponents();
 
         fixture = TestBed.createComponent(ReachabilityGraphComponent);
