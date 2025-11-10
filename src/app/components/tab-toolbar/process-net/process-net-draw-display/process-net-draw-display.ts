@@ -9,8 +9,8 @@ import {
     type PetriNet,
     type ProcessElement,
     type ProcessConnection,
-    type ValidationResult,
 } from '../../../../services/validation.service';
+import { ToasterNotificationService } from '../../../../services/toaster-notification.service';
 
 interface DrawnElement {
     node: DiagramNode;
@@ -69,8 +69,6 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
     });
     // Currently selected element for making a connection (highlighted)
     readonly selectedElementId = signal<string | null>(null);
-    // Validation result state
-    readonly validation = signal<ValidationResult | null>(null);
 
     private elementIdCounter = 0;
     private connectionIdCounter = 0;
@@ -82,6 +80,7 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
     private cdr = inject(ChangeDetectorRef);
     private customDropListener: ((event: Event) => void) | null = null;
     private displayService = inject(DisplayService);
+    private toaster = inject(ToasterNotificationService);
 
     // Dimensions consistent with SvgNodeComponent
     private readonly PLACE_RADIUS = 25;
@@ -418,8 +417,7 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
                     let newNode: DiagramNode;
                     if (el.node instanceof DiagramPlace) {
                         const tokens = (el.node as DiagramPlace).tokenCount ?? 0;
-                        const originalLabel =
-                            (el.node instanceof DiagramPlace ? el.node.label : undefined) ?? el.node.displayLabel;
+                        const originalLabel = el.node.label ?? el.node.displayLabel;
                         newNode = new DiagramPlace(el.node.id, tokens, originalLabel);
                     } else if (el.node instanceof DiagramTransition) {
                         const label = (el.node as DiagramTransition).displayLabel ?? el.node.id;
@@ -546,126 +544,51 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
 
     // Trigger validation of the drawn process net against the loaded Petri net
     onValidate() {
-        // Reset previous result
-        this.validation.set(null);
-
         const base = this.displayService.diagram;
         if (!base) {
-            this.validation.set({ valid: false, errors: ['Bitte zuerst ein Petrinetz laden.'] });
+            this.toaster.showError('Validation', 'Bitte zuerst ein Petrinetz laden.');
             return;
         }
-
-        // Build PetriNet from DisplayableGraph
         const nodes = base.getNodes();
         const edges = base.getEdges();
-
         const petri: PetriNet = {
             places: nodes.filter((n) => n.shape === 'circle').map((n) => n.id),
             transitions: nodes.filter((n) => n.shape === 'rect').map((n) => n.id),
             arcs: Object.fromEntries(
                 edges.map((e) => [
                     `${e.source},${e.target}`,
-                    // attempt to use weight if available (DiagramArc)
-                    (e as unknown as { weight?: number }).weight &&
-                    typeof (e as unknown as { weight?: number }).weight === 'number'
-                        ? (e as unknown as { weight?: number }).weight!
-                        : 1,
+                    ((e as unknown as { weight?: number }).weight ?? 1) as number,
                 ]),
             ),
             labels: Object.fromEntries(nodes.filter((n) => n.shape === 'rect').map((n) => [n.id, n.displayLabel])),
         };
-
-        // Build process elements from drawing area
         const elements: ProcessElement[] = this.drawnElements().map((el) => {
             const isPlace = el.node instanceof DiagramPlace;
             const isTrans = el.node instanceof DiagramTransition;
             return {
                 id: el.id,
-                type: isPlace ? 'Place' : isTrans ? 'Transition' : ('Place' as const),
+                type: isPlace ? 'Place' : isTrans ? 'Transition' : 'Place',
                 label: el.node.displayLabel,
             };
         });
-
-        const connections: ProcessConnection[] = this.connections().map((c) => ({ from: c.aId, to: c.bId }));
-
+        const connections: ProcessConnection[] = this.connections().map((c) => ({
+            from: c.aId,
+            to: c.bId,
+            weight: c.weight,
+        }));
         const result = validateProcessNet(petri, elements, connections);
-        this.validation.set(result);
-    }
-
-    // Helper to clear validation result (optional)
-    clearValidation() {
-        this.validation.set(null);
+        if (result.valid) {
+            this.toaster.showSuccess('Validation', 'Process net is valid.');
+        } else {
+            const message = result.errors?.length
+                ? result.errors.map((e) => `• ${e}`).join('\n')
+                : 'Unknown validation failure';
+            this.toaster.showError('Validation Failed', message);
+        }
     }
 
     // Helpers for template
     getElementById(id: string): DrawnElement | undefined {
         return this.drawnElements().find((e) => e.id === id);
-    }
-
-    // Debug: log all elements and connections with weights
-    logGraph() {
-        const elements = this.drawnElements();
-        const connections = this.connections();
-
-        console.group('Process Net Debug Snapshot');
-        if (elements.length === 0) {
-            console.info('No elements drawn.');
-        } else {
-            console.groupCollapsed(`Elements (${elements.length})`);
-            elements.forEach((el) => {
-                const type =
-                    el.node instanceof DiagramPlace
-                        ? 'Place'
-                        : el.node instanceof DiagramTransition
-                          ? 'Transition'
-                          : 'Unknown';
-                const label = el.node.displayLabel;
-                const tokens = el.node instanceof DiagramPlace ? el.node.tokenCount : undefined;
-                console.log({
-                    id: el.id,
-                    type,
-                    label,
-                    tokens,
-                    x: el.node.x,
-                    y: el.node.y,
-                });
-            });
-            console.groupEnd();
-        }
-
-        if (connections.length === 0) {
-            console.info('No connections.');
-        } else {
-            console.groupCollapsed(`Connections (${connections.length})`);
-            connections.forEach((c) => {
-                const a = this.getElementById(c.aId);
-                const b = this.getElementById(c.bId);
-                console.log({
-                    id: c.id,
-                    from: c.aId,
-                    fromLabel: a?.node.displayLabel,
-                    to: c.bId,
-                    toLabel: b?.node.displayLabel,
-                    weight: c.weight,
-                });
-            });
-            console.groupEnd();
-        }
-
-        // Directed adjacency representation
-        const adjacency: Record<string, { to: string; weight: number }[]> = {};
-        connections.forEach((c) => {
-            if (!adjacency[c.aId]) adjacency[c.aId] = [];
-            adjacency[c.aId].push({ to: c.bId, weight: c.weight });
-        });
-        console.groupCollapsed('Adjacency List (directed)');
-        Object.entries(adjacency).forEach(([id, edges]) => {
-            const el = this.getElementById(id);
-            console.log(
-                `${id} (${el?.node.displayLabel}) -> ${edges.map((e) => `${e.to} (w=${e.weight})`).join(', ')}`,
-            );
-        });
-        console.groupEnd();
-        console.groupEnd();
     }
 }

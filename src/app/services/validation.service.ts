@@ -17,6 +17,7 @@ export interface ProcessElement {
 export interface ProcessConnection {
     from: string; // element id
     to: string; // element id
+    weight: number; // arc weight in the process net (>= 1)
 }
 
 export interface ValidationResult {
@@ -35,33 +36,43 @@ export function validateProcessNet(
     const mapLabelToTransition = (label: string): string | undefined =>
         Object.keys(net.labels).find((t) => net.labels[t] === label);
 
-    // --------- 2) Original pre/post sets ---------
+    // --------- 2) Original pre/post sets (by label) and weights ---------
     const origPre: Record<string, string[]> = {};
     const origPost: Record<string, string[]> = {};
+    const origPreW: Record<string, Record<string, number>> = {}; // t -> place -> weight
+    const origPostW: Record<string, Record<string, number>> = {}; // t -> place -> weight
 
     net.transitions.forEach((t) => {
         origPre[t] = [];
         origPost[t] = [];
+        origPreW[t] = {};
+        origPostW[t] = {};
     });
 
-    Object.entries(net.arcs).forEach(([arc, _weight]) => {
+    Object.entries(net.arcs).forEach(([arc, weight]) => {
         const [from, to] = arc.split(',');
         if (net.places.includes(from) && net.transitions.includes(to)) {
             origPre[to].push(from);
+            origPreW[to][from] = weight;
         } else if (net.transitions.includes(from) && net.places.includes(to)) {
             origPost[from].push(to);
+            origPostW[from][to] = weight;
         }
     });
 
-    // --------- 3) Process net pre/post sets ---------
+    // --------- 3) Process net pre/post sets (by label) and weights ---------
     const procPre: Record<string, string[]> = {};
     const procPost: Record<string, string[]> = {};
+    const procPreW: Record<string, Record<string, number>> = {}; // tOcc -> placeLabel -> sum weight
+    const procPostW: Record<string, Record<string, number>> = {}; // tOcc -> placeLabel -> sum weight
 
     elements
         .filter((e) => e.type === 'Transition')
         .forEach((t) => {
             procPre[t.id] = [];
             procPost[t.id] = [];
+            procPreW[t.id] = {};
+            procPostW[t.id] = {};
         });
 
     const elementMap = new Map<string, ProcessElement>(elements.map((e) => [e.id, e]));
@@ -74,19 +85,21 @@ export function validateProcessNet(
         if (src.type === 'Place' && tgt.type === 'Transition') {
             // store original place label (already the original id)
             procPre[tgt.id].push(src.label);
+            procPreW[tgt.id][src.label] = (procPreW[tgt.id][src.label] || 0) + (c.weight || 1);
         }
         if (src.type === 'Transition' && tgt.type === 'Place') {
             procPost[src.id].push(tgt.label);
+            procPostW[src.id][tgt.label] = (procPostW[src.id][tgt.label] || 0) + (c.weight || 1);
         }
     });
 
-    // --------- 4) Structural compliance ---------
+    // --------- 4) Structural compliance + weight checks ---------
     elements
         .filter((e) => e.type === 'Transition')
         .forEach((tOcc) => {
             const originalT = mapLabelToTransition(tOcc.label);
             if (!originalT) {
-                errors.push(`❌ Transition ${tOcc.id} (${tOcc.label}) hat keine passende Beschriftung im Petrinetz.`);
+                errors.push(`❌ Transition ${tOcc.label} hat keine passende Beschriftung im Petrinetz.`);
                 return;
             }
 
@@ -94,20 +107,37 @@ export function validateProcessNet(
             const actualPre = procPre[tOcc.id].slice().sort();
             if (JSON.stringify(expectedPre) !== JSON.stringify(actualPre)) {
                 errors.push(
-                    `❌ Vorbereich falsch bei ${tOcc.id} (${tOcc.label}). Erwartet: ${expectedPre.join(',')} / Gefunden: ${actualPre.join(
-                        ',',
-                    )}`,
+                    `❌ Vorbereich falsch bei ${tOcc.label}. Erwartet: ${expectedPre.join(',')} / Gefunden: ${actualPre.join(',')}`,
                 );
+            } else {
+                // If structure matches, verify weights for each required place label
+                expectedPre.forEach((pl) => {
+                    const expW = origPreW[originalT][pl] ?? 1;
+                    const actW = procPreW[tOcc.id][pl] ?? 0;
+                    if (expW !== actW) {
+                        errors.push(
+                            `❌ Vorbereichsgewicht falsch bei ${tOcc.label} für Stelle ${pl}. Erwartet: ${expW} / Gefunden: ${actW}`,
+                        );
+                    }
+                });
             }
 
             const expectedPost = origPost[originalT].slice().sort();
             const actualPost = procPost[tOcc.id].slice().sort();
             if (JSON.stringify(expectedPost) !== JSON.stringify(actualPost)) {
                 errors.push(
-                    `❌ Nachbereich falsch bei ${tOcc.id} (${tOcc.label}). Erwartet: ${expectedPost.join(',')} / Gefunden: ${actualPost.join(
-                        ',',
-                    )}`,
+                    `❌ Nachbereich falsch bei ${tOcc.label}. Erwartet: ${expectedPost.join(',')} / Gefunden: ${actualPost.join(',')}`,
                 );
+            } else {
+                expectedPost.forEach((pl) => {
+                    const expW = origPostW[originalT][pl] ?? 1;
+                    const actW = procPostW[tOcc.id][pl] ?? 0;
+                    if (expW !== actW) {
+                        errors.push(
+                            `❌ Nachbereichsgewicht falsch bei ${tOcc.label} für Stelle ${pl}. Erwartet: ${expW} / Gefunden: ${actW}`,
+                        );
+                    }
+                });
             }
         });
 

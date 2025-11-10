@@ -11,13 +11,15 @@ import { UploadComponent } from '../../upload/upload.component';
 @Component({
     selector: 'app-process-net',
     standalone: true,
-    imports: [ProcessNetDisplayComponent, ProcessNetDrawDisplayComponent, ClearNetButtonComponent,UploadComponent],
+    imports: [ProcessNetDisplayComponent, ProcessNetDrawDisplayComponent, ClearNetButtonComponent, UploadComponent],
     templateUrl: './process-net.component.html',
     styleUrl: './process-net.component.css',
 })
 export class ProcessNetComponent {
     readonly clearAll = output<void>();
     private _tabStateService = inject(TabStateService);
+    private _parserService = inject(ParserService);
+    private _displayService = inject(DisplayService);
 
     constructor() {
         this.initializeTabEffect();

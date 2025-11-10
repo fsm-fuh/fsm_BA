@@ -1,9 +1,9 @@
 .drawing-area-container {
-    margin-top: 20px;
-    border: 2px solid blue;
-    padding: 10px;
+    margin-top: 0; /* parent handles spacing */
+    border: none; /* panel border handled by parent */
+    padding: 0;   /* panel padding handled by parent */
     box-sizing: border-box;
-    background-color: #fafafa;
+    background-color: transparent; /* panel background handled by parent */
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -14,11 +14,11 @@
     display: flex;
     gap: 8px;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start; /* align left to keep consistency */
+    flex-wrap: wrap;
     margin-bottom: 10px;
-    padding: 5px;
-    background-color: #e8e8e8;
-    border-radius: 4px;
+    padding: 5px 0; /* breathe but no own background */
+    background-color: transparent;
 }
 
 .toolbar h3 {
@@ -49,11 +49,11 @@
 .drawing-canvas {
     width: 100%;
     height: 500px;
-    border: 2px dashed #2196F3;
+    border: 1px dashed #bdbdbd; /* subtler border */
     background-color: white;
-    border-radius: 4px;
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
-    transition: all 0.3s ease;
+    border-radius: 6px;
+    box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.03);
+    transition: all 0.2s ease;
 }
 
 .drawing-canvas:hover {
@@ -127,7 +127,7 @@ svg text {
 }
 
 .connection-weight-label {
-    font-size: 12px;
+    font-size: 1.5em;
     fill: #222;
     background: white; /* not visible in SVG, but kept for potential future foreignObject */
     pointer-events: none;
