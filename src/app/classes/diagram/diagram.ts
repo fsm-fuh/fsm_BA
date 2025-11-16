@@ -3,16 +3,21 @@ import { DiagramArc } from './diagram-arc';
 import { DiagramPlace } from './diagram-place';
 import { DiagramTransition } from './diagram-transition';
 import { DisplayableEdge, DisplayableGraph, DisplayableNode } from '../displayable-graph.interface';
+import { BehaviorSubject } from 'rxjs';
 
 export class Diagram implements DisplayableGraph {
     private readonly _places: DiagramPlace[];
     private readonly _transitions: DiagramTransition[];
     private readonly _arcs: DiagramArc[];
 
+    private _markingChanged$ = new BehaviorSubject<Record<string, number>>({});
+    public marking$ = this._markingChanged$.asObservable();
+
     constructor(places: DiagramPlace[] = [], transitions: DiagramTransition[] = [], arcs: DiagramArc[] = []) {
         this._places = places;
         this._transitions = transitions;
         this._arcs = arcs;
+        this.updateMarking();
     }
 
     get places(): DiagramNode[] {
@@ -37,6 +42,11 @@ export class Diagram implements DisplayableGraph {
             marking[place.id] = place.tokenCount;
         });
         return marking;
+    }
+
+    updateMarking(): void {
+        const newMarking = this.marking;
+        this._markingChanged$.next(newMarking);
     }
 
     getNodes(): DisplayableNode[] {

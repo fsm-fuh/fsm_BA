@@ -1,4 +1,4 @@
-import { Component, effect, inject, output } from '@angular/core';
+import { Component, computed, effect, inject, output, signal } from '@angular/core';
 import { DisplayComponent } from '../../display/display.component';
 import { DisplayService } from '../../../services/display.service';
 import { PlayService } from '../../../services/play.service';
@@ -8,6 +8,8 @@ import { Tab } from '../../../classes/tabs';
 import { TabStateService } from '../../../services/tab-state.service';
 import { SourcePetriNetService } from '../../../services/source-petri-net.service';
 import { UploadComponent } from '../../upload/upload.component';
+import { Diagram } from 'src/app/classes/diagram/diagram';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-play',
@@ -18,6 +20,10 @@ import { UploadComponent } from '../../upload/upload.component';
 })
 export class PlayComponent {
     readonly clearAll = output<void>();
+
+    private _sub?: Subscription;
+    private _markingSub?: Subscription;
+
     private _tabStateService = inject(TabStateService);
     private _sourceNetService = inject(SourcePetriNetService);
     private _displayService = inject(DisplayService);
@@ -27,6 +33,23 @@ export class PlayComponent {
 
     constructor() {
         this.initializeTabEffect();
+    }
+
+    ngOnInit(): void {
+        this._sub = this._displayService.diagram$.subscribe((diagram) => {
+            if (diagram && diagram instanceof Diagram) {
+                this._playService.startMarking = diagram.marking;
+
+                this._markingSub = diagram.marking$.subscribe((marking) => {
+                    this._playService.currentMarking = marking;
+                });
+            }
+        });
+    }
+
+    ngOnDestroy(): void {
+        this._sub?.unsubscribe();
+        this._markingSub?.unsubscribe();
     }
 
     private initializeTabEffect() {

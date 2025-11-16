@@ -10,6 +10,7 @@ import { PetriNetLoaderService } from '../../services/petri-net-loader.service';
 import { DisplayableGraph, DisplayableNode } from '../../classes/displayable-graph.interface';
 import { DiagramTransition } from '../../classes/diagram/diagram-transition';
 import { PlayService } from '../../services/play.service';
+import { Diagram } from '../../classes/diagram/diagram';
 
 @Component({
     selector: 'app-display',
@@ -63,8 +64,9 @@ export class DisplayComponent implements OnInit, OnDestroy {
     }
 
     public processNodeClick(node: DisplayableNode) {
-        if (this.isPlayingEnabled() && node instanceof DiagramTransition) {
-            this._playService.processTransitionClick(node);
+        const diagram = this.diagram();
+        if (this.isPlayingEnabled() && diagram && diagram instanceof Diagram && node instanceof DiagramTransition) {
+            this._playService.processTransitionClick(diagram, node);
         }
     }
 
