@@ -6,16 +6,11 @@ import { Diagram } from '../classes/diagram/diagram';
 
 @Injectable({ providedIn: 'root' })
 export class PlayService {
+    private _notificationService = inject(ToasterNotificationService);
+
     private _startMarking: Record<string, number> = {};
     private _currentMarking = signal<Record<string, number>>(this._startMarking);
-
-    /**
-     * To be implemented:
-     * - get endMarking
-     * */
     firingEntries = signal<FiringEntry[]>([]);
-
-    private _notificationService = inject(ToasterNotificationService);
 
     set startMarking(marking: Record<string, number>) {
         this._startMarking = marking;
@@ -33,7 +28,7 @@ export class PlayService {
         if (node.isActivated()) {
             node.fire();
             diagram.updateMarking();
-            this.addTransitionToFiringSequence(node.label);
+            this._addTransitionToFiringSequence(node.label);
         } else
             this._notificationService.showWarning(
                 'Transition not activated',
@@ -41,24 +36,28 @@ export class PlayService {
             );
     }
 
-    addTransitionToFiringSequence(label: string): void {
+    private _addTransitionToFiringSequence(label: string): void {
         this.firingEntries.update((entries) => {
-            const lastEntry = entries[entries.length - 1];
+            let lastEntry = entries[entries.length - 1];
             if (lastEntry) {
-                lastEntry.firingSequence += label;
-                lastEntry.transitionCount += 1;
-                lastEntry.endMarking = this._currentMarking();
+                lastEntry = this._updateFiringEntry(lastEntry, label);
                 return [...entries];
-            } else {
-                const newEntry: FiringEntry = {
-                    id: 0,
-                    firingSequence: label,
-                    transitionCount: 1,
-                    startMarking: this._startMarking,
-                    endMarking: this._currentMarking(),
-                };
-                return [...entries, newEntry];
             }
+            const newEntry: FiringEntry = {
+                id: 0,
+                firingSequence: label,
+                transitionCount: 1,
+                startMarking: this._startMarking,
+                endMarking: this._currentMarking(),
+            };
+            return [...entries, newEntry];
         });
+    }
+
+    private _updateFiringEntry(entry: FiringEntry, label: string): FiringEntry {
+        entry.firingSequence += ` ${label}`;
+        entry.transitionCount += 1;
+        entry.endMarking = this._currentMarking();
+        return entry;
     }
 }
