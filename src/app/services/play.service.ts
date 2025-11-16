@@ -17,13 +17,12 @@ export class PlayService {
         if (node.isActivated()) {
             node.fire();
             this.addTransitionToFiringSequence(node.label);
-        }
-        else
+        } else
             this._notificationService.showWarning(
                 'Transition not activated',
                 `The transition ${node.label} is not activated and cannot be fired.`,
             );
-        }
+    }
 
     addTransitionToFiringSequence(label: string): void {
         this.firingEntries.update((entries) => {
