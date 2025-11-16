@@ -8,10 +8,14 @@ export class PlayService {
     /**
      * To be implemented:
      * - get endMarking
-     * - reset firingEntries when net is cleared
      * */
-    firingEntries = signal<FiringEntry[]>([{ id: 1, firingSequence: '', transitionCount: 0, endMarking: '' }]);
+    firingEntries = signal<FiringEntry[]>([]);
+
     private _notificationService = inject(ToasterNotificationService);
+
+    resetFiringEntries(): void {
+        this.firingEntries.set([]);
+    }
 
     processTransitionClick(node: DiagramTransition): void {
         if (node.isActivated()) {
@@ -27,9 +31,19 @@ export class PlayService {
     addTransitionToFiringSequence(label: string): void {
         this.firingEntries.update((entries) => {
             const lastEntry = entries[entries.length - 1];
-            lastEntry.firingSequence += label;
-            lastEntry.transitionCount += 1;
-            return [...entries];
+            if (lastEntry) {
+                lastEntry.firingSequence += label;
+                lastEntry.transitionCount += 1;
+                return [...entries];
+            } else {
+                const newEntry: FiringEntry = {
+                    id: 0,
+                    firingSequence: label,
+                    transitionCount: 1,
+                    endMarking: '', // To be implemented
+                };
+                return [...entries, newEntry];
+            }
         });
     }
 }
