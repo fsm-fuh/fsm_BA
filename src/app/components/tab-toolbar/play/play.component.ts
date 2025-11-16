@@ -69,11 +69,12 @@ export class PlayComponent {
     }
 
     public onNetCleared() {
-        this._playService.resetFiringEntries();
+        console.log('PlayComponent: Net cleared from button');
     }
 
     public onClearAll() {
         this.clearAll.emit();
+        this._playService.resetFiringEntries();
         console.log('PlayComponent: Clear all event emitted');
     }
 }

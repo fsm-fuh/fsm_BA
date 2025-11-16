@@ -4,6 +4,7 @@ import { ClearNetButtonComponent } from '../../clear-net-button/clear-net-button
 import { TabStateService } from '../../../services/tab-state.service';
 import { Tab } from '../../../classes/tabs';
 import { UploadComponent } from '../../upload/upload.component';
+import { PlayService } from '../../../services/play.service';
 
 @Component({
     selector: 'app-reachability-graph',
@@ -15,6 +16,7 @@ import { UploadComponent } from '../../upload/upload.component';
 export class ReachabilityGraphComponent {
     readonly clearAll = output<void>();
     private _tabStateService = inject(TabStateService);
+    private _playService = inject(PlayService);
 
     constructor() {
         this.initializeTabEffect();
@@ -26,6 +28,7 @@ export class ReachabilityGraphComponent {
 
     public onClearAll() {
         this.clearAll.emit();
+        this._playService.resetFiringEntries();
         console.log('ReachabilityGraphComponent: Clear all event emitted');
     }
 
