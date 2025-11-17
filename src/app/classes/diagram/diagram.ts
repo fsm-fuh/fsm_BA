@@ -55,6 +55,14 @@ export class Diagram implements DisplayableGraph {
         this._markingChanged$.next(newMarking);
     }
 
+    resetMarking(): void {
+        this._places.forEach((place) => {
+            const startTokens = this._startMarking[place.id] || 0;
+            place.tokens = startTokens;
+        });
+        this.updateMarking();
+    }
+
     getNodes(): DisplayableNode[] {
         return this.allNodes;
     }
