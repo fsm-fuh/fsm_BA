@@ -3,10 +3,12 @@ import { FiringEntry } from '../classes/firing-entry';
 import { ToasterNotificationService } from './toaster-notification.service';
 import { DiagramTransition } from '../classes/diagram/diagram-transition';
 import { Diagram } from '../classes/diagram/diagram';
+import { SourcePetriNetService } from './source-petri-net.service';
 
 @Injectable({ providedIn: 'root' })
 export class PlayService {
     private _notificationService = inject(ToasterNotificationService);
+    private _sourceNetService = inject(SourcePetriNetService);
 
     private _startMarking: Record<string, number> = {};
     private _currentMarking = signal<Record<string, number>>(this._startMarking);
@@ -28,6 +30,7 @@ export class PlayService {
         if (node.isActivated()) {
             node.fire();
             diagram.updateMarking();
+            this._sourceNetService.updateEditedNet(diagram);
             this._addTransitionToFiringSequence(node.label);
         } else
             this._notificationService.showWarning(
