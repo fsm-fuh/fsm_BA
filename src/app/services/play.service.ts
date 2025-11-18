@@ -22,10 +22,19 @@ export class PlayService {
         this._currentMarking.set(marking);
     }
 
+    /**
+     * Clears all firing entries in the firing sequence table.
+     */
     resetFiringEntries(): void {
         this.firingEntries.set([]);
     }
 
+    /**
+     * Fires a transition if it is activated, updates the diagram
+     * and records the firing in the firing sequence.
+     * @param diagram The diagram containing the transition.
+     * @param node The transition node to be fired.
+     */
     processTransitionClick(diagram: Diagram, node: DiagramTransition): void {
         if (node.isActivated()) {
             node.fire();
@@ -39,6 +48,11 @@ export class PlayService {
             );
     }
 
+    /**
+     * Updates the current firing entry when a transition is fired.
+     * If no entry exists, creates a new one.
+     * @param label The label of the fired transition.
+     */
     private _addTransitionToFiringSequence(label: string): void {
         this.firingEntries.update((entries) => {
             let lastEntry = entries[entries.length - 1];
@@ -57,6 +71,13 @@ export class PlayService {
         });
     }
 
+    /**
+     * Appends the label of a fired transition to a firing sequence
+     * and updates transition count and end marking accordingly.
+     * @param entry The entry to be updated.
+     * @param label The label of the fired transition.
+     * @returns The updated firing entry.
+     */
     private _updateFiringEntry(entry: FiringEntry, label: string): FiringEntry {
         entry.firingSequence += ` ${label}`;
         entry.transitionCount += 1;

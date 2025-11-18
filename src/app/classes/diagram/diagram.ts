@@ -12,6 +12,10 @@ export class Diagram implements DisplayableGraph {
     private readonly _startMarking: Record<string, number>;
 
     private _markingChanged$ = new BehaviorSubject<Record<string, number>>({});
+
+    /**
+     * Observable that emits the current marking of the diagram whenever it changes.
+     */
     public currentMarking$ = this._markingChanged$.asObservable();
 
     constructor(places: DiagramPlace[] = [], transitions: DiagramTransition[] = [], arcs: DiagramArc[] = []) {
@@ -38,6 +42,9 @@ export class Diagram implements DisplayableGraph {
         return [...this._places, ...this._transitions];
     }
 
+    /**
+     * Returns the current marking of the diagram as a mapping from place IDs to token counts.
+     */
     get marking(): Record<string, number> {
         const marking: Record<string, number> = {};
         this._places.forEach((place) => {
@@ -50,11 +57,17 @@ export class Diagram implements DisplayableGraph {
         return this._startMarking;
     }
 
+    /**
+     * Updates the current marking and notifies subscribers.
+     */
     updateMarking(): void {
         const newMarking = this.marking;
         this._markingChanged$.next(newMarking);
     }
 
+    /**
+     * Resets the marking of the diagram to the start marking.
+     */
     resetMarking(): void {
         this._places.forEach((place) => {
             const startTokens = this._startMarking[place.id] || 0;
