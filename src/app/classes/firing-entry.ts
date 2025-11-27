@@ -7,4 +7,5 @@ export interface FiringEntry {
     transitionCount: number;
     startMarking: Record<string, number>;
     endMarking: Record<string, number>;
+    isClosed: boolean;
 }

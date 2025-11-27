@@ -5,15 +5,31 @@
             <th>Transition Count</th>
             <th>Start Marking</th>
             <th>End Marking</th>
+            <th>
+                <button mat-icon-button color="warn" (click)="onDeleteAllEntries()" class="delete-all-entries-button">
+                    <mat-icon>delete_sweep</mat-icon>
+                </button>
+            </th>
         </tr>
     </thead>
     <tbody>
-        @for (entry of firingEntries(); track entry.id) {
+        @for (entry of firingEntries; track entry.id) {
             <tr>
                 <td>{{ entry.firingSequence }}</td>
                 <td>{{ entry.transitionCount }}</td>
                 <td>{{ formatMarking(entry.startMarking) }}</td>
                 <td>{{ formatMarking(entry.endMarking) }}</td>
+                <td>
+                    @if (entry.isClosed) {
+                        <button
+                            mat-icon-button
+                            color="warn"
+                            (click)="onDeleteEntry(entry.id)"
+                            class="delete-entry-button">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    }
+                </td>
             </tr>
         }
     </tbody>

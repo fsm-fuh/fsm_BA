@@ -1,18 +1,26 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { MatButton } from '@angular/material/button';
 import { DisplayComponent } from '../../display/display.component';
 import { DisplayService } from '../../../services/display.service';
 import { PlayService } from '../../../services/play.service';
 import { ClearNetButtonComponent } from '../../clear-net-button/clear-net-button.component';
 import { FiringTableComponent } from './firing-table/firing-table.component';
 import { Diagram } from '../../../classes/diagram/diagram';
-import { filter, Subscription, switchMap, tap } from 'rxjs';
+import { filter, Subscription, switchMap, take, tap } from 'rxjs';
 import { UploadComponent } from '../upload/upload.component';
 import { SaveComponent } from '../save/save.component';
 
 @Component({
     selector: 'app-play',
     standalone: true,
-    imports: [DisplayComponent, ClearNetButtonComponent, FiringTableComponent, UploadComponent, SaveComponent],
+    imports: [
+        DisplayComponent,
+        ClearNetButtonComponent,
+        FiringTableComponent,
+        UploadComponent,
+        SaveComponent,
+        MatButton,
+    ],
     templateUrl: './play.component.html',
     styleUrl: './play.component.css',
 })
@@ -41,5 +49,17 @@ export class PlayComponent implements OnInit, OnDestroy {
 
     ngOnDestroy(): void {
         this._sub?.unsubscribe();
+    }
+
+    onNewSequence(): void {
+        this._playService.startNewFiringSequence();
+        this._displayService.diagram$
+            .pipe(
+                take(1), // Nimm nur den aktuellen Wert
+                filter((diagram) => !!diagram && diagram instanceof Diagram),
+            )
+            .subscribe((diagram) => {
+                diagram.resetMarking();
+            });
     }
 }
