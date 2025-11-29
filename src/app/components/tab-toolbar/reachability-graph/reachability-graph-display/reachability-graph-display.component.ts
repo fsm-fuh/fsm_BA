@@ -5,7 +5,7 @@ import { SvgArcComponent } from '../../../display/svg-arc/svg-arc.component';
 import { SHAPE } from '../../../../classes/diagram/diagram-node';
 import { DisplayableNode } from '../../../../classes/displayable-graph.interface';
 
-//Inherited from process-net-display
+//Inherited from process-net-display // display-component
 
 
 

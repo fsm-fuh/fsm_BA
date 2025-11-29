@@ -9,16 +9,16 @@
 /* inhrited layout from process net */
 
 
-reachability-graph-layout {
+.reachability-graph-layout {
     display: flex;
     flex-direction: row;
     gap: 1rem;
 }
 
 /* Panel-like styling applied to the two child components */
-reachability-graph-layout > app-reachability-graph-display,
-reachability-graph-layout > app-reachability-graph-draw-display {
-    flex: 1 1 0;
+.reachability-graph-layout > app-reachability-graph-display,
+.reachability-graph-layout > app-reachability-graph-draw-display {
+    /* flex: 1 1 0; */
     min-width: 0; /* prevent overflow in flex children */
     background: #fff;
     border: 1px solid #e0e0e0;
@@ -28,7 +28,7 @@ reachability-graph-layout > app-reachability-graph-draw-display {
 }
 
 /* Make inner content not overflow the panel */
-reachability-graph-layout svg {
+.reachability-graph-layout svg {
     display: block;
     width: 100%;
 }
