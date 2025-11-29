@@ -1,5 +1,7 @@
 import { Component, effect, inject } from '@angular/core';
-import { DisplayComponent } from '../../display/display.component';
+// import { DisplayComponent } from '../../display/display.component';
+import { ReachabilityGraphDisplayComponent } from './reachability-graph-display/reachability-graph-display.component';
+import { ReachabilityGraphDrawDisplayComponent } from './reachability-graph-draw-display/reachability-graph-draw-display.component';
 import { ReachabilityGraphDisplayComponent } from './reachability-graph-display/reachability-graph-display.component';
 import { ReachabilityGraphDrawDisplayComponent } from './reachability-graph-draw-display/reachability-graph-draw-display.component';
 import { ClearNetButtonComponent } from '../../clear-net-button/clear-net-button.component';
