@@ -15,20 +15,20 @@ import { UploadComponent } from '../upload/upload.component';
     styleUrl: './reachability-graph.component.css',
 })
 export class ReachabilityGraphComponent {
-    // private _tabStateService = inject(TabStateService);
+    private _tabStateService = inject(TabStateService);
 
-    // constructor() {
-    //     this.initializeTabEffect();
-    // }
+    constructor() {
+        this.initializeTabEffect();
+    }
 
-    // private initializeTabEffect() {
-    //     effect(() => {
-    //         const currentTab = this._tabStateService.currentTab();
-    //         if (currentTab === Tab.REACHABILITY_GRAPH) {
-    //             //TODO: call some method that calculates the reachability graph automatically when switching to the tab
-    //             // by using a reachabilityGraphService or something similar
-    //             console.log('ReachabilityGraphComponent: Switched to Reachability Graph tab');
-    //         }
-    //     });
-    // }
+    private initializeTabEffect() {
+        effect(() => {
+            const currentTab = this._tabStateService.currentTab();
+            if (currentTab === Tab.REACHABILITY_GRAPH) {
+                //TODO: call some method that calculates the reachability graph automatically when switching to the tab
+                // by using a reachabilityGraphService or something similar
+                console.log('ReachabilityGraphComponent: Switched to Reachability Graph tab');
+            }
+        });
+    }
 }
