@@ -9,11 +9,11 @@
     -ms-user-select: none;
     background-color: #fcfcfc;
 }
-.canvas.disabled {
+/* .canvas.disabled {
     pointer-events: none;
     opacity: 0.6;
     background-color: #f5f5f5;
-}
+} */
 
 :host {
     /* Remove own green border & padding, handled by parent panel */

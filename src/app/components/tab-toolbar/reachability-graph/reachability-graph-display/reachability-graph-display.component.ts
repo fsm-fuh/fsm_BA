@@ -16,7 +16,5 @@ import { DisplayableNode } from '../../../../classes/displayable-graph.interface
   templateUrl: './reachability-graph-display.component.html',
   styleUrl: './reachability-graph-display.component.css'
 })
-export class ReachabilityGraphDisplayComponent extends DisplayComponent {
-  
-
+export class ReachabilityGraphDisplayComponent extends DisplayComponent { 
 }
