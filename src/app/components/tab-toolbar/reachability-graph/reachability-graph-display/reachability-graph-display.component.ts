@@ -12,10 +12,11 @@ import { DisplayableNode } from '../../../../classes/displayable-graph.interface
 @Component({
   selector: 'app-reachability-graph-display',
   standalone: true,
-  imports: [SvgNodeComponent,SvgArcComponent],
+  imports: [SvgNodeComponent, SvgArcComponent],
   templateUrl: './reachability-graph-display.component.html',
   styleUrl: './reachability-graph-display.component.css'
 })
 export class ReachabilityGraphDisplayComponent extends DisplayComponent {
+  
 
 }
