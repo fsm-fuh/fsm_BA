@@ -8,19 +8,24 @@ import { MatIcon } from '@angular/material/icon';
     imports: [MatIcon, MatButton],
     templateUrl: './mode-toggle.component.html',
     styleUrl: './mode-toggle.component.css',
+    standalone: true,
 })
 export class ModeToggleComponent {
-    public modeService = inject(ModeService);
+    private _modeService = inject(ModeService);
 
     protected modeIcon(): string {
-        return this.modeService.isExamMode() ? 'school' : 'quiz';
+        return this._modeService.isExamMode() ? 'school' : 'quiz';
     }
 
     protected modeText(): string {
-        return this.modeService.isExamMode() ? 'Wechsel zu Lernmodus' : 'Wechsel zu Prüfungsmodus';
+        return this._modeService.isExamMode() ? 'Wechsel zu Lernmodus' : 'Wechsel zu Prüfungsmodus';
     }
 
     protected modeColor(): string {
-        return this.modeService.isExamMode() ? 'primary' : 'accent';
+        return this._modeService.isExamMode() ? 'primary' : 'accent';
+    }
+
+    protected toggleMode() {
+        this._modeService.toggleMode();
     }
 }
