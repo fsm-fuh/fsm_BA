@@ -7,13 +7,17 @@ import { TabStateService } from '../../../services/tab-state.service';
 import { Tab } from '../../../classes/tabs';
 import { UploadComponent } from '../upload/upload.component';
 import { ModeToggleComponent } from '../mode-toggle/mode-toggle.component';
+<<<<<<< HEAD
 import { ReachabilityGraphService } from 'src/app/reachability-graph.service';
 import { PlayService } from 'src/app/services/play.service';
 import { DisplayService } from 'src/app/services/display.service';
+=======
+>>>>>>> a8e96f8 ([FPWGT-29] Add Service/Component for Switching between Learn and Exam mode)
 
 @Component({
     selector: 'app-reachability-graph',
     standalone: true,
+<<<<<<< HEAD
     imports: [
         ReachabilityGraphDisplayComponent,
         ReachabilityGraphDrawDisplayComponent,
@@ -21,6 +25,9 @@ import { DisplayService } from 'src/app/services/display.service';
         UploadComponent,
         ModeToggleComponent,
     ],
+=======
+    imports: [DisplayComponent, ClearNetButtonComponent, UploadComponent, ModeToggleComponent],
+>>>>>>> a8e96f8 ([FPWGT-29] Add Service/Component for Switching between Learn and Exam mode)
     templateUrl: './reachability-graph.component.html',
     styleUrl: './reachability-graph.component.css',
 })
