@@ -9,6 +9,7 @@ import { Diagram } from '../../../classes/diagram/diagram';
 import { filter, Subscription, switchMap, take, tap } from 'rxjs';
 import { UploadComponent } from '../upload/upload.component';
 import { SaveComponent } from '../save/save.component';
+import { ModeToggleComponent } from '../mode-toggle/mode-toggle.component';
 
 @Component({
     selector: 'app-play',
@@ -19,7 +20,7 @@ import { SaveComponent } from '../save/save.component';
         FiringTableComponent,
         UploadComponent,
         SaveComponent,
-        MatButton,
+        ModeToggleComponent,
     ],
     templateUrl: './play.component.html',
     styleUrl: './play.component.css',
