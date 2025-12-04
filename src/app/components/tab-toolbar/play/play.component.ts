@@ -52,7 +52,7 @@ export class PlayComponent implements OnInit, OnDestroy {
         this._sub?.unsubscribe();
     }
 
-    onNewSequence(): void {
+    onNewEntry(): void {
         this._playService.startNewFiringSequence();
         this._displayService.diagram$
             .pipe(
