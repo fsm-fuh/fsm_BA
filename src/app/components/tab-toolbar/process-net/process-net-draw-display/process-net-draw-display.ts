@@ -11,6 +11,7 @@ import {
     validateProcessNet,
 } from '../../../../services/validation.service';
 import { ToasterNotificationService } from '../../../../services/toaster-notification.service';
+import { TOAST_POSITIONS } from '../../../../classes/toast';
 
 interface DrawnElement {
     node: DiagramNode;
@@ -529,7 +530,11 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
     onValidate() {
         const base = this.displayService.diagram;
         if (!base) {
-            this.toaster.showError('Validation', 'Bitte zuerst ein Petrinetz laden.');
+            this.toaster.showError('Validation', 'Bitte zuerst ein Petrinetz laden.', {
+                duration: 0,
+                toastPosition: TOAST_POSITIONS.TOP_CENTER,
+            });
+
             return;
         }
         const nodes = base.getNodes();
@@ -561,12 +566,18 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
         }));
         const result = validateProcessNet(petri, elements, connections);
         if (result.valid) {
-            this.toaster.showSuccess('Validation', 'Process net is valid.');
+            this.toaster.showSuccess('Validation', 'Process net is valid.', {
+                duration: 0,
+                toastPosition: TOAST_POSITIONS.TOP_CENTER,
+            });
         } else {
             const message = result.errors?.length
                 ? result.errors.map((e) => `• ${e}`).join('\n')
                 : 'Unknown validation failure';
-            this.toaster.showError('Validation Failed', message);
+            this.toaster.showError('Validation Failed', message, {
+                duration: 0,
+                toastPosition: TOAST_POSITIONS.TOP_CENTER,
+            });
         }
     }
 

@@ -14,7 +14,7 @@ export class ToasterNotificationService {
         heading: string,
         message: string,
         options?: {
-            duration?: ToastDuration;
+            duration?: ToastDuration | number;
             toastPosition?: ToastPosition;
         },
     ) {
@@ -30,19 +30,35 @@ export class ToasterNotificationService {
         this._snackBar.openFromComponent(ToasterComponent, { ...config, data });
     }
 
-    showSuccess(heading: string, message: string) {
-        this.showToast('success', heading, message);
+    showSuccess(
+        heading: string,
+        message: string,
+        options?: { duration?: ToastDuration | number; toastPosition?: ToastPosition },
+    ) {
+        this.showToast('success', heading, message, options);
     }
 
-    showInfo(heading: string, message: string) {
-        this.showToast('info', heading, message);
+    showInfo(
+        heading: string,
+        message: string,
+        options?: { duration?: ToastDuration | number; toastPosition?: ToastPosition },
+    ) {
+        this.showToast('info', heading, message, options);
     }
 
-    showWarning(heading: string, message: string) {
-        this.showToast('warning', heading, message);
+    showWarning(
+        heading: string,
+        message: string,
+        options?: { duration?: ToastDuration | number; toastPosition?: ToastPosition },
+    ) {
+        this.showToast('warning', heading, message, options);
     }
 
-    showError(heading: string, message: string) {
-        this.showToast('error', heading, message);
+    showError(
+        heading: string,
+        message: string,
+        options?: { duration?: ToastDuration | number; toastPosition?: ToastPosition },
+    ) {
+        this.showToast('error', heading, message, options);
     }
 }
