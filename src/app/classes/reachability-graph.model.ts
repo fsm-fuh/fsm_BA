@@ -4,7 +4,6 @@ import { Coords } from './json-petri-net';
 import { Signal } from '@angular/core';
 import { ReachabilityGraphService } from '../reachability-graph.service';
 
-
 /**
  * A node representing a state in the reachability graph.
  */
@@ -12,18 +11,23 @@ class StateNode implements DisplayableNode {
     id: string;
     x = 0;
     y = 0;
+    label: string;
+    rGMarking: Record<string, Number>;
+
+    //Auf previous und nextState verweisen ? alle Möglichkeiten / neighbours
+    //double linked list ohne Ende
+    //is StartNode :true -- kann aber trotzdem Vorgänger haben
 
     get shape(): SHAPE {
         return SHAPE.CIRCLE;
     }
     get displayLabel(): string {
-        return `[${this.id}]`;
+        return `[${this.label}]`;
     }
     // eslint-disable-next-line @typescript-eslint/class-literal-property-style
     get tokenCount(): Signal<number> {
         return this.tokenCount;
     }
-    
 
     constructor(id: string, x: number, y: number) {
         this.id = id;

@@ -47,9 +47,8 @@ export class PlayService {
             diagram.updateMarking();
             this._sourceNetService.updateEditedNet(diagram);
             this._addTransitionToFiringSequence(node.label);
-//also update reachability graph model? --> dem reach service übergeben, nach Sortierung, service entfernt placebezeichner und sortiert nur nummern
-            this._reachabilityGraphService.convertFiringEntryLabelToReachabilityGraphID(); 
-
+            //also update reachability graph model? --> dem reach service übergeben, nach Sortierung, service entfernt placebezeichner und sortiert nur nummern
+            this._reachabilityGraphService.convertFiringEntryLabelToReachabilityGraphID();
         } else
             this._notificationService.showWarning(
                 'Transition not activated',

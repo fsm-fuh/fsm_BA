@@ -7,14 +7,11 @@ import { DisplayableNode } from '../../../../classes/displayable-graph.interface
 
 //Inherited from process-net-display // display-component
 
-
-
 @Component({
-  selector: 'app-reachability-graph-display',
-  standalone: true,
-  imports: [SvgNodeComponent, SvgArcComponent],
-  templateUrl: './reachability-graph-display.component.html',
-  styleUrl: './reachability-graph-display.component.css'
+    selector: 'app-reachability-graph-display',
+    standalone: true,
+    imports: [SvgNodeComponent, SvgArcComponent],
+    templateUrl: './reachability-graph-display.component.html',
+    styleUrl: './reachability-graph-display.component.css',
 })
-export class ReachabilityGraphDisplayComponent extends DisplayComponent { 
-}
+export class ReachabilityGraphDisplayComponent extends DisplayComponent {}

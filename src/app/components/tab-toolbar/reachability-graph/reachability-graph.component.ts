@@ -10,7 +10,12 @@ import { UploadComponent } from '../upload/upload.component';
 @Component({
     selector: 'app-reachability-graph',
     standalone: true,
-    imports: [ReachabilityGraphDisplayComponent, ReachabilityGraphDrawDisplayComponent, ClearNetButtonComponent, UploadComponent],
+    imports: [
+        ReachabilityGraphDisplayComponent,
+        ReachabilityGraphDrawDisplayComponent,
+        ClearNetButtonComponent,
+        UploadComponent,
+    ],
     templateUrl: './reachability-graph.component.html',
     styleUrl: './reachability-graph.component.css',
 })
