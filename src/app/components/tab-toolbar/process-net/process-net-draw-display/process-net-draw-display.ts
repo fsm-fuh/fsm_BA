@@ -155,8 +155,9 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
         const elementTokens = detail.elementTokens ?? 0;
 
         if (detail.elementType === 'place') {
-            // Pass original place id as label for display
-            newNode = this.buildPlace(uniqueId, detail.elementId, elementTokens);
+            newNode = this.buildPlace(uniqueId, detail.elementId, elementTokens, {
+                isStartPlace: this.shouldMarkAsStart(detail.elementId),
+            });
         } else if (detail.elementType === 'transition') {
             newNode = this.buildTransition(uniqueId, elementLabel);
         } else {
@@ -205,7 +206,9 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
             const elementTokens = dragData.elementTokens ?? 0;
 
             if (dragData.elementType === 'place') {
-                newNode = this.buildPlace(uniqueId, dragData.elementId, elementTokens);
+                newNode = this.buildPlace(uniqueId, dragData.elementId, elementTokens, {
+                    isStartPlace: this.shouldMarkAsStart(dragData.elementId),
+                });
             } else if (dragData.elementType === 'transition') {
                 newNode = this.buildTransition(uniqueId, elementLabel);
             } else {
@@ -411,6 +414,7 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
                             innerLabel: el.node.innerLabel,
                             hideTokens: el.node.hideTokens,
                             labelPlacement: el.node.labelPlacement,
+                            isStartPlace: el.node.isStartPlace,
                         });
                     } else if (el.node instanceof DiagramTransition) {
                         const label = (el.node as DiagramTransition).displayLabel ?? el.node.id;
@@ -558,6 +562,16 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
                 ]),
             ),
             labels: Object.fromEntries(nodes.filter((n) => n.shape === 'rect').map((n) => [n.id, n.displayLabel])),
+            marking: Object.fromEntries(
+                nodes
+                    .filter((n) => n.shape === 'circle')
+                    .map((place) => {
+                        const tokenValue = typeof place.tokenCount === 'function' ? place.tokenCount() : 0;
+                        const tokens = typeof tokenValue === 'number' ? tokenValue : Number(tokenValue) || 0;
+                        return [place.id, tokens] as [string, number];
+                    })
+                    .filter(([, tokens]) => tokens > 0),
+            ),
         };
         const elements: ProcessElement[] = this.drawnElements().map((el) => {
             const isPlace = el.node instanceof DiagramPlace;
@@ -566,6 +580,7 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
                 id: el.id,
                 type: isPlace ? 'Place' : isTrans ? 'Transition' : 'Place',
                 label: el.node.displayLabel,
+                isStartPlace: isPlace ? (el.node as DiagramPlace).isStartPlace : undefined,
             };
         });
         const connections: ProcessConnection[] = this.connections().map((c) => ({
@@ -573,7 +588,13 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
             to: c.bId,
             weight: c.weight,
         }));
-        const result = validateProcessNet(petri, elements, connections);
+        const startPlaces = this.drawnElements()
+            .filter(
+                (el): el is DrawnElement & { node: DiagramPlace } =>
+                    el.node instanceof DiagramPlace && el.node.isStartPlace,
+            )
+            .map((el) => el.node.label ?? el.node.displayLabel);
+        const result = validateProcessNet({ ...petri, startPlaces }, elements, connections);
         if (result.valid) {
             this.toaster.showSuccess('Validation', 'Process net is valid.', {
                 duration: 0,
@@ -640,6 +661,7 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
                 innerLabel,
                 hideTokens: true,
                 labelPlacement: 'below',
+                isStartPlace: true,
             });
             newPlace.x = this.PLACE_RADIUS + 20;
             newPlace.y = padding + spacing * index + spacing / 2;
@@ -665,17 +687,58 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
         id: string,
         label?: string,
         initialTokens = 0,
-        options?: { innerLabel?: string; hideTokens?: boolean; labelPlacement?: DiagramPlaceLabelPlacement },
+        options?: {
+            innerLabel?: string;
+            hideTokens?: boolean;
+            labelPlacement?: DiagramPlaceLabelPlacement;
+            isStartPlace?: boolean;
+        },
     ): DiagramPlace {
         return new DiagramPlace(id, initialTokens, label, {
             innerLabel: options?.innerLabel ?? this.getNextInnerLabel(),
             hideTokens: options?.hideTokens ?? true,
             labelPlacement: options?.labelPlacement ?? 'below',
+            isStartPlace: options?.isStartPlace ?? false,
         });
     }
 
     private buildTransition(id: string, label: string, options?: DiagramTransitionOptions): DiagramTransition {
         const innerLabel = options?.innerLabel ?? this.getNextTransitionInnerLabel();
         return new DiagramTransition(id, label, [], [], [], [], { innerLabel });
+    }
+
+    private isMarkedPlaceId(placeId: string): boolean {
+        return this.getRequiredStartPlaceCount(placeId) > 0;
+    }
+
+    private getRequiredStartPlaceCount(placeId: string): number {
+        const base = this.displayService.diagram;
+        if (!base) {
+            return 0;
+        }
+        const node = base.getNodes().find((n) => n.id === placeId && n.shape === SHAPE.CIRCLE);
+        if (!node) {
+            return 0;
+        }
+        const tokenValue = typeof node.tokenCount === 'function' ? node.tokenCount() : 0;
+        const tokens = typeof tokenValue === 'number' ? tokenValue : Number(tokenValue) || 0;
+        return Math.max(0, Math.floor(tokens));
+    }
+
+    private getCurrentStartPlaceCount(placeId: string): number {
+        return this.drawnElements().filter((el) => {
+            if (!(el.node instanceof DiagramPlace) || !el.node.isStartPlace) {
+                return false;
+            }
+            const label = el.node.label ?? el.node.displayLabel;
+            return label === placeId;
+        }).length;
+    }
+
+    private shouldMarkAsStart(placeId: string): boolean {
+        if (!this.isMarkedPlaceId(placeId)) {
+            return false;
+        }
+        return this.getCurrentStartPlaceCount(placeId) < this.getRequiredStartPlaceCount(placeId);
     }
 }

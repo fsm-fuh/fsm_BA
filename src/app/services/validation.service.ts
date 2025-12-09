@@ -6,12 +6,15 @@ export interface PetriNet {
     transitions: string[];
     arcs: Record<string, number>; // key: "source,target" -> weight
     labels: Record<string, string>; // original transition id -> label (e.g. t1 -> A)
+    marking?: Record<string, number>;
+    startPlaces?: string[];
 }
 
 export interface ProcessElement {
     id: string;
     type: 'Place' | 'Transition';
     label: string; // places: original place id (e.g. p4), transitions: action label (e.g. A/B/C/...)
+    isStartPlace?: boolean;
 }
 
 export interface ProcessConnection {
@@ -32,7 +35,62 @@ export function validateProcessNet(
 ): ValidationResult {
     const errors: string[] = [];
 
-    // --------- 1) Map Transition-Labels back to Petri-Net transitions ---------
+    const elementMap = new Map<string, ProcessElement>(elements.map((e) => [e.id, e]));
+    const placeLabelById = new Map<string, string>();
+    const transitionLabelById = new Map<string, string>();
+    elements.forEach((el) => {
+        if (el.type === 'Place') {
+            placeLabelById.set(el.id, el.label);
+        } else {
+            transitionLabelById.set(el.id, el.label);
+        }
+    });
+
+    const connectionsByTarget: Record<string, ProcessConnection[]> = {};
+    const connectionsBySource: Record<string, ProcessConnection[]> = {};
+    connections.forEach((conn) => {
+        (connectionsBySource[conn.from] ||= []).push(conn);
+        (connectionsByTarget[conn.to] ||= []).push(conn);
+    });
+
+    const errorsFromStructure = validateTransitionsForStructure(net, elements, connections, elementMap);
+    errors.push(...errorsFromStructure);
+
+    const errorsFromPlaces = validatePlaceInputs(net, elements, connectionsByTarget, placeLabelById);
+    errors.push(...errorsFromPlaces);
+
+    const errorsFromWeights = validateTransitionWeights(
+        net,
+        elements,
+        connectionsBySource,
+        connectionsByTarget,
+        placeLabelById,
+    );
+    errors.push(...errorsFromWeights);
+
+    const errorsFromProducerLimit = validateProducerUniqueness(elements, connections, elementMap);
+    errors.push(...errorsFromProducerLimit);
+
+    const errorsFromStartPlaces = validateStartPlacesPresence(net, elements);
+    errors.push(...errorsFromStartPlaces);
+
+    const errorsFromCycles = validateAcyclicity(elements, connections);
+    errors.push(...errorsFromCycles);
+
+    return {
+        valid: errors.length === 0,
+        errors,
+    };
+}
+
+function validateTransitionsForStructure(
+    net: PetriNet,
+    elements: ProcessElement[],
+    connections: ProcessConnection[],
+    elementMap: Map<string, ProcessElement>,
+): string[] {
+    const errors: string[] = [];
+
     const mapLabelToTransition = (label: string): string | undefined =>
         Object.keys(net.labels).find((t) => net.labels[t] === label);
 
@@ -75,8 +133,6 @@ export function validateProcessNet(
             procPostW[t.id] = {};
         });
 
-    const elementMap = new Map<string, ProcessElement>(elements.map((e) => [e.id, e]));
-
     connections.forEach((c) => {
         const src = elementMap.get(c.from);
         const tgt = elementMap.get(c.to);
@@ -93,7 +149,6 @@ export function validateProcessNet(
         }
     });
 
-    // --------- 4) Structural compliance + weight checks ---------
     elements
         .filter((e) => e.type === 'Transition')
         .forEach((tOcc) => {
@@ -103,15 +158,19 @@ export function validateProcessNet(
                 return;
             }
 
-            const expectedPre = origPre[originalT].slice().sort();
-            const actualPre = procPre[tOcc.id].slice().sort();
-            if (JSON.stringify(expectedPre) !== JSON.stringify(actualPre)) {
+            const normalize = (values: string[]) => Array.from(new Set(values)).sort();
+
+            const expectedPre = origPre[originalT];
+            const actualPre = procPre[tOcc.id];
+            const expectedPreSet = normalize(expectedPre);
+            const actualPreSet = normalize(actualPre);
+            if (JSON.stringify(expectedPreSet) !== JSON.stringify(actualPreSet)) {
                 errors.push(
-                    `❌ Vorbereich falsch bei ${tOcc.label}. Erwartet: ${expectedPre.join(',')} / Gefunden: ${actualPre.join(',')}`,
+                    `❌ Vorbereich falsch bei ${tOcc.label}. Erwartet: ${expectedPreSet.join(',')} / Gefunden: ${actualPreSet.join(',')}`,
                 );
             } else {
                 // If structure matches, verify weights for each required place label
-                expectedPre.forEach((pl) => {
+                expectedPreSet.forEach((pl) => {
                     const expW = origPreW[originalT][pl] ?? 1;
                     const actW = procPreW[tOcc.id][pl] ?? 0;
                     if (expW !== actW) {
@@ -122,14 +181,16 @@ export function validateProcessNet(
                 });
             }
 
-            const expectedPost = origPost[originalT].slice().sort();
-            const actualPost = procPost[tOcc.id].slice().sort();
-            if (JSON.stringify(expectedPost) !== JSON.stringify(actualPost)) {
+            const expectedPost = origPost[originalT];
+            const actualPost = procPost[tOcc.id];
+            const expectedPostSet = normalize(expectedPost);
+            const actualPostSet = normalize(actualPost);
+            if (JSON.stringify(expectedPostSet) !== JSON.stringify(actualPostSet)) {
                 errors.push(
-                    `❌ Nachbereich falsch bei ${tOcc.label}. Erwartet: ${expectedPost.join(',')} / Gefunden: ${actualPost.join(',')}`,
+                    `❌ Nachbereich falsch bei ${tOcc.label}. Erwartet: ${expectedPostSet.join(',')} / Gefunden: ${actualPostSet.join(',')}`,
                 );
             } else {
-                expectedPost.forEach((pl) => {
+                expectedPostSet.forEach((pl) => {
                     const expW = origPostW[originalT][pl] ?? 1;
                     const actW = procPostW[tOcc.id][pl] ?? 0;
                     if (expW !== actW) {
@@ -141,11 +202,100 @@ export function validateProcessNet(
             }
         });
 
-    // --------- 5) Unique token origin (each place copy max 1 predecessor) ---------
+    return errors;
+}
+
+function validatePlaceInputs(
+    net: PetriNet,
+    elements: ProcessElement[],
+    connectionsByTarget: Record<string, ProcessConnection[]>,
+    placeLabelById: Map<string, string>,
+): string[] {
+    const errors: string[] = [];
+
+    elements
+        .filter((el) => el.type === 'Place')
+        .forEach((place) => {
+            const isStartNode = place.isStartPlace ?? false;
+            const incoming = connectionsByTarget[place.id] || [];
+            if (!isStartNode && incoming.length === 0) {
+                errors.push(
+                    `❌ Stelle ${place.label} besitzt keinen eingehenden Bogen, obwohl sie kein Startplatz in diesem Prozessnetz ist.`,
+                );
+            }
+        });
+
+    return errors;
+}
+
+function validateTransitionWeights(
+    net: PetriNet,
+    elements: ProcessElement[],
+    connectionsBySource: Record<string, ProcessConnection[]>,
+    connectionsByTarget: Record<string, ProcessConnection[]>,
+    placeLabelById: Map<string, string>,
+): string[] {
+    const errors: string[] = [];
+    const labelToTransition = new Map<string, string>(Object.entries(net.labels).map(([t, label]) => [label, t]));
+
+    const countPlacesByConnection = (conns: ProcessConnection[], direction: 'in' | 'out') => {
+        const counts: Record<string, number> = {};
+        conns.forEach((conn) => {
+            const placeId = direction === 'in' ? conn.from : conn.to;
+            const placeLabel = placeLabelById.get(placeId);
+            if (!placeLabel) return;
+            const weight = conn.weight ?? 1;
+            counts[placeLabel] = (counts[placeLabel] || 0) + weight;
+        });
+        return counts;
+    };
+
+    elements
+        .filter((el) => el.type === 'Transition')
+        .forEach((transition) => {
+            const originalTransitionId = labelToTransition.get(transition.label);
+            if (!originalTransitionId) {
+                errors.push(`❌ Transition ${transition.label} hat keine Entsprechung im Petrinetz.`);
+                return;
+            }
+
+            const incoming = connectionsByTarget[transition.id] || [];
+            const outgoing = connectionsBySource[transition.id] || [];
+            const incomingCounts = countPlacesByConnection(incoming, 'in');
+            const outgoingCounts = countPlacesByConnection(outgoing, 'out');
+
+            Object.entries(net.arcs).forEach(([key, weight]) => {
+                const [source, target] = key.split(',');
+                if (target === originalTransitionId && net.places.includes(source)) {
+                    if ((incomingCounts[source] || 0) < weight) {
+                        errors.push(
+                            `❌ Transition ${transition.label} benötigt mindestens ${weight} Kante(n) von ${source}.`,
+                        );
+                    }
+                }
+                if (source === originalTransitionId && net.places.includes(target)) {
+                    if ((outgoingCounts[target] || 0) < weight) {
+                        errors.push(
+                            `❌ Transition ${transition.label} benötigt mindestens ${weight} Kante(n) nach ${target}.`,
+                        );
+                    }
+                }
+            });
+        });
+
+    return errors;
+}
+
+function validateProducerUniqueness(
+    elements: ProcessElement[],
+    connections: ProcessConnection[],
+    elementMap: Map<string, ProcessElement>,
+): string[] {
+    const errors: string[] = [];
     const producerCount: Record<string, number> = {};
-    connections.forEach((c) => {
-        const src = elementMap.get(c.from);
-        const tgt = elementMap.get(c.to);
+    connections.forEach((conn) => {
+        const src = elementMap.get(conn.from);
+        const tgt = elementMap.get(conn.to);
         if (src?.type === 'Transition' && tgt?.type === 'Place') {
             producerCount[tgt.id] = (producerCount[tgt.id] || 0) + 1;
         }
@@ -156,37 +306,61 @@ export function validateProcessNet(
             errors.push(`❌ Stelle ${placeId} hat mehr als einen Produzenten – verletzt Kausalität.`);
         }
     });
+    return errors;
+}
 
-    // --------- 6) Acyclicity ---------
+function validateAcyclicity(elements: ProcessElement[], connections: ProcessConnection[]): string[] {
+    const errors: string[] = [];
     const graph: Record<string, string[]> = {};
     elements.forEach((el) => (graph[el.id] = []));
     connections.forEach((c) => graph[c.from].push(c.to));
 
-    function hasCycle(): boolean {
-        const visited = new Set<string>();
-        const stack = new Set<string>();
+    const visited = new Set<string>();
+    const stack = new Set<string>();
 
-        function visit(node: string): boolean {
-            if (stack.has(node)) return true;
-            if (visited.has(node)) return false;
-            visited.add(node);
-            stack.add(node);
-            for (const nxt of graph[node]) {
-                if (visit(nxt)) return true;
-            }
-            stack.delete(node);
-            return false;
+    const visit = (node: string): boolean => {
+        if (stack.has(node)) return true;
+        if (visited.has(node)) return false;
+        visited.add(node);
+        stack.add(node);
+        for (const nxt of graph[node]) {
+            if (visit(nxt)) return true;
         }
+        stack.delete(node);
+        return false;
+    };
 
-        return Object.keys(graph).some(visit);
-    }
-
-    if (hasCycle()) {
+    if (Object.keys(graph).some((node) => visit(node))) {
         errors.push('❌ Prozessnetz enthält einen Zyklus – Prozessnetze müssen azyklisch sein.');
     }
 
-    return {
-        valid: errors.length === 0,
-        errors,
-    };
+    return errors;
+}
+
+function validateStartPlacesPresence(net: PetriNet, elements: ProcessElement[]): string[] {
+    const errors: string[] = [];
+    const requiredStartPlaces = new Set(
+        Object.entries(net.marking ?? {})
+            .filter(([, tokens]) => (tokens ?? 0) > 0)
+            .map(([placeId]) => placeId),
+    );
+    if (requiredStartPlaces.size === 0) {
+        return errors;
+    }
+
+    const providedStartPlaces = new Set(net.startPlaces ?? []);
+    const missingProvided = [...requiredStartPlaces].filter((placeId) => !providedStartPlaces.has(placeId));
+    if (missingProvided.length > 0) {
+        errors.push(
+            `❌ Startplätze fehlen im Prozessnetz: ${missingProvided.join(', ')}. Bitte alle markierten Plätze platzieren.`,
+        );
+    }
+
+    const drawnPlaceLabels = new Set(elements.filter((el) => el.type === 'Place').map((el) => el.label));
+    const missingDrawn = [...requiredStartPlaces].filter((placeId) => !drawnPlaceLabels.has(placeId));
+    if (missingDrawn.length > 0) {
+        errors.push(`❌ Die markierten Startplätze (${missingDrawn.join(', ')}) befinden sich nicht im Prozessnetz.`);
+    }
+
+    return errors;
 }

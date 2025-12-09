@@ -7,6 +7,7 @@ export interface DiagramPlaceOptions {
     labelPlacement?: DiagramPlaceLabelPlacement;
     hideTokens?: boolean;
     innerLabel?: string;
+    isStartPlace?: boolean;
 }
 
 export class DiagramPlace extends DiagramNode {
@@ -15,6 +16,7 @@ export class DiagramPlace extends DiagramNode {
     private _labelPlacement: DiagramPlaceLabelPlacement = 'below';
     private _hideTokens = false;
     private _innerLabel?: string;
+    private _isStartPlace = false;
 
     constructor(id: string, initialTokens = 0, label?: string, options?: DiagramPlaceOptions) {
         super(id);
@@ -23,6 +25,7 @@ export class DiagramPlace extends DiagramNode {
         this._labelPlacement = options?.labelPlacement ?? 'below';
         this._hideTokens = options?.hideTokens ?? false;
         this._innerLabel = options?.innerLabel;
+        this._isStartPlace = options?.isStartPlace ?? false;
     }
 
     override get tokenCount(): Signal<number> {
@@ -52,6 +55,10 @@ export class DiagramPlace extends DiagramNode {
 
     get innerLabel(): string | undefined {
         return this._innerLabel;
+    }
+
+    get isStartPlace(): boolean {
+        return this._isStartPlace;
     }
 
     override get displayLabel(): string {

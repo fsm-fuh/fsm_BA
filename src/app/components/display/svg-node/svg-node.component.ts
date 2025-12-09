@@ -95,6 +95,11 @@ export class SvgNodeComponent {
         return undefined;
     });
 
+    readonly isStartPlace = computed(() => {
+        const node = this.diagramNode();
+        return node instanceof DiagramPlace ? node.isStartPlace : false;
+    });
+
     readonly shouldShowInnerLabel = computed(() => this.showInnerLabel() && !!this.innerLabel());
 
     readonly innerLabelClass = computed(() => (this.isTransition() ? 'transition-inner-label' : 'place-label-inside'));
