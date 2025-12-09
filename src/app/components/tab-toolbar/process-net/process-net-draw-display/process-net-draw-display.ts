@@ -359,32 +359,6 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
             this.deleteConnection(connectionId);
             return;
         }
-        // Left click decrements weight
-        if (event.button !== 0) return;
-        event.stopImmediatePropagation();
-        event.preventDefault();
-        this.decrementConnectionWeight(connectionId);
-    }
-
-    // Increment connection weight (used by right click / context menu)
-    onConnectionRightClick(event: MouseEvent, connectionId: string) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        this.incrementConnectionWeight(connectionId);
-    }
-
-    private incrementConnectionWeight(connectionId: string) {
-        this.connections.update((cs) => cs.map((c) => (c.id === connectionId ? { ...c, weight: c.weight + 1 } : c)));
-    }
-
-    private decrementConnectionWeight(connectionId: string) {
-        this.connections.update((cs) =>
-            cs.map((c) => {
-                if (c.id !== connectionId) return c;
-                const newWeight = c.weight > 1 ? c.weight - 1 : 1; // enforce minimum 1
-                return { ...c, weight: newWeight };
-            }),
-        );
     }
 
     private onDocumentMouseMove = (event: MouseEvent) => {
