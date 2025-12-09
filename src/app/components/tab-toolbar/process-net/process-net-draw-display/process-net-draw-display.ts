@@ -1,8 +1,8 @@
 import { ChangeDetectorRef, Component, computed, ElementRef, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { SvgNodeComponent } from '../../../display/svg-node/svg-node.component';
-import { DiagramNode } from '../../../../classes/diagram/diagram-node';
-import { DiagramPlace } from '../../../../classes/diagram/diagram-place';
-import { DiagramTransition } from '../../../../classes/diagram/diagram-transition';
+import { DiagramNode, SHAPE } from '../../../../classes/diagram/diagram-node';
+import { DiagramPlace, DiagramPlaceLabelPlacement } from '../../../../classes/diagram/diagram-place';
+import { DiagramTransition, DiagramTransitionOptions } from '../../../../classes/diagram/diagram-transition';
 import { DisplayService } from '../../../../services/display.service';
 import {
     type PetriNet,
@@ -73,6 +73,8 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
 
     private elementIdCounter = 0;
     private connectionIdCounter = 0;
+    private bLabelCounter = 0;
+    private eLabelCounter = 0;
     private draggedElement: DrawnElement | null = null;
     private dragOffset = { x: 0, y: 0 };
     private svgElement: SVGSVGElement | null = null;
@@ -154,9 +156,9 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
 
         if (detail.elementType === 'place') {
             // Pass original place id as label for display
-            newNode = new DiagramPlace(uniqueId, elementTokens, detail.elementId);
+            newNode = this.buildPlace(uniqueId, detail.elementId, elementTokens);
         } else if (detail.elementType === 'transition') {
-            newNode = new DiagramTransition(uniqueId, elementLabel);
+            newNode = this.buildTransition(uniqueId, elementLabel);
         } else {
             return;
         }
@@ -203,9 +205,9 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
             const elementTokens = dragData.elementTokens ?? 0;
 
             if (dragData.elementType === 'place') {
-                newNode = new DiagramPlace(uniqueId, elementTokens, dragData.elementId);
+                newNode = this.buildPlace(uniqueId, dragData.elementId, elementTokens);
             } else if (dragData.elementType === 'transition') {
-                newNode = new DiagramTransition(uniqueId, elementLabel);
+                newNode = this.buildTransition(uniqueId, elementLabel);
             } else {
                 return;
             }
@@ -240,10 +242,9 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
         const uniqueId = `drawn-element-${++this.elementIdCounter}`;
 
         if (elementType === 'place') {
-            // Without original id in this path, label equals uniqueId's suffix is unknown; keep undefined
-            newNode = new DiagramPlace(uniqueId, 0);
+            newNode = this.buildPlace(uniqueId, undefined, 0);
         } else if (elementType === 'transition') {
-            newNode = new DiagramTransition(uniqueId, uniqueId);
+            newNode = this.buildTransition(uniqueId, uniqueId);
         } else {
             return;
         }
@@ -406,10 +407,16 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
                     if (el.node instanceof DiagramPlace) {
                         const tokens = (el.node as DiagramPlace).tokenCount() ?? 0;
                         const originalLabel = el.node.label ?? el.node.displayLabel;
-                        newNode = new DiagramPlace(el.node.id, tokens, originalLabel);
+                        newNode = this.buildPlace(el.node.id, originalLabel, tokens, {
+                            innerLabel: el.node.innerLabel,
+                            hideTokens: el.node.hideTokens,
+                            labelPlacement: el.node.labelPlacement,
+                        });
                     } else if (el.node instanceof DiagramTransition) {
                         const label = (el.node as DiagramTransition).displayLabel ?? el.node.id;
-                        newNode = new DiagramTransition(el.node.id, label);
+                        newNode = this.buildTransition(el.node.id, label, {
+                            innerLabel: el.node.innerLabel,
+                        });
                     } else {
                         // Fallback: keep same reference (should not happen)
                         newNode = el.node;
@@ -504,6 +511,8 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
         this.selectedElementId.set(null);
         this.elementIdCounter = 0;
         this.connectionIdCounter = 0;
+        this.bLabelCounter = 0;
+        this.eLabelCounter = 0;
     }
 
     deleteElement(element: DrawnElement) {
@@ -584,5 +593,89 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
     // Helpers for template
     getElementById(id: string): DrawnElement | undefined {
         return this.drawnElements().find((e) => e.id === id);
+    }
+
+    onCreateStartPosition() {
+        const diagram = this.displayService.diagram;
+        if (!diagram) {
+            this.toaster.showError('Startposition', 'Bitte zuerst ein Petrinetz laden.', {
+                duration: 0,
+                toastPosition: TOAST_POSITIONS.TOP_CENTER,
+            });
+            return;
+        }
+
+        const nodes = diagram.getNodes();
+        const markedPlaces = nodes.filter((node) => node.shape === SHAPE.CIRCLE && node.tokenCount() > 0);
+        if (markedPlaces.length === 0) {
+            this.toaster.showInfo('Startposition', 'Keine markierten Places gefunden.', {
+                duration: 3000,
+                toastPosition: TOAST_POSITIONS.TOP_CENTER,
+            });
+            return;
+        }
+
+        const tokenInstances = markedPlaces.flatMap((place) =>
+            Array.from({ length: Math.max(0, Math.floor(place.tokenCount())) }, () => place),
+        );
+        if (tokenInstances.length === 0) {
+            this.toaster.showInfo('Startposition', 'Keine markierten Places gefunden.', {
+                duration: 3000,
+                toastPosition: TOAST_POSITIONS.TOP_CENTER,
+            });
+            return;
+        }
+
+        this.clearDrawing();
+
+        const canvasHeight = 600;
+        const padding = 40;
+        const spacing = tokenInstances.length > 0 ? (canvasHeight - padding * 2) / tokenInstances.length : 0;
+
+        const newElements: DrawnElement[] = [];
+        tokenInstances.forEach((place, index) => {
+            const innerLabel = this.getNextInnerLabel();
+            const uniqueId = `start-${innerLabel}-${place.id}-${index}`;
+            const newPlace = this.buildPlace(uniqueId, place.displayLabel, 0, {
+                innerLabel,
+                hideTokens: true,
+                labelPlacement: 'below',
+            });
+            newPlace.x = this.PLACE_RADIUS + 20;
+            newPlace.y = padding + spacing * index + spacing / 2;
+            newElements.push({ id: uniqueId, node: newPlace });
+        });
+
+        this.drawnElements.set(newElements);
+        this.toaster.showSuccess('Startposition', `${newElements.length} Startplätze angelegt.`, {
+            duration: 3000,
+            toastPosition: TOAST_POSITIONS.TOP_CENTER,
+        });
+    }
+
+    private getNextInnerLabel(): string {
+        return `b${++this.bLabelCounter}`;
+    }
+
+    private getNextTransitionInnerLabel(): string {
+        return `e${++this.eLabelCounter}`;
+    }
+
+    private buildPlace(
+        id: string,
+        label?: string,
+        initialTokens = 0,
+        options?: { innerLabel?: string; hideTokens?: boolean; labelPlacement?: DiagramPlaceLabelPlacement },
+    ): DiagramPlace {
+        return new DiagramPlace(id, initialTokens, label, {
+            innerLabel: options?.innerLabel ?? this.getNextInnerLabel(),
+            hideTokens: options?.hideTokens ?? true,
+            labelPlacement: options?.labelPlacement ?? 'below',
+        });
+    }
+
+    private buildTransition(id: string, label: string, options?: DiagramTransitionOptions): DiagramTransition {
+        const innerLabel = options?.innerLabel ?? this.getNextTransitionInnerLabel();
+        return new DiagramTransition(id, label, [], [], [], [], { innerLabel });
     }
 }

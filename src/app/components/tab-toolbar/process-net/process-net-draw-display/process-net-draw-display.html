@@ -27,8 +27,7 @@
                 [attr.y1]="line.y1"
                 [attr.x2]="line.x2"
                 [attr.y2]="line.y2"
-                (mousedown)="onConnectionMouseDown($event, line.id)"
-                (contextmenu)="onConnectionRightClick($event, line.id)" />
+                (mousedown)="onConnectionMouseDown($event, line.id)"/>
             <line
                 class="connection-line"
                 [attr.x1]="line.x1"
@@ -51,7 +50,12 @@
         <!-- Render all drawn elements -->
         @for (element of drawnElements(); track $index) {
         <g class="element-wrapper" [attr.data-element-id]="element.id">
-            <g appSvgNode [diagramNode]="element.node" [selected]="selectedElementId() === element.id" />
+            <g
+                appSvgNode
+                [diagramNode]="element.node"
+                [selected]="selectedElementId() === element.id"
+                [showInnerLabel]="true"
+                [transitionLabelPlacement]="'below'" />
             <rect
                 class="drag-overlay"
                 [attr.x]="element.node.x - 60"
@@ -68,23 +72,22 @@
         }
     </svg>
     <div class="toolbar">
-        <h3>Drawing Area</h3>
-        <button class="clear-btn" (click)="clearDrawing()">Clear Drawing</button>
-        <button class="validate-btn" (click)="onValidate()">Validate Process Net</button>
+        <h3>Zeichenbereich</h3>
+        <button class="clear-btn" (click)="clearDrawing()">Zeichnung löschen</button>
+        <button class="validate-btn" (click)="onValidate()">Prozessnetz validieren</button>
+        <button class="start-position-btn" (click)="onCreateStartPosition()">Startposition setzten(löscht das bisherige)</button>
     </div>
     <div class="instructions">
-        <p>Drag and drop elements from the display area above to create your process net.</p>
-        <p>Left-click and drag elements to move them around.</p>
-        <p>Middle-click a place or transition to delete it (connections removed automatically).</p>
+        <p>Ziehen Sie Elemente aus dem linken Anzeigebereich hierher, um Ihr Prozessnetz zu erstellen.</p>
+        <p>Mit Linksklick Elemente ziehen, um sie zu bewegen.</p>
+        <p>Mit Mittelklick einen Place oder eine Transition löschen (Verbindungen werden automatisch entfernt).</p>
         <p>
-            Right-click one place or transition to select it as the source, then right-click an opposite type to create
-            a directed connection toward the second element.
+            Rechtsklick auf einen Place oder eine Transition, um ihn als Quelle zu wählen; anschließend Rechtsklick auf den gegen gesetzten Typ, um eine gerichtete Verbindung zum zweiten Element zu erstellen.
         </p>
         <p>
-            Left-click a connection to decrease its weight (minimum 1, not displayed when 1). Right-click to increase
-            its weight.
+            Linksklick auf eine Verbindung, um ihr Gewicht zu verringern (Minimum 1; bei 1 wird kein Gewicht angezeigt). Rechtsklick erhöht das Gewicht.
         </p>
-        <p>Middle-click a connection to delete it.</p>
-        <p>Validate to see a toast with the result.</p>
+        <p>Mittelklick auf eine Verbindung, um sie zu löschen.</p>
+        <p>Validieren, um eine Toast‑Nachricht mit dem Ergebnis zu sehen.</p>
     </div>
 </div>

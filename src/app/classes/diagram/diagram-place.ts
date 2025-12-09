@@ -1,14 +1,28 @@
 import { DiagramNode, SHAPE } from './diagram-node';
 import { Signal, signal } from '@angular/core';
 
+export type DiagramPlaceLabelPlacement = 'inside' | 'below';
+
+export interface DiagramPlaceOptions {
+    labelPlacement?: DiagramPlaceLabelPlacement;
+    hideTokens?: boolean;
+    innerLabel?: string;
+}
+
 export class DiagramPlace extends DiagramNode {
     private _tokens = signal<number>(0);
     private _label?: string; // original label (place id) for display
+    private _labelPlacement: DiagramPlaceLabelPlacement = 'below';
+    private _hideTokens = false;
+    private _innerLabel?: string;
 
-    constructor(id: string, initialTokens = 0, label?: string) {
+    constructor(id: string, initialTokens = 0, label?: string, options?: DiagramPlaceOptions) {
         super(id);
         this._tokens.set(initialTokens);
         this._label = label;
+        this._labelPlacement = options?.labelPlacement ?? 'below';
+        this._hideTokens = options?.hideTokens ?? false;
+        this._innerLabel = options?.innerLabel;
     }
 
     override get tokenCount(): Signal<number> {
@@ -26,6 +40,18 @@ export class DiagramPlace extends DiagramNode {
     // Expose original label (place id) if available
     get label(): string | undefined {
         return this._label;
+    }
+
+    get labelPlacement(): DiagramPlaceLabelPlacement {
+        return this._labelPlacement;
+    }
+
+    get hideTokens(): boolean {
+        return this._hideTokens;
+    }
+
+    get innerLabel(): string | undefined {
+        return this._innerLabel;
     }
 
     override get displayLabel(): string {
