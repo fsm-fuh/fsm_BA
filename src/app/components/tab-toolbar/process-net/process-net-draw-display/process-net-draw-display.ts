@@ -1,8 +1,8 @@
 import { ChangeDetectorRef, Component, computed, ElementRef, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { SvgNodeComponent } from '../../../display/svg-node/svg-node.component';
-import { DiagramNode } from '../../../../classes/diagram/diagram-node';
-import { DiagramPlace } from '../../../../classes/diagram/diagram-place';
-import { DiagramTransition } from '../../../../classes/diagram/diagram-transition';
+import { DiagramNode, SHAPE } from '../../../../classes/diagram/diagram-node';
+import { DiagramPlace, DiagramPlaceLabelPlacement } from '../../../../classes/diagram/diagram-place';
+import { DiagramTransition, DiagramTransitionOptions } from '../../../../classes/diagram/diagram-transition';
 import { DisplayService } from '../../../../services/display.service';
 import {
     type PetriNet,
@@ -11,6 +11,7 @@ import {
     validateProcessNet,
 } from '../../../../services/validation.service';
 import { ToasterNotificationService } from '../../../../services/toaster-notification.service';
+import { TOAST_POSITIONS } from '../../../../classes/toast';
 import { PanningService } from '../../../../services/panning.service';
 
 interface DrawnElement {
@@ -74,6 +75,8 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
 
     private elementIdCounter = 0;
     private connectionIdCounter = 0;
+    private bLabelCounter = 0;
+    private eLabelCounter = 0;
     private draggedElement: DrawnElement | null = null;
     private dragOffset = { x: 0, y: 0 };
     private svgElement: SVGSVGElement | null = null;
@@ -154,10 +157,11 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
         const elementTokens = detail.elementTokens ?? 0;
 
         if (detail.elementType === 'place') {
-            // Pass original place id as label for display
-            newNode = new DiagramPlace(uniqueId, elementTokens, detail.elementId);
+            newNode = this.buildPlace(uniqueId, detail.elementId, elementTokens, {
+                isStartPlace: this.shouldMarkAsStart(detail.elementId),
+            });
         } else if (detail.elementType === 'transition') {
-            newNode = new DiagramTransition(uniqueId, elementLabel);
+            newNode = this.buildTransition(uniqueId, elementLabel);
         } else {
             return;
         }
@@ -204,9 +208,11 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
             const elementTokens = dragData.elementTokens ?? 0;
 
             if (dragData.elementType === 'place') {
-                newNode = new DiagramPlace(uniqueId, elementTokens, dragData.elementId);
+                newNode = this.buildPlace(uniqueId, dragData.elementId, elementTokens, {
+                    isStartPlace: this.shouldMarkAsStart(dragData.elementId),
+                });
             } else if (dragData.elementType === 'transition') {
-                newNode = new DiagramTransition(uniqueId, elementLabel);
+                newNode = this.buildTransition(uniqueId, elementLabel);
             } else {
                 return;
             }
@@ -241,10 +247,9 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
         const uniqueId = `drawn-element-${++this.elementIdCounter}`;
 
         if (elementType === 'place') {
-            // Without original id in this path, label equals uniqueId's suffix is unknown; keep undefined
-            newNode = new DiagramPlace(uniqueId, 0);
+            newNode = this.buildPlace(uniqueId, undefined, 0);
         } else if (elementType === 'transition') {
-            newNode = new DiagramTransition(uniqueId, uniqueId);
+            newNode = this.buildTransition(uniqueId, uniqueId);
         } else {
             return;
         }
@@ -356,32 +361,6 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
             this.deleteConnection(connectionId);
             return;
         }
-        // Left click decrements weight
-        if (event.button !== 0) return;
-        event.stopImmediatePropagation();
-        event.preventDefault();
-        this.decrementConnectionWeight(connectionId);
-    }
-
-    // Increment connection weight (used by right click / context menu)
-    onConnectionRightClick(event: MouseEvent, connectionId: string) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        this.incrementConnectionWeight(connectionId);
-    }
-
-    private incrementConnectionWeight(connectionId: string) {
-        this.connections.update((cs) => cs.map((c) => (c.id === connectionId ? { ...c, weight: c.weight + 1 } : c)));
-    }
-
-    private decrementConnectionWeight(connectionId: string) {
-        this.connections.update((cs) =>
-            cs.map((c) => {
-                if (c.id !== connectionId) return c;
-                const newWeight = c.weight > 1 ? c.weight - 1 : 1; // enforce minimum 1
-                return { ...c, weight: newWeight };
-            }),
-        );
     }
 
     private onDocumentMouseMove = (event: MouseEvent) => {
@@ -407,10 +386,17 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
                     if (el.node instanceof DiagramPlace) {
                         const tokens = (el.node as DiagramPlace).tokenCount() ?? 0;
                         const originalLabel = el.node.label ?? el.node.displayLabel;
-                        newNode = new DiagramPlace(el.node.id, tokens, originalLabel);
+                        newNode = this.buildPlace(el.node.id, originalLabel, tokens, {
+                            innerLabel: el.node.innerLabel,
+                            hideTokens: el.node.hideTokens,
+                            labelPlacement: el.node.labelPlacement,
+                            isStartPlace: el.node.isStartPlace,
+                        });
                     } else if (el.node instanceof DiagramTransition) {
                         const label = (el.node as DiagramTransition).displayLabel ?? el.node.id;
-                        newNode = new DiagramTransition(el.node.id, label);
+                        newNode = this.buildTransition(el.node.id, label, {
+                            innerLabel: el.node.innerLabel,
+                        });
                     } else {
                         // Fallback: keep same reference (should not happen)
                         newNode = el.node;
@@ -505,6 +491,8 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
         this.selectedElementId.set(null);
         this.elementIdCounter = 0;
         this.connectionIdCounter = 0;
+        this.bLabelCounter = 0;
+        this.eLabelCounter = 0;
     }
 
     deleteElement(element: DrawnElement) {
@@ -531,7 +519,11 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
     onValidate() {
         const base = this.displayService.diagram;
         if (!base) {
-            this.toaster.showError('Validation', 'Bitte zuerst ein Petrinetz laden.');
+            this.toaster.showError('Validierung', 'Bitte zuerst ein Petrinetz laden.', {
+                duration: 0,
+                toastPosition: TOAST_POSITIONS.TOP_CENTER,
+            });
+
             return;
         }
         const nodes = base.getNodes();
@@ -546,6 +538,16 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
                 ]),
             ),
             labels: Object.fromEntries(nodes.filter((n) => n.shape === 'rect').map((n) => [n.id, n.displayLabel])),
+            marking: Object.fromEntries(
+                nodes
+                    .filter((n) => n.shape === 'circle')
+                    .map((place) => {
+                        const tokenValue = typeof place.tokenCount === 'function' ? place.tokenCount() : 0;
+                        const tokens = typeof tokenValue === 'number' ? tokenValue : Number(tokenValue) || 0;
+                        return [place.id, tokens] as [string, number];
+                    })
+                    .filter(([, tokens]) => tokens > 0),
+            ),
         };
         const elements: ProcessElement[] = this.drawnElements().map((el) => {
             const isPlace = el.node instanceof DiagramPlace;
@@ -554,6 +556,7 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
                 id: el.id,
                 type: isPlace ? 'Place' : isTrans ? 'Transition' : 'Place',
                 label: el.node.displayLabel,
+                isStartPlace: isPlace ? (el.node as DiagramPlace).isStartPlace : undefined,
             };
         });
         const connections: ProcessConnection[] = this.connections().map((c) => ({
@@ -561,19 +564,166 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
             to: c.bId,
             weight: c.weight,
         }));
-        const result = validateProcessNet(petri, elements, connections);
-        if (result.valid) {
-            this.toaster.showSuccess('Validation', 'Process net is valid.');
+        const startPlaces = this.drawnElements()
+            .filter(
+                (el): el is DrawnElement & { node: DiagramPlace } =>
+                    el.node instanceof DiagramPlace && el.node.isStartPlace,
+            )
+            .map((el) => el.node.label ?? el.node.displayLabel);
+        const result = validateProcessNet({ ...petri, startPlaces }, elements, connections);
+        // result contains success flag and could contain error and info messages. If success and no messages, show a generic success message.
+        if (result.valid && result.infos.length == 0) {
+            this.toaster.showSuccess('Validierung', 'Das Prozessnetz ist gültig und maximal.', {
+                duration: 0,
+                toastPosition: TOAST_POSITIONS.TOP_CENTER,
+            });
+        } else if (result.valid && result.infos.length > 0) {
+            let message = 'Das Prozessnetz ist gültig.\n\n';
+            message += result.infos.map((info) => `- ${info}`).join('\n');
+            this.toaster.showInfo('Validierung', message, {
+                duration: 0,
+                toastPosition: TOAST_POSITIONS.TOP_CENTER,
+            });
         } else {
-            const message = result.errors?.length
-                ? result.errors.map((e) => `• ${e}`).join('\n')
-                : 'Unknown validation failure';
-            this.toaster.showError('Validation Failed', message);
+            let message = 'Das Prozessnetz ist ungültig.\n\n';
+            message += 'Fehler:\n';
+            message += result.errors.map((error) => `- ${error}`).join('\n');
+            message += '\n';
+            this.toaster.showError('Validierung', message, {
+                duration: 0,
+                toastPosition: TOAST_POSITIONS.TOP_CENTER,
+            });
         }
     }
 
     // Helpers for template
     getElementById(id: string): DrawnElement | undefined {
         return this.drawnElements().find((e) => e.id === id);
+    }
+
+    onCreateStartPosition() {
+        const diagram = this.displayService.diagram;
+        if (!diagram) {
+            this.toaster.showError('Startposition', 'Bitte zuerst ein Petrinetz laden.', {
+                duration: 0,
+                toastPosition: TOAST_POSITIONS.TOP_CENTER,
+            });
+            return;
+        }
+
+        const nodes = diagram.getNodes();
+        const markedPlaces = nodes.filter((node) => node.shape === SHAPE.CIRCLE && node.tokenCount() > 0);
+        if (markedPlaces.length === 0) {
+            this.toaster.showInfo('Startposition', 'Keine markierten Stellen gefunden.', {
+                duration: 0,
+                toastPosition: TOAST_POSITIONS.TOP_CENTER,
+            });
+            return;
+        }
+
+        const tokenInstances = markedPlaces.flatMap((place) =>
+            Array.from({ length: Math.max(0, Math.floor(place.tokenCount())) }, () => place),
+        );
+        if (tokenInstances.length === 0) {
+            this.toaster.showInfo('Startposition', 'Keine markierten Stellen gefunden.', {
+                duration: 0,
+                toastPosition: TOAST_POSITIONS.TOP_CENTER,
+            });
+            return;
+        }
+
+        this.clearDrawing();
+
+        const canvasHeight = 600;
+        const padding = 40;
+        const spacing = tokenInstances.length > 0 ? (canvasHeight - padding * 2) / tokenInstances.length : 0;
+
+        const newElements: DrawnElement[] = [];
+        tokenInstances.forEach((place, index) => {
+            const innerLabel = this.getNextInnerLabel();
+            const uniqueId = `start-${innerLabel}-${place.id}-${index}`;
+            const newPlace = this.buildPlace(uniqueId, place.displayLabel, 0, {
+                innerLabel,
+                hideTokens: true,
+                labelPlacement: 'below',
+                isStartPlace: true,
+            });
+            newPlace.x = this.PLACE_RADIUS + 20;
+            newPlace.y = padding + spacing * index + spacing / 2;
+            newElements.push({ id: uniqueId, node: newPlace });
+        });
+
+        this.drawnElements.set(newElements);
+        this.toaster.showSuccess('Startposition', `${newElements.length} Startplätze angelegt.`, {
+            duration: 0,
+            toastPosition: TOAST_POSITIONS.TOP_CENTER,
+        });
+    }
+
+    private getNextInnerLabel(): string {
+        return `b${++this.bLabelCounter}`;
+    }
+
+    private getNextTransitionInnerLabel(): string {
+        return `e${++this.eLabelCounter}`;
+    }
+
+    private buildPlace(
+        id: string,
+        label?: string,
+        initialTokens = 0,
+        options?: {
+            innerLabel?: string;
+            hideTokens?: boolean;
+            labelPlacement?: DiagramPlaceLabelPlacement;
+            isStartPlace?: boolean;
+        },
+    ): DiagramPlace {
+        return new DiagramPlace(id, initialTokens, label, {
+            innerLabel: options?.innerLabel ?? this.getNextInnerLabel(),
+            hideTokens: options?.hideTokens ?? true,
+            labelPlacement: options?.labelPlacement ?? 'below',
+            isStartPlace: options?.isStartPlace ?? false,
+        });
+    }
+
+    private buildTransition(id: string, label: string, options?: DiagramTransitionOptions): DiagramTransition {
+        const innerLabel = options?.innerLabel ?? this.getNextTransitionInnerLabel();
+        return new DiagramTransition(id, label, [], [], [], [], { innerLabel });
+    }
+
+    private isMarkedPlaceId(placeId: string): boolean {
+        return this.getRequiredStartPlaceCount(placeId) > 0;
+    }
+
+    private getRequiredStartPlaceCount(placeId: string): number {
+        const base = this.displayService.diagram;
+        if (!base) {
+            return 0;
+        }
+        const node = base.getNodes().find((n) => n.id === placeId && n.shape === SHAPE.CIRCLE);
+        if (!node) {
+            return 0;
+        }
+        const tokenValue = typeof node.tokenCount === 'function' ? node.tokenCount() : 0;
+        const tokens = typeof tokenValue === 'number' ? tokenValue : Number(tokenValue) || 0;
+        return Math.max(0, Math.floor(tokens));
+    }
+
+    private getCurrentStartPlaceCount(placeId: string): number {
+        return this.drawnElements().filter((el) => {
+            if (!(el.node instanceof DiagramPlace) || !el.node.isStartPlace) {
+                return false;
+            }
+            const label = el.node.label ?? el.node.displayLabel;
+            return label === placeId;
+        }).length;
+    }
+
+    private shouldMarkAsStart(placeId: string): boolean {
+        if (!this.isMarkedPlaceId(placeId)) {
+            return false;
+        }
+        return this.getCurrentStartPlaceCount(placeId) < this.getRequiredStartPlaceCount(placeId);
     }
 }
