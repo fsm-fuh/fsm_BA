@@ -2,12 +2,17 @@ import { DiagramArc } from './diagram-arc';
 import { DiagramNode, SHAPE } from './diagram-node';
 import { DiagramPlace } from './diagram-place';
 
+export interface DiagramTransitionOptions {
+    innerLabel?: string;
+}
+
 export class DiagramTransition extends DiagramNode {
     private readonly _label: string;
     private readonly _inputPlaces: DiagramPlace[];
     private readonly _outputPlaces: DiagramPlace[];
     private readonly _inputArcs: DiagramArc[];
     private readonly _outputArcs: DiagramArc[];
+    private readonly _innerLabel?: string;
 
     constructor(
         id: string,
@@ -16,6 +21,7 @@ export class DiagramTransition extends DiagramNode {
         outputPlaces: DiagramPlace[] = [],
         inputArcs: DiagramArc[] = [],
         outputArcs: DiagramArc[] = [],
+        options?: DiagramTransitionOptions,
     ) {
         super(id);
         this._label = label || id;
@@ -23,10 +29,15 @@ export class DiagramTransition extends DiagramNode {
         this._outputPlaces = outputPlaces;
         this._inputArcs = inputArcs;
         this._outputArcs = outputArcs;
+        this._innerLabel = options?.innerLabel;
     }
 
     get label(): string {
         return this._label;
+    }
+
+    get innerLabel(): string | undefined {
+        return this._innerLabel;
     }
 
     override get shape(): SHAPE {

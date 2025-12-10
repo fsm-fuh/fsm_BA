@@ -14,10 +14,42 @@
     pointer-events: none;
 }
 
+.transition-label-below {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    fill: black;
+    font-weight: bold;
+    pointer-events: none;
+}
+
 .token-count {
     font-family: Arial, sans-serif;
     font-size: 12px;
     font-weight: bold;
     fill: black;
+    pointer-events: none;
+}
+
+.place-label-inside {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    fill: black;
+    font-weight: bold;
+    pointer-events: none;
+}
+
+.transition-label-inside {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    fill: white;
+    font-weight: bold;
+    pointer-events: none;
+}
+
+.transition-inner-label {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    fill: white;
+    font-weight: bold;
     pointer-events: none;
 }
