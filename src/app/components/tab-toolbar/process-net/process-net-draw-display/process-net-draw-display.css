@@ -43,7 +43,8 @@
 }
 
 .validate-btn,
-.clear-validation-btn {
+.clear-validation-btn,
+.start-position-btn {
     padding: 4px 10px;
 }
 
