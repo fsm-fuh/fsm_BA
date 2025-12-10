@@ -26,6 +26,44 @@ export interface ProcessConnection {
 export interface ValidationResult {
     valid: boolean;
     errors: string[];
+    infos: string[];
+}
+
+interface OriginalNetShape {
+    pre: Record<string, string[]>;
+    post: Record<string, string[]>;
+    preWeights: Record<string, Record<string, number>>;
+    postWeights: Record<string, Record<string, number>>;
+}
+
+function buildOriginalNetShape(net: PetriNet): OriginalNetShape {
+    const shape: OriginalNetShape = {
+        pre: {},
+        post: {},
+        preWeights: {},
+        postWeights: {},
+    };
+
+    net.transitions.forEach((t) => {
+        shape.pre[t] = [];
+        shape.post[t] = [];
+        shape.preWeights[t] = {};
+        shape.postWeights[t] = {};
+    });
+
+    Object.entries(net.arcs).forEach(([arc, rawWeight]) => {
+        const [from, to] = arc.split(',');
+        const weight = rawWeight ?? 1;
+        if (net.places.includes(from) && net.transitions.includes(to)) {
+            shape.pre[to].push(from);
+            shape.preWeights[to][from] = weight;
+        } else if (net.transitions.includes(from) && net.places.includes(to)) {
+            shape.post[from].push(to);
+            shape.postWeights[from][to] = weight;
+        }
+    });
+
+    return shape;
 }
 
 export function validateProcessNet(
@@ -34,6 +72,7 @@ export function validateProcessNet(
     connections: ProcessConnection[],
 ): ValidationResult {
     const errors: string[] = [];
+    const infos: string[] = [];
 
     const elementMap = new Map<string, ProcessElement>(elements.map((e) => [e.id, e]));
     const placeLabelById = new Map<string, string>();
@@ -53,7 +92,15 @@ export function validateProcessNet(
         (connectionsByTarget[conn.to] ||= []).push(conn);
     });
 
-    const errorsFromStructure = validateTransitionsForStructure(net, elements, connections, elementMap);
+    const originalNetShape = buildOriginalNetShape(net);
+
+    const errorsFromStructure = validateTransitionsForStructure(
+        net,
+        elements,
+        connections,
+        elementMap,
+        originalNetShape,
+    );
     errors.push(...errorsFromStructure);
 
     const errorsFromPlaces = validatePlaceInputs(net, elements, connectionsByTarget);
@@ -68,9 +115,13 @@ export function validateProcessNet(
     const errorsFromCycles = validateAcyclicity(elements, connections);
     errors.push(...errorsFromCycles);
 
+    const errorsFromMaximality = validateMaximality(net, elements, connectionsBySource, originalNetShape);
+    infos.push(...errorsFromMaximality);
+
     return {
         valid: errors.length === 0,
         errors,
+        infos,
     };
 }
 
@@ -79,35 +130,14 @@ function validateTransitionsForStructure(
     elements: ProcessElement[],
     connections: ProcessConnection[],
     elementMap: Map<string, ProcessElement>,
+    originalShape: OriginalNetShape,
 ): string[] {
     const errors: string[] = [];
 
     const mapLabelToTransition = (label: string): string | undefined =>
         Object.keys(net.labels).find((t) => net.labels[t] === label);
 
-    // --------- 2) Original pre/post sets (by label) and weights ---------
-    const origPre: Record<string, string[]> = {};
-    const origPost: Record<string, string[]> = {};
-    const origPreW: Record<string, Record<string, number>> = {}; // t -> place -> weight
-    const origPostW: Record<string, Record<string, number>> = {}; // t -> place -> weight
-
-    net.transitions.forEach((t) => {
-        origPre[t] = [];
-        origPost[t] = [];
-        origPreW[t] = {};
-        origPostW[t] = {};
-    });
-
-    Object.entries(net.arcs).forEach(([arc, weight]) => {
-        const [from, to] = arc.split(',');
-        if (net.places.includes(from) && net.transitions.includes(to)) {
-            origPre[to].push(from);
-            origPreW[to][from] = weight;
-        } else if (net.transitions.includes(from) && net.places.includes(to)) {
-            origPost[from].push(to);
-            origPostW[from][to] = weight;
-        }
-    });
+    const { pre: origPre, post: origPost, preWeights: origPreW, postWeights: origPostW } = originalShape;
 
     // --------- 3) Process net pre/post sets (by label) and weights ---------
     const procPre: Record<string, string[]> = {};
@@ -295,4 +325,48 @@ function validateStartPlacesPresence(net: PetriNet, elements: ProcessElement[]):
     }
 
     return errors;
+}
+
+function validateMaximality(
+    net: PetriNet,
+    elements: ProcessElement[],
+    connectionsBySource: Record<string, ProcessConnection[]>,
+    originalShape: OriginalNetShape,
+): string[] {
+    const infos: string[] = [];
+
+    const terminalPlaces = elements.filter(
+        (el) => el.type === 'Place' && (connectionsBySource[el.id] ?? []).length === 0,
+    );
+    if (terminalPlaces.length === 0) {
+        return infos;
+    }
+
+    const terminalLabelCounts: Record<string, number> = {};
+    terminalPlaces.forEach((place) => {
+        terminalLabelCounts[place.label] = (terminalLabelCounts[place.label] || 0) + 1;
+    });
+
+    net.transitions.forEach((transitionId) => {
+        const requiredPlaces = originalShape.pre[transitionId] || [];
+        if (requiredPlaces.length === 0) {
+            return;
+        }
+
+        const allPlacesSatisfied = requiredPlaces.every((placeId) => {
+            const needed = originalShape.preWeights[transitionId][placeId] ?? 1;
+            return (terminalLabelCounts[placeId] ?? 0) >= needed;
+        });
+
+        if (allPlacesSatisfied) {
+            const transitionLabel = net.labels[transitionId] ?? transitionId;
+            infos.push(
+                `Info: Prozessnetz ist nicht maximal. Transition ${transitionLabel} kann mit den Stellen (${requiredPlaces.join(
+                    ', ',
+                )}) noch ausgeführt werden.`,
+            );
+        }
+    });
+
+    return infos;
 }

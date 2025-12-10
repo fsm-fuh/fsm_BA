@@ -569,16 +569,25 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
             )
             .map((el) => el.node.label ?? el.node.displayLabel);
         const result = validateProcessNet({ ...petri, startPlaces }, elements, connections);
-        if (result.valid) {
-            this.toaster.showSuccess('Validierung', 'Prozessnetz ist gültig.', {
+        // result contains success flag and could contain error and info messages. If success and no messages, show a generic success message.
+        if (result.valid && result.infos.length == 0) {
+            this.toaster.showSuccess('Validierung', 'Das Prozessnetz ist gültig und maximal.', {
+                duration: 0,
+                toastPosition: TOAST_POSITIONS.TOP_CENTER,
+            });
+        } else if (result.valid && result.infos.length > 0) {
+            let message = 'Das Prozessnetz ist gültig.\n\n';
+            message += result.infos.map((info) => `- ${info}`).join('\n');
+            this.toaster.showInfo('Validierung', message, {
                 duration: 0,
                 toastPosition: TOAST_POSITIONS.TOP_CENTER,
             });
         } else {
-            const message = result.errors?.length
-                ? result.errors.map((e) => `• ${e}`).join('\n')
-                : 'Unbekannter Validierungsfehler';
-            this.toaster.showError('Validierung fehlgeschlagen', message, {
+            let message = 'Das Prozessnetz ist ungültig.\n\n';
+            message += 'Fehler:\n';
+            message += result.errors.map((error) => `- ${error}`).join('\n');
+            message += '\n';
+            this.toaster.showError('Validierung', message, {
                 duration: 0,
                 toastPosition: TOAST_POSITIONS.TOP_CENTER,
             });
