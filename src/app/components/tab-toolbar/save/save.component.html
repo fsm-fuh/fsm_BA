@@ -1,4 +1,9 @@
-<button mat-icon-button matTooltip="Speichern unter..." [matMenuTriggerFor]="saveMenu" color="primary">
+<button
+    mat-icon-button
+    aria-label="Speichern unter..."
+    matTooltip="Speichern unter..."
+    [matMenuTriggerFor]="saveMenu"
+    color="primary">
     <mat-icon>save_alt</mat-icon>
 </button>
 <mat-menu #saveMenu="matMenu">
