@@ -18,8 +18,7 @@ import { DisplayService } from 'src/app/services/display.service';
         ReachabilityGraphDisplayComponent,
         ReachabilityGraphDrawDisplayComponent,
         ClearNetButtonComponent,
-        UploadComponent
-        ,
+        UploadComponent,
         ModeToggleComponent,
     ],
     templateUrl: './reachability-graph.component.html',

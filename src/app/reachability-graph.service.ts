@@ -14,8 +14,7 @@ import { ReachabilityGraph } from './classes/reachability-graph.model';
 })
 export class ReachabilityGraphService {
     private _playService = inject(PlayService);
-    private _reachabilityGraph: ReachabilityGraph = new ReachabilityGraph;
-
+    private _reachabilityGraph: ReachabilityGraph = new ReachabilityGraph();
 
     // private firedMarking = ;
 
@@ -33,15 +32,13 @@ export class ReachabilityGraphService {
     //KOMPLETTES KEY VALUE PAIR , damit gerechnet und später zurückgegeben werden kann
     //place und number of tokens
 
-
     /**
      * Method to initialize first StateNode of Reachability Graph
      * Extracts marking from reachability-graph-display
-     * 
+     *
      */
-    initializeReachabilityGraphFirstStateNode(){
+    initializeReachabilityGraphFirstStateNode() {
         // this._playService.
-
     }
 
     /**
