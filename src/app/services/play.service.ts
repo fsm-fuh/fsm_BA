@@ -17,7 +17,7 @@ export class PlayService {
     private _currentMarking = signal<Record<string, number>>(this._startMarking);
     private _idCounter = 0;
 
-    firingEntries = signal<FiringEntry[]>([this._getEmptyFiringEntry()]);
+    firingEntries = signal<FiringEntry[]>([]);
 
     set startMarking(marking: Record<string, number>) {
         this._startMarking = marking;
@@ -31,7 +31,7 @@ export class PlayService {
      * Clears all firing entries in the firing sequence table.
      */
     resetFiringEntries(): void {
-        this.firingEntries.set([this._getEmptyFiringEntry()]);
+        this.firingEntries.set([]);
     }
 
     /**
@@ -84,7 +84,11 @@ export class PlayService {
     private _addTransitionToFiringSequence(diagram: Diagram, label: string): void {
         this.firingEntries.update((entries) => {
             let lastEntry = entries[entries.length - 1];
-            if (lastEntry) lastEntry = this._updateFiringEntry(diagram, lastEntry, label);
+            if (!lastEntry) {
+                lastEntry = this._getEmptyFiringEntry();
+                entries.push(lastEntry);
+            }
+            lastEntry = this._updateFiringEntry(diagram, lastEntry, label);
             return entries;
         });
     }
@@ -119,6 +123,7 @@ export class PlayService {
      * @returns A firing entry with an empty sequence
      */
     private _getEmptyFiringEntry(): FiringEntry {
+        console.log(this._startMarking);
         return {
             id: this._getNewId(),
             firingSequence: '',
