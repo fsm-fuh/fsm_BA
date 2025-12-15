@@ -5,11 +5,13 @@ import { DiagramPlace } from '../../../../classes/diagram/diagram-place';
 import { DiagramTransition } from '../../../../classes/diagram/diagram-transition';
 import { DisplayService } from '../../../../services/display.service';
 import { ReachabilityGraph } from 'src/app/classes/reachability-graph.model';
+import { PanningService } from 'src/app/services/panning.service';
 
 @Component({
     selector: 'app-reachability-graph-draw-display',
     standalone: true,
     imports: [],
+    providers: [PanningService],
     templateUrl: './reachability-graph-draw-display.component.html',
     styleUrl: './reachability-graph-draw-display.component.css',
 })

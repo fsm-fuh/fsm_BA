@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { PlayService } from './services/play.service';
+// import { PlayService } from './services/play.service';
 import { FiringEntry } from './classes/firing-entry';
 import { ReachabilityGraph } from './classes/reachability-graph.model';
 // import { ToasterNotificationService } from './toaster-notification.service';
@@ -13,7 +13,7 @@ import { ReachabilityGraph } from './classes/reachability-graph.model';
     providedIn: 'root',
 })
 export class ReachabilityGraphService {
-    private _playService = inject(PlayService);
+    // private _playService = inject(PlayService);
     private _reachabilityGraph: ReachabilityGraph = new ReachabilityGraph();
 
     // private firedMarking = ;
