@@ -124,14 +124,14 @@ export class PlayService {
      */
     private _getEmptyFiringEntry(): FiringEntry {
         console.log(this._startMarking);
-        return {
-            id: this._getNewId(),
-            firingSequence: '',
-            transitionCount: 0,
-            startMarking: this._startMarking,
-            endMarking: this._startMarking,
-            isClosed: false,
-        };
+        return new FiringEntry(
+            this._getNewId(),
+            '',
+            0,
+            this._startMarking,
+            this._startMarking,
+            false,
+        );
     }
 
     /**
