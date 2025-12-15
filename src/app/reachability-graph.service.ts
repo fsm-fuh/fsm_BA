@@ -1,7 +1,8 @@
 import { Injectable, inject, signal } from '@angular/core';
-// import { PlayService } from './services/play.service';
 import { FiringEntry } from './classes/firing-entry';
 import { ReachabilityGraph } from './classes/reachability-graph.model';
+import { ModeService } from './services/mode.service';
+import { AppMode } from './classes/app-mode';
 // import { ToasterNotificationService } from './toaster-notification.service';
 // import { DiagramTransition } from '../classes/diagram/diagram-transition';
 // import { Diagram } from '../classes/diagram/diagram';
@@ -13,8 +14,9 @@ import { ReachabilityGraph } from './classes/reachability-graph.model';
     providedIn: 'root',
 })
 export class ReachabilityGraphService {
-    // private _playService = inject(PlayService);
+    
     private _reachabilityGraph: ReachabilityGraph = new ReachabilityGraph();
+    private _modeService: ModeService = inject(ModeService);
 
     // private firedMarking = ;
 
@@ -38,7 +40,19 @@ export class ReachabilityGraphService {
      *
      */
     initializeReachabilityGraphFirstStateNode() {
-        // this._playService.
+        if(this._modeService.currentMode()===AppMode.LEARN){
+            //AUTOMATISCH StateNode erzeugen
+            //Current marking auslesen
+            //x und y Startwert konstant festlegen
+
+
+
+        }
+
+        else if(this._modeService.currentMode()===AppMode.EXAM){
+            //nur im Hintergrund vergleichen, User gibt NodeLabel, also Marking, selbst ein und bekommt Feedback
+        }
+
     }
 
     /**
@@ -54,6 +68,9 @@ export class ReachabilityGraphService {
             .map(([key, value]) => `${value}`)
             .join(' ');
         console.log(reachabilityLabel);
+
+        //HIER X UND Y EINFACH JE +100 FÜR DEN ANFANG
+        //später dann aus Algorithmus ziehen (Spring Embedder oder Sugiyama, für alle Tabs gleich)
 
         // return new DiagramPlace(id, initialTokens);
 
