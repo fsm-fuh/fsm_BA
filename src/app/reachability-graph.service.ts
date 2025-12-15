@@ -5,8 +5,9 @@ import { ModeService } from './services/mode.service';
 import { AppMode } from './classes/app-mode';
 // import { ToasterNotificationService } from './toaster-notification.service';
 // import { DiagramTransition } from '../classes/diagram/diagram-transition';
-// import { Diagram } from '../classes/diagram/diagram';
-// import { SourcePetriNetService } from './source-petri-net.service';
+import { SourcePetriNetService } from './services/source-petri-net.service';
+import { Diagram } from './classes/diagram/diagram';
+import { subscribeOn } from 'rxjs';
 // import { TabStateService } from './tab-state.service';
 // import { Tab } from '../classes/tabs';
 
@@ -17,34 +18,47 @@ export class ReachabilityGraphService {
     
     private _reachabilityGraph: ReachabilityGraph = new ReachabilityGraph();
     private _modeService: ModeService = inject(ModeService);
+    private _sourceNetService = inject(SourcePetriNetService);
+    private _startMarkingRG: Record<string, number> = {};
+    private _currentMarkingRG = signal<Record<string, number>>(this._startMarkingRG);
 
-    // private firedMarking = ;
+    set startMarkingRG() {
+        this._startMarkingRG = this._sourceNetService.getCurrentSourceNet()?.currentMarking$;;
+    }
 
-    //beim Initialisieren direkt den ersten Knoten anlegen
-    //erst danach vom Firing übernehmen
+    set currentMarkingRG(marking: Record<string, number>) {
+        this._currentMarkingRG.set(marking);
+    }
+
+
     //bekommt firing entry und macht dann eine nodeID daraus und übergibt an reachability graph als stateNode+//woher x und y?
-
+    
     // get marking
     // only take numbers from record of Sting and number, display as label and add to model (Id)
-
+    
     //also update reachability graph model? --> dem reach service übergeben, nach Sortierung, service entfernt placebezeichner und sortiert nur nummern
-
+    
     //node übergeben bzw ganzes Diagram und DiagramTransition an RGService
     //Node als StateNode behandeln und Label
     //KOMPLETTES KEY VALUE PAIR , damit gerechnet und später zurückgegeben werden kann
     //place und number of tokens
-
+    
     /**
      * Method to initialize first StateNode of Reachability Graph
      * Extracts marking from reachability-graph-display
-     *
-     */
-    initializeReachabilityGraphFirstStateNode() {
-        if(this._modeService.currentMode()===AppMode.LEARN){
-            //AUTOMATISCH StateNode erzeugen
-            //Current marking auslesen
-            //x und y Startwert konstant festlegen
+    *
+    */
+   initializeReachabilityGraphFirstStateNode() {
+       if(this._modeService.currentMode()===AppMode.LEARN){
+        this._startMarkingRG 
+         this._sourceNetService.getCurrentSourceNet()?.currentMarking$;
 
+           //AUTOMATISCH StateNode erzeugen
+           //Current marking auslesen
+           //x und y Startwert konstant festlegen
+           
+           //beim Initialisieren direkt den ersten Knoten anlegen
+           //erst danach vom Firing übernehmen
 
 
         }
