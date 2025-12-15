@@ -1,4 +1,6 @@
-import { Component, inject, Input, model } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { PlayService } from '../../../../services/play.service';
@@ -10,7 +12,7 @@ import { Diagram } from 'src/app/classes/diagram/diagram';
 @Component({
     selector: 'app-firing-table',
     standalone: true,
-    imports: [MatIconButton, MatIcon],
+    imports: [CommonModule, FormsModule, MatIconButton, MatIcon],
     templateUrl: './firing-table.component.html',
     styleUrl: './firing-table.component.css',
 })
@@ -19,12 +21,6 @@ export class FiringTableComponent {
     private _displayService = inject(DisplayService);
 
     @Input() firingEntries: FiringEntry[] = [];
-
-    formatMarking(marking: Record<string, number>): string {
-        return Object.entries(marking)
-            .map(([key, value]) => `${key}:${value}`)
-            .join(', ');
-    }
 
     onDeleteEntry(id: number): void {
         this._playService.deleteFiringEntry(id);
