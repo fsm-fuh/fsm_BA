@@ -69,6 +69,8 @@ export class ReachabilityGraphService {
             this._reachabilityGraph.nodes.push(initialStateNode);
 
             console.log(reachabilityLabel);
+
+
         } else if (this._modeService.currentMode() === AppMode.EXAM) {
             //nur im Hintergrund vergleichen, User gibt NodeLabel, also Marking, selbst ein und bekommt Feedback
         }
@@ -111,11 +113,6 @@ export class ReachabilityGraphService {
         //     }
         //use only Label or use complete FirngEntry?
     }
-
-    //Methode public ALLE state nodes zurückgeben
-
-    //Methode 2 public ALLE edges zurückgeben
-
     //Methode public ALLE state nodes zurückgeben
 
     //Methode 2 public ALLE edges zurückgeben
