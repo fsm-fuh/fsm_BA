@@ -22,8 +22,8 @@ export class ReachabilityGraphService {
     private _startMarkingRG: Record<string, number> = {};
     private _currentMarkingRG = signal<Record<string, number>>(this._startMarkingRG);
 
-    set startMarkingRG() {
-        this._startMarkingRG = this._sourceNetService.getCurrentSourceNet()?.currentMarking$;;
+    set startMarkingRG(marking: Record<string, number>) {
+        this._startMarkingRG=(marking);
     }
 
     set currentMarkingRG(marking: Record<string, number>) {
@@ -50,8 +50,9 @@ export class ReachabilityGraphService {
     */
    initializeReachabilityGraphFirstStateNode() {
        if(this._modeService.currentMode()===AppMode.LEARN){
-        this._startMarkingRG 
-         this._sourceNetService.getCurrentSourceNet()?.currentMarking$;
+        this._startMarkingRG = this._sourceNetService.getCurrentSourceNet()?.startMarking || {};
+
+        
 
            //AUTOMATISCH StateNode erzeugen
            //Current marking auslesen
