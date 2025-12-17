@@ -21,6 +21,11 @@ export class ReachabilityGraphService {
     private _sourceNetService = inject(SourcePetriNetService);
     private _startMarkingRG: Record<string, number> = {};
     private _currentMarkingRG = signal<Record<string, number>>(this._startMarkingRG);
+    //TODO: Later on, implement better algorithm for placement of StateNodes
+    private xCounter: number= 2;
+    private yCounter: number= 2;
+    //Counter for StateNodeIDs
+    private idCounter: number= 1;
 
     set startMarkingRG(marking: Record<string, number>) {
         this._startMarkingRG = marking;
@@ -57,7 +62,7 @@ export class ReachabilityGraphService {
             //AUTOMATISCH StateNode erzeugen
             //Current marking auslesen
             this._startMarkingRG = this._sourceNetService.getCurrentSourceNet()?.startMarking || {};
-            let reachabilityLabel: string = Object.values(this._startMarkingRG).join('');
+            let initialReachabilityLabel: string = Object.values(this._startMarkingRG).join(' ');
             let initialRgId: string = 'RG00';
             //x und y Startwert konstant festlegen
             let initialX: number = 100;
@@ -67,7 +72,7 @@ export class ReachabilityGraphService {
                 initialRgId,
                 initialX,
                 initialY,
-                reachabilityLabel,
+                initialReachabilityLabel,
                 this.startMarkingRG,
             );
 
@@ -78,7 +83,7 @@ export class ReachabilityGraphService {
                 return newGraph;
             });
 
-            console.log(reachabilityLabel);
+            console.log(initialReachabilityLabel);
         } else if (this._modeService.currentMode() === AppMode.EXAM) {
             //nur im Hintergrund vergleichen, User gibt NodeLabel, also Marking, selbst ein und bekommt Feedback
         }
@@ -92,14 +97,45 @@ export class ReachabilityGraphService {
      * @param firingEntryLabel The label of the fired transition.
      */
 
-    //WIRKLICH VON HIER NEHMEN - ODER AUS DEM RG-Mdoel mit Subscrbe, wenn sich das Netz ändert? - Was ist "sauberer"?
+    //WIRKLICH VON HIER NEHMEN - ODER AUS DEM RG-Model mit Subscrbe, wenn sich das Netz ändert? - Was ist "sauberer"?
     convertFiringEntryLabelToReachabilityGraphID(firingEntry: FiringEntry) {
-        // firingEntry.endMarking.
-        //Fallunterscheidung zwischen erstem Aufruf und dann Aufruf nach Schalten / Firing
-        let reachabilityLabel: string = Object.entries(firingEntry.endMarking)
+        //Fallunterscheidung zwischen erstem Aufruf und dann Aufruf nach Schalten / Firing --> ueber unterschiedliche Methoden geloest
+        let _markingRG = this._sourceNetService.getCurrentSourceNet()?.currentMarking$ || {};
+        let currentReachabilityLabel: string = Object.entries(firingEntry.endMarking)
             .map(([key, value]) => `${value}`)
             .join(' ');
-        console.log(reachabilityLabel);
+
+        let currentRgId: string = 'RG'+this.idCounter;
+            //x und y Startwert konstant festlegen
+            let currentX: number = this.xCounter*100;
+            let currentY: number = this.yCounter*100;
+            //neuen StateNode erzeugen
+            let currentStateNode = new StateNode(
+                currentRgId,
+                currentX,
+                currentY,
+                currentReachabilityLabel,
+                this.startMarkingRG,
+            );
+
+            this._reachabilityGraph.update((graph) => {
+                const newGraph = new ReachabilityGraph();
+                newGraph.nodes = [...graph.nodes, currentStateNode];
+                newGraph.edges = [...graph.edges];
+                return newGraph;
+            });
+            //increment counters
+            this.idCounter++;
+            this.xCounter++;
+            this.yCounter++;
+
+
+
+
+
+
+
+        console.log(currentReachabilityLabel);
 
         //HIER X UND Y EINFACH JE +100 FÜR DEN ANFANG
         //später dann aus Algorithmus ziehen (Spring Embedder oder Sugiyama, für alle Tabs gleich)
