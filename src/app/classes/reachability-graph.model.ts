@@ -1,8 +1,7 @@
 import { DisplayableGraph, DisplayableNode, DisplayableEdge } from './displayable-graph.interface';
 import { SHAPE } from './diagram/diagram-node';
 import { Coords } from './json-petri-net';
-import { Signal } from '@angular/core';
-import { ReachabilityGraphService } from '../reachability-graph.service';
+import { signal, Signal } from '@angular/core';
 
 /**
  * A node representing a state in the reachability graph.
@@ -24,9 +23,9 @@ export class StateNode implements DisplayableNode {
     get displayLabel(): string {
         return `[${this.label}]`;
     }
-    // eslint-disable-next-line @typescript-eslint/class-literal-property-style
+
     get tokenCount(): Signal<number> {
-        return this.tokenCount;
+        return signal(0);
     }
 
     constructor(id: string, x: number, y: number, label: string, marking: Record<string, Number>) {

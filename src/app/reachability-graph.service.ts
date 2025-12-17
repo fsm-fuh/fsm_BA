@@ -1,4 +1,4 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject, signal, WritableSignal, Signal } from '@angular/core';
 import { FiringEntry } from './classes/firing-entry';
 import { ReachabilityGraph } from './classes/reachability-graph.model';
 import { StateNode } from './classes/reachability-graph.model';
@@ -16,7 +16,7 @@ import { subscribeOn } from 'rxjs';
     providedIn: 'root',
 })
 export class ReachabilityGraphService {
-    private _reachabilityGraph: ReachabilityGraph = new ReachabilityGraph();
+    private _reachabilityGraph: WritableSignal<ReachabilityGraph> = signal(new ReachabilityGraph());
     private _modeService: ModeService = inject(ModeService);
     private _sourceNetService = inject(SourcePetriNetService);
     private _startMarkingRG: Record<string, number> = {};
@@ -28,6 +28,10 @@ export class ReachabilityGraphService {
 
     set currentMarkingRG(marking: Record<string, number>) {
         this._currentMarkingRG.set(marking);
+    }
+
+    get reachabilityGraphSignal(): Signal<ReachabilityGraph> {
+        return this._reachabilityGraph.asReadonly();
     }
 
     //bekommt firing entry und macht dann eine nodeID daraus und übergibt an reachability graph als stateNode+//woher x und y?
@@ -53,7 +57,7 @@ export class ReachabilityGraphService {
             //AUTOMATISCH StateNode erzeugen
             //Current marking auslesen
             this._startMarkingRG = this._sourceNetService.getCurrentSourceNet()?.startMarking || {};
-            let reachabilityLabel: string = Object.values(this.startMarkingRG).join('');
+            let reachabilityLabel: string = Object.values(this._startMarkingRG).join('');
             let initialRgId: string = 'RG00';
             //x und y Startwert konstant festlegen
             let initialX: number = 100;
@@ -66,7 +70,13 @@ export class ReachabilityGraphService {
                 reachabilityLabel,
                 this.startMarkingRG,
             );
-            this._reachabilityGraph.nodes.push(initialStateNode);
+
+            this._reachabilityGraph.update((graph) => {
+                const newGraph = new ReachabilityGraph();
+                newGraph.nodes = [...graph.nodes, initialStateNode];
+                newGraph.edges = [...graph.edges];
+                return newGraph;
+            });
 
             console.log(reachabilityLabel);
         } else if (this._modeService.currentMode() === AppMode.EXAM) {

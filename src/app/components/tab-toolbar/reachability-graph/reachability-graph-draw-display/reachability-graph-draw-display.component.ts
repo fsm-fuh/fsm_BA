@@ -20,9 +20,9 @@ import { Subscription } from 'rxjs';
     styleUrl: './reachability-graph-draw-display.component.css',
 })
 export class ReachabilityGraphDrawDisplayComponent extends DisplayComponent {
-    readonly reachabilityGraphdiagram = signal<ReachabilityGraph | undefined>(undefined);
-    readonly rgNodes = signal<StateNode[]>([]);
     private _reachabilityGraphService = inject(ReachabilityGraphService);
+    readonly reachabilityGraphdiagram = this._reachabilityGraphService.reachabilityGraphSignal;
+    readonly rgNodes = signal<StateNode[]>([]);
 
     //signal für states, Liste von stateNodes
     //signal für edges, Liste von edges aus reachGraph

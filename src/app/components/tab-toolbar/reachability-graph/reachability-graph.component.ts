@@ -31,7 +31,7 @@ export class ReachabilityGraphComponent implements OnInit, OnDestroy {
         effect(() => {
             const currentTab = this._tabStateService.currentTab();
             if (currentTab === Tab.REACHABILITY_GRAPH) {
-                this._reachabilityGraphService.initializeReachabilityGraphFirstStateNode;
+                this._reachabilityGraphService.initializeReachabilityGraphFirstStateNode();
                 // console.log('ReachabilityGraphComponent: Switched to Reachability Graph tab');
             }
         });
