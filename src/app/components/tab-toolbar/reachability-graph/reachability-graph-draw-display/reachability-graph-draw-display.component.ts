@@ -8,6 +8,8 @@ import { ReachabilityGraph, StateNode, FiringEdge } from 'src/app/classes/reacha
 import { PanningService } from 'src/app/services/panning.service';
 import { DisplayComponent } from 'src/app/components/display/display.component';
 import { SvgArcComponent } from 'src/app/components/display/svg-arc/svg-arc.component';
+import { ReachabilityGraphService } from 'src/app/reachability-graph.service';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-reachability-graph-draw-display',
@@ -18,6 +20,11 @@ import { SvgArcComponent } from 'src/app/components/display/svg-arc/svg-arc.comp
     styleUrl: './reachability-graph-draw-display.component.css',
 })
 export class ReachabilityGraphDrawDisplayComponent extends DisplayComponent{
+       readonly reachabilityGraphdiagram = signal<ReachabilityGraph | undefined>(undefined);
+    readonly rgNodes = signal<StateNode[]>([]);
+    private _reachabilityGraphService = inject(ReachabilityGraphService);
+
+  
     //signal für states, Liste von stateNodes
     //signal für edges, Liste von edges aus reachGraph
     //checken, in welchem Modus

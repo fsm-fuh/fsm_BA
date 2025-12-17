@@ -12,6 +12,7 @@ import { DiagramTransition } from '../../classes/diagram/diagram-transition';
 import { PlayService } from '../../services/play.service';
 import { Diagram } from '../../classes/diagram/diagram';
 import { PanningService } from '../../services/panning.service';
+import { ReachabilityGraphService } from 'src/app/reachability-graph.service';
 
 @Component({
     selector: 'app-display',
