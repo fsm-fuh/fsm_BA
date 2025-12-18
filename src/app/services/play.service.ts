@@ -54,7 +54,10 @@ export class PlayService {
     }
 
     isTransitionAndActivated(node: DiagramTransition): boolean {
-        return this._tabStateService.currentTab() === Tab.PLAY && node.isActivated();
+        return (
+            this._tabStateService.currentTab() === Tab.PLAY ||
+            this._tabStateService.currentTab() === Tab.REACHABILITY_GRAPH
+        )&& node.isActivated();
     }
 
     /**
@@ -66,6 +69,9 @@ export class PlayService {
             entries.push(this._getEmptyFiringEntry());
             return entries;
         });
+        setTimeout(() => {
+            document.getElementById('firing-sequence-input')?.focus();
+        }, 0);
     }
 
     /**

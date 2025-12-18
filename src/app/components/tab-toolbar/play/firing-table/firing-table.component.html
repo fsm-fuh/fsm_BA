@@ -17,7 +17,7 @@
             <tr>
                 <td class="firing-sequence-td">
                     <ng-container *ngIf="!entry.isClosed; else displayFiringSequence">
-                        <input type="text" [(ngModel)]="entry.firingSequence" />
+                        <input type="text" [(ngModel)]="entry.firingSequence" id="firing-sequence-input"/>
                     </ng-container>
                     <ng-template #displayFiringSequence>
                         {{ entry.firingSequence }}
