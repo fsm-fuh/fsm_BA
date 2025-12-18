@@ -3,14 +3,12 @@ import { DiagramNode } from '../classes/diagram/diagram-node';
 import { SourcePetriNetService } from './source-petri-net.service';
 import { DiagramArc } from '../classes/diagram/diagram-arc';
 import { Coords } from '../classes/json-petri-net';
-import { toSignal } from '@angular/core/rxjs-interop';
 
 @Injectable({
     providedIn: 'root',
 })
 export class SpringEmbedderService {
     private _sourceNetService = inject(SourcePetriNetService);
-    public isOptimalLayoutCalculated = toSignal(this._sourceNetService.optimalLayoutCalculated$);
 
     private readonly LENGTH_CONSTANT = 150;
     private readonly STIFFNESS_CONSTANT = 0.2;
@@ -21,7 +19,7 @@ export class SpringEmbedderService {
 
     /**
      * Calculates the layout of the current source Petri net using the spring embedder algorithm.
-     * Based on Peter Eades idea from "A heuristic for graph drawing" (1984).
+     * based on Peter Eades idea from "A heuristic for graph drawing" (1984).
      */
     public async calculateLayout(): Promise<void> {
         const diagram = this._sourceNetService.getCurrentSourceNet();
@@ -46,12 +44,10 @@ export class SpringEmbedderService {
 
         for (let i = 0; i < this.MAX_ITERATIONS; i++) {
             if (this._calculateNewPosition(nodes, neighborMap) < this.MIN_MOVEMENT) {
-                this._sourceNetService.optimalLayoutCalculated();
                 break;
             }
             await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
         }
-        this._sourceNetService.updateEditedNet(diagram);
     }
 
     private _calculateNewPosition(nodes: DiagramNode[], neighborMap: Map<string, DiagramNode[]>): number {
@@ -67,9 +63,9 @@ export class SpringEmbedderService {
 
             nodes.forEach((other: DiagramNode) => {
                 if (node.id === other.id) return;
-                const electricalForce = this._calculateElectricalForces(node, other);
-                force.x -= electricalForce.x;
-                force.y -= electricalForce.y;
+                const electricalForceMagnitude = this._calculateElectricalForces(node, other);
+                force.x -= electricalForceMagnitude.x;
+                force.y -= electricalForceMagnitude.y;
             });
 
             node.x += force.x;
@@ -84,9 +80,9 @@ export class SpringEmbedderService {
     /**
      * Calculates the Euclidean distance between two diagram nodes.
      * @param nodeA
-     *              the first diagram node
+     *                  the first diagram node
      * @param nodeB
-     *               the second diagram node
+     *                  the second diagram node
      * @return the distance between the two nodes
      */
     private _calculateDistance(nodeA: DiagramNode, nodeB: DiagramNode): number {
