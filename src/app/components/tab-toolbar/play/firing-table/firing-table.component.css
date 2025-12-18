@@ -49,3 +49,11 @@
     background-color: rgba(211, 47, 47, 0.1);
     border-radius: 4px;
 }
+
+input[type="text"],
+input[type="number"] {
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 14px;
+    padding: 4px;
+}

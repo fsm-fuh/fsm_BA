@@ -15,12 +15,40 @@
     <tbody>
         @for (entry of firingEntries; track entry.id) {
             <tr>
-                <td class="firing-sequence-td">{{ entry.firingSequence }}</td>
-                <td class="transition-count-td">{{ entry.transitionCount }}</td>
-                <td class="start-marking-td">{{ formatMarking(entry.startMarking) }}</td>
-                <td class="end-marking-td">{{ formatMarking(entry.endMarking) }}</td>
+                <td class="firing-sequence-td">
+                    <ng-container *ngIf="!entry.isClosed; else displayFiringSequence">
+                        <input type="text" [(ngModel)]="entry.firingSequence" />
+                    </ng-container>
+                    <ng-template #displayFiringSequence>
+                        {{ entry.firingSequence }}
+                    </ng-template>
+                </td>
+                <td class="transition-count-td">
+                    <ng-container *ngIf="!entry.isClosed; else displayTransitionCount">
+                        <input type="number" [(ngModel)]="entry.transitionCount" />
+                    </ng-container>
+                    <ng-template #displayTransitionCount>
+                        {{ entry.transitionCount }}
+                    </ng-template>
+                </td>
+                <td class="start-marking-td">
+                    <ng-container *ngIf="!entry.isClosed; else displayStartMarking">
+                        <input type="text" [(ngModel)]="entry.formattedStartMarking" />
+                    </ng-container>
+                    <ng-template #displayStartMarking>
+                        {{ entry.formattedStartMarking }}
+                    </ng-template>
+                </td>
+                <td class="end-marking-td">
+                    <ng-container *ngIf="!entry.isClosed; else displayEndMarking">
+                        <input type="text" [(ngModel)]="entry.formattedEndMarking" />
+                    </ng-container>
+                    <ng-template #displayEndMarking>
+                        {{ entry.formattedEndMarking }}
+                    </ng-template>
+                </td>
                 <td class="delete-button-td">
-                    @if (entry.isClosed) {
+                    <ng-container *ngIf="entry.isClosed; else deleteButton">
                         <button
                             mat-icon-button
                             color="warn"
@@ -28,7 +56,9 @@
                             class="delete-entry-button">
                             <mat-icon>delete</mat-icon>
                         </button>
-                    }
+                    </ng-container>
+                    <ng-template #deleteButton>
+                    </ng-template>
                 </td>
             </tr>
         }
