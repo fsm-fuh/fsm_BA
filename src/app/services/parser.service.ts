@@ -47,7 +47,7 @@ export class ParserService {
             });
             const pnmlObject = parser.parse(text) as Pnml;
 
-            const net = pnmlObject.pnml.net;
+            const net = pnmlObject.pnml?.net;
             let netContent: PnmlNetContent | undefined;
             if (net?.['@_type'] === this.PNML_PTNET_TYPE) {
                 netContent = (net as PnmlPtnet).page;
