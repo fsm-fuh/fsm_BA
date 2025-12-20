@@ -1,11 +1,9 @@
-import { inject, Injectable } from '@angular/core';
-import { ToasterNotificationService } from './toaster-notification.service';
+import { Injectable } from '@angular/core';
 
 @Injectable({
     providedIn: 'root',
 })
 export class ImageExportService {
-    private _toasterService = inject(ToasterNotificationService);
     private readonly FILE_NAME = 'petri-netz';
     private readonly SCALE_FACTOR = 2;
 
@@ -25,10 +23,6 @@ export class ImageExportService {
         img.onload = () => {
             this._renderAndDownload(img, width, height, format);
             URL.revokeObjectURL(svgUrl);
-        };
-        img.onerror = () => {
-            URL.revokeObjectURL(svgUrl);
-            this._toasterService.showError('Fehler beim Export', 'Das SVG-Bild konnte nicht geladen werden.');
         };
         img.src = svgUrl;
     }
@@ -64,13 +58,7 @@ export class ImageExportService {
         ctx.drawImage(img, 0, 0, width, height);
 
         const imgUrl = canvas.toDataURL(`image/${format}`);
-        try {
-            this._triggerDownload(imgUrl, format);
-        } finally {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            canvas.width = 0;
-            canvas.height = 0;
-        }
+        this._triggerDownload(imgUrl, format);
     }
 
     private _triggerDownload(url: string, format: string): void {

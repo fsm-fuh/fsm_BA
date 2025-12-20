@@ -5,6 +5,7 @@ import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatIconButton } from '@angular/material/button';
 import { MatTooltip } from '@angular/material/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
+import { DisplayService } from '../../../services/display.service';
 
 @Component({
     selector: 'app-save',
