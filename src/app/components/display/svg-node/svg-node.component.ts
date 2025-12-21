@@ -4,6 +4,7 @@ import { SHAPE } from '../../../classes/diagram/diagram-node';
 import { DisplayableNode } from '../../../classes/displayable-graph.interface';
 import { PlayService } from '../../../services/play.service';
 import { DiagramTransition } from '../../../classes/diagram/diagram-transition';
+import { DiagramPlace } from '../../../classes/diagram/diagram-place';
 
 @Component({
     selector: 'g[appSvgNode]',
@@ -13,11 +14,23 @@ import { DiagramTransition } from '../../../classes/diagram/diagram-transition';
 })
 export class SvgNodeComponent {
     readonly RADIUS = 25;
-    readonly RECT_WIDTH = 50;
     readonly RECT_HEIGHT = 30;
+    readonly CHAR_WIDTH = 8;
+    readonly MAX_CHARS = 15;
+
+    readonly rectWidth = computed(() => {
+        const label = this.displayLabel();
+        if (!label) {
+            return 50;
+        }
+        return Math.max(50, label.length * this.CHAR_WIDTH + 10);
+    });
 
     readonly diagramNode = input<DisplayableNode>();
     private _playService = inject(PlayService);
+
+    readonly showInnerLabel = input<boolean>(false);
+    readonly transitionLabelPlacement = input<'inside' | 'below'>('inside');
 
     readonly isTransitionAndActive = computed(() => {
         const node = this.diagramNode();
@@ -76,8 +89,44 @@ export class SvgNodeComponent {
 
     placeTemplate = viewChild('place', { read: TemplateRef });
 
+    /**
+     * Truncated display label for the node, adding ellipsis if it exceeds MAX_CHARS.
+     */
     readonly displayLabel = computed(() => {
-        return this.diagramNode()?.displayLabel || '';
+        const label = this.diagramNode()?.displayLabel || '';
+        if (label.length > this.MAX_CHARS) {
+            return label.substring(0, this.MAX_CHARS) + '...';
+        }
+        return label;
+    });
+
+    readonly innerLabel = computed(() => {
+        const node = this.diagramNode();
+        if (node instanceof DiagramPlace) {
+            return node.innerLabel;
+        }
+        if (node instanceof DiagramTransition) {
+            return node.innerLabel;
+        }
+        return undefined;
+    });
+
+    readonly isStartPlace = computed(() => {
+        const node = this.diagramNode();
+        return node instanceof DiagramPlace ? node.isStartPlace : false;
+    });
+
+    readonly shouldShowInnerLabel = computed(() => this.showInnerLabel() && !!this.innerLabel());
+
+    readonly innerLabelClass = computed(() => (this.isTransition() ? 'transition-inner-label' : 'place-label-inside'));
+
+    readonly transitionLabelClass = computed(() => {
+        if (!this.isTransition()) {
+            return 'node-label';
+        }
+        return this.transitionLabelPlacement() === 'inside'
+            ? 'transition-label transition-label-inside'
+            : 'transition-label transition-label-below';
     });
 
     readonly tokenCount = computed(() => {
@@ -94,9 +143,22 @@ export class SvgNodeComponent {
         return node ? node.y : 0;
     });
 
+    readonly labelPlacement = computed(() => {
+        const node = this.diagramNode();
+        if (node instanceof DiagramPlace) {
+            return node.labelPlacement;
+        }
+        return 'below';
+    });
+
+    readonly hideTokens = computed(() => {
+        const node = this.diagramNode();
+        return node instanceof DiagramPlace ? node.hideTokens : false;
+    });
+
     readonly rectX = computed(() => {
         const node = this.diagramNode();
-        return node ? node.x - this.RECT_WIDTH / 2 : 0;
+        return node ? node.x - this.rectWidth() / 2 : 0;
     });
 
     readonly rectY = computed(() => {
@@ -113,20 +175,22 @@ export class SvgNodeComponent {
         const node = this.diagramNode();
         if (!node) return 0;
 
-        // For transitions, center text inside the rectangle
-        // For places, position text below the circle
         if (this.isTransition()) {
-            return node.y;
-        } else {
-            return node.y + this.RADIUS + 15;
+            return this.transitionLabelPlacement() === 'below' ? node.y + this.RECT_HEIGHT / 2 + 15 : node.y;
         }
+
+        if (node instanceof DiagramPlace && this.labelPlacement() === 'inside') {
+            return node.y;
+        }
+
+        return node.y + this.RADIUS + 15;
     });
 
     readonly tokenPositions = computed(() => {
         const node = this.diagramNode();
         const tokens = this.tokenCount();
 
-        if (!node || !this.isPlace() || tokens === 0) return [];
+        if (!node || !this.isPlace() || tokens === 0 || this.hideTokens()) return [];
 
         const positions: Coords[] = [];
 
@@ -154,7 +218,7 @@ export class SvgNodeComponent {
     });
 
     readonly showTokenNumber = computed(() => {
-        return this.isPlace() && this.tokenCount() > 6;
+        return this.isPlace() && this.tokenCount() > 6 && !this.hideTokens();
     });
 
     // Computed values for selection highlighting

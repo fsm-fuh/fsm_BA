@@ -1,5 +1,16 @@
 <!-- Render places as circles -->
 @if (isPlace()) {
+    @if (isStartPlace()) {
+        <svg:circle
+            xmlns:svg="http://www.w3.org/2000/svg"
+            [attr.cx]="circleX()"
+            [attr.cy]="circleY()"
+            [attr.r]="RADIUS + 5"
+            fill="none"
+            stroke="green"
+            stroke-width="3"
+            pointer-events="none" />
+    }
     <!-- Selection highlight -->
     <svg:circle
         xmlns:svg="http://www.w3.org/2000/svg"
@@ -23,7 +34,7 @@
         (mouseup)="mouseUp($event)" />
 
     <!-- Tokens visualization inside place -->
-    @if (!showTokenNumber()) {
+    @if (!hideTokens() && !showTokenNumber()) {
         @for (token of tokenPositions(); track token.x + '-' + token.y) {
             <svg:circle
                 xmlns:svg="http://www.w3.org/2000/svg"
@@ -32,7 +43,7 @@
                 r="5"
                 fill="black" />
         }
-    } @else {
+    } @else if (!hideTokens()) {
         <svg:text
             xmlns:svg="http://www.w3.org/2000/svg"
             [attr.x]="circleX()"
@@ -41,6 +52,18 @@
             dominant-baseline="central"
             class="token-count">
             {{ tokenCount() }}
+        </svg:text>
+    }
+
+    @if (shouldShowInnerLabel()) {
+        <svg:text
+            xmlns:svg="http://www.w3.org/2000/svg"
+            [attr.x]="circleX()"
+            [attr.y]="circleY()"
+            text-anchor="middle"
+            dominant-baseline="central"
+            [attr.class]="innerLabelClass()">
+            {{ innerLabel() }}
         </svg:text>
     }
 }
@@ -52,7 +75,7 @@
         xmlns:svg="http://www.w3.org/2000/svg"
         [attr.x]="rectX() - 6"
         [attr.y]="rectY() - 6"
-        [attr.width]="RECT_WIDTH + 12"
+        [attr.width]="rectWidth() + 12"
         [attr.height]="RECT_HEIGHT + 12"
         fill="none"
         [attr.stroke]="selectionStrokeColor()"
@@ -64,7 +87,7 @@
         xmlns:svg="http://www.w3.org/2000/svg"
         [attr.x]="rectX()"
         [attr.y]="rectY()"
-        [attr.width]="RECT_WIDTH"
+        [attr.width]="rectWidth()"
         [attr.height]="RECT_HEIGHT"
         [attr.fill]="transitionFillColor()"
         [attr.stroke]="transitionStrokeColor()"
@@ -73,6 +96,18 @@
         (mousedown)="mouseDown($event)"
         (mouseup)="mouseUp($event)"
         (click)="click()" />
+
+    @if (shouldShowInnerLabel()) {
+        <svg:text
+            xmlns:svg="http://www.w3.org/2000/svg"
+            [attr.x]="textX()"
+            [attr.y]="circleY()"
+            text-anchor="middle"
+            dominant-baseline="central"
+            [attr.class]="innerLabelClass()">
+            {{ innerLabel() }}
+        </svg:text>
+    }
 }
 
 <!-- Node label -->
@@ -82,6 +117,6 @@
     [attr.y]="textY()"
     text-anchor="middle"
     dominant-baseline="central"
-    [attr.class]="isTransition() ? 'transition-label' : 'node-label'">
+    [attr.class]="transitionLabelClass()">
     {{ displayLabel() }}
 </svg:text>
