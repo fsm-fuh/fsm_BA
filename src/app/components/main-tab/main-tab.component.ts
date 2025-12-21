@@ -51,12 +51,13 @@ export class MainTabComponent {
         const diagram = this._displayService.diagram;
         if (!diagram || !(diagram instanceof Diagram)) return;
 
-        if (this._tabStateService.currentTab() === Tab.PROCESS_NET) diagram.resetMarking();
+        if (this._tabStateService.currentTab() === Tab.DRAW || this._tabStateService.currentTab() === Tab.PROCESS_NET)
+            diagram.resetMarking();
         else if (
             this._tabStateService.currentTab() === Tab.PLAY ||
             this._tabStateService.currentTab() === Tab.REACHABILITY_GRAPH
         )
-            this._playService.recoverMarking(diagram);
+            this._playService.recoverLastMarking(diagram);
 
         this._sourcePetriNetService.updateEditedNet(diagram);
     }
