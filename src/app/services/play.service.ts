@@ -15,7 +15,8 @@ export class PlayService {
 
     private _startMarking: Record<string, number> = {};
     private _currentMarking = signal<Record<string, number>>(this._startMarking);
-    private _idCounter = 0;
+    private _lastMarking: Record<string, number> | undefined = undefined;
+    private _idCounter: number = 0;
 
     firingEntries = signal<FiringEntry[]>([]);
 
@@ -28,10 +29,20 @@ export class PlayService {
     }
 
     /**
-     * Clears all firing entries in the firing sequence table.
+     * Recovers the marking of the diagram from the last marking stored in the service.
+     * @param diagram 
+     *          The diagram to recover the marking for.
+     */
+    recoverMarking(diagram: Diagram): void {
+        if (this._lastMarking) diagram.marking = this._lastMarking;
+    }
+
+    /**
+     * Clears all firing entries in the firing sequence table and deletes the last marking.
      */
     resetFiringEntries(): void {
         this.firingEntries.set([]);
+        this._lastMarking = undefined;
     }
 
     /**
@@ -46,8 +57,9 @@ export class PlayService {
         if (node.isActivated()) {
             node.fire();
             diagram.updateMarking();
+            this._lastMarking = diagram.marking;
             this._sourceNetService.updateEditedNet(diagram);
-            this._addTransitionToFiringSequence(diagram, node.label);
+            this._addTransitionToFiringSequence(node.label);
         } else
             this._notificationService.showWarning(
                 'Transition not activated',
@@ -74,7 +86,9 @@ export class PlayService {
      *          The diagram for which the firing sequence is started.
      */
     startNewFiringSequence(diagram: Diagram): void {
-        this._closeLastFiringEntry(diagram);
+        diagram.resetMarking();
+        this._lastMarking = diagram.marking;
+        this._closeLastFiringEntry();
         this.firingEntries.update((entries) => {
             entries.push(this._getEmptyFiringEntry());
             return entries;
@@ -96,19 +110,17 @@ export class PlayService {
     /**
      * Updates the current firing entry when a transition is fired.
      * If no entry exists, creates a new one.
-     * @param diagram 
-     *          The diagram containing the transition.
      * @param label
      *          The label of the fired transition.
      */
-    private _addTransitionToFiringSequence(diagram: Diagram, label: string): void {
+    private _addTransitionToFiringSequence(label: string): void {
         this.firingEntries.update((entries) => {
             let lastEntry = entries[entries.length - 1];
             if (!lastEntry) {
                 lastEntry = this._getEmptyFiringEntry();
                 entries.push(lastEntry);
             }
-            lastEntry = this._updateFiringEntry(diagram, lastEntry, label);
+            lastEntry = this._updateFiringEntry(lastEntry, label);
             return entries;
         });
     }
@@ -116,15 +128,13 @@ export class PlayService {
     /**
      * Appends the label of a fired transition to a firing sequence
      * and updates transition count and end marking accordingly.
-     * @param diagram 
-     *          The diagram containing the transition.
      * @param entry 
      *          The entry to be updated.
      * @param label
      *          The label of the fired transition.
      * @returns The updated firing entry.
      */
-    private _updateFiringEntry(diagram: Diagram, entry: FiringEntry, label: string): FiringEntry {
+    private _updateFiringEntry(entry: FiringEntry, label: string): FiringEntry {
         entry.firingSequence += ` ${label}`;
         entry.transitionCount += 1;
         entry.endMarking = this._currentMarking();
@@ -132,13 +142,9 @@ export class PlayService {
     }
 
     /**
-     * Closes the last firing entry in the sequence, preventing further updates to it.
-     * Resets the diagram marking to the start marking.
-     * @param diagram
-     *          The diagram for which the firing sequence is being recorded.
+     * Closes the last firing entry in the firing table, preventing further updates to it.
      */
-    private _closeLastFiringEntry(diagram: Diagram): void {
-        diagram.resetMarking();
+    private _closeLastFiringEntry(): void {
         this.firingEntries.update((entries) => {
             let lastEntry = entries[entries.length - 1];
             if (lastEntry && !lastEntry.isClosed) lastEntry.isClosed = true;
