@@ -1,14 +1,14 @@
 .firing-table {
     table-layout: auto;
     border-collapse: collapse;
-    width: 100%;
+    width: auto;
 }
 
 .firing-table th,
 .firing-table td {
     height: 40px;
-    border: 1px solid grey;
-    padding: 1px 5px 1px 5px;
+    border: 1px solid #e0e0e0;
+    padding: 2px 5px 2px 5px;
     text-align: left;
 }
 
@@ -54,6 +54,6 @@ input[type="text"],
 input[type="number"] {
     width: 100%;
     box-sizing: border-box;
-    font-size: 14px;
-    padding: 4px;
+    font-family: "Courier New", sans-serif;
+    font-size: 16px;
 }
