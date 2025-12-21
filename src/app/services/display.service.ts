@@ -7,8 +7,7 @@ import { DisplayableGraph } from '../classes/displayable-graph.interface';
 })
 export class DisplayService implements OnDestroy {
     private _diagram$: BehaviorSubject<DisplayableGraph | undefined>;
-    private _downloadRequestSource = new Subject<'png' | 'jpeg'>();
-    public downloadRequest$ = this._downloadRequestSource.asObservable();
+    private _downloadRequest$ = new Subject<'png' | 'jpeg'>();
 
     constructor() {
         this._diagram$ = new BehaviorSubject<DisplayableGraph | undefined>(undefined);
@@ -48,7 +47,15 @@ export class DisplayService implements OnDestroy {
         this._diagram$.next(undefined);
     }
 
+    /**
+     * Triggers a download request for the currently displayed diagram.
+     *
+     * @param format
+     *          the image format in which the diagram should be exported.
+     *
+     * Supported formats are `'png'` and `'jpeg'`.
+     */
     public triggerDownload(format: 'png' | 'jpeg') {
-        this._downloadRequestSource.next(format);
+        this._downloadRequest$.next(format);
     }
 }
