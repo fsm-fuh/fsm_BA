@@ -37,8 +37,10 @@ export class PlayService {
     /**
      * Fires a transition if it is activated, updates the diagram
      * and records the firing in the firing sequence.
-     * @param diagram The diagram containing the transition.
-     * @param node The transition node to be fired.
+     * @param diagram 
+     *          The diagram containing the transition.
+     * @param node
+     *          The transition node to be fired.
      */
     processTransitionClick(diagram: Diagram, node: DiagramTransition): void {
         if (node.isActivated()) {
@@ -53,11 +55,17 @@ export class PlayService {
             );
     }
 
-    isTransitionAndActivated(node: DiagramTransition): boolean {
+    /**
+     * Checks if a transition can be fired in the current tab and state.
+     * @param node 
+     *          The transition to be checked
+     * @returns true if the transition can be fired
+     */
+    canBeFired(node: DiagramTransition): boolean {
         return (
             this._tabStateService.currentTab() === Tab.PLAY ||
             this._tabStateService.currentTab() === Tab.REACHABILITY_GRAPH
-        )&& node.isActivated();
+        ) && node.isActivated();
     }
 
     /**
@@ -76,7 +84,8 @@ export class PlayService {
 
     /**
      * Deletes a firing entry from the firing sequence table.
-     * @param id The ID of the firing entry that is to be deleted
+     * @param id 
+     *          The ID of the firing entry that is to be deleted
      */
     deleteFiringEntry(id: number): void {
         this.firingEntries.update((entries) => entries.filter((entry) => entry.id !== id));
@@ -85,7 +94,8 @@ export class PlayService {
     /**
      * Updates the current firing entry when a transition is fired.
      * If no entry exists, creates a new one.
-     * @param label The label of the fired transition.
+     * @param label
+     *          The label of the fired transition.
      */
     private _addTransitionToFiringSequence(diagram: Diagram, label: string): void {
         this.firingEntries.update((entries) => {
@@ -102,8 +112,10 @@ export class PlayService {
     /**
      * Appends the label of a fired transition to a firing sequence
      * and updates transition count and end marking accordingly.
-     * @param entry The entry to be updated.
-     * @param label The label of the fired transition.
+     * @param entry 
+     *          The entry to be updated.
+     * @param label
+     *          The label of the fired transition.
      * @returns The updated firing entry.
      */
     private _updateFiringEntry(diagram: Diagram, entry: FiringEntry, label: string): FiringEntry {

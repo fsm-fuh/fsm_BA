@@ -27,12 +27,24 @@ export class FiringEntry {
         this.endMarking = this.parseMarking(formattedMarking);
     }
 
+    /**
+     * Formats a marking into a string representation.
+     * @param marking 
+     *          The marking to be formatted.
+     * @returns The formatted marking string.
+     */
     private formatMarking(marking: Record<string, number>): string {
         return Object.entries(marking)
             .map(([key, value]) => `${key}: ${value}`)
             .join(', ');
     }
 
+    /**
+     * Parses a formatted marking string into a record of key-value pairs.
+     * @param formattedMarking
+     *          The formatted marking string.
+     * @returns A record representing the parsed marking.
+     */
     private parseMarking(formattedMarking: string): Record<string, number> {
         const marking: Record<string, number> = {};
         const entries = formattedMarking.split(',').map((entry) => entry.trim());
