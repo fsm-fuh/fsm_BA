@@ -70,9 +70,11 @@ export class PlayService {
 
     /**
      * Starts a new, empty firing sequence.
+     * @param diagram
+     *          The diagram for which the firing sequence is started.
      */
-    startNewFiringSequence() {
-        this._closeLastFiringEntry();
+    startNewFiringSequence(diagram: Diagram): void {
+        this._closeLastFiringEntry(diagram);
         this.firingEntries.update((entries) => {
             entries.push(this._getEmptyFiringEntry());
             return entries;
@@ -94,6 +96,8 @@ export class PlayService {
     /**
      * Updates the current firing entry when a transition is fired.
      * If no entry exists, creates a new one.
+     * @param diagram 
+     *          The diagram containing the transition.
      * @param label
      *          The label of the fired transition.
      */
@@ -112,6 +116,8 @@ export class PlayService {
     /**
      * Appends the label of a fired transition to a firing sequence
      * and updates transition count and end marking accordingly.
+     * @param diagram 
+     *          The diagram containing the transition.
      * @param entry 
      *          The entry to be updated.
      * @param label
@@ -127,8 +133,12 @@ export class PlayService {
 
     /**
      * Closes the last firing entry in the sequence, preventing further updates to it.
+     * Resets the diagram marking to the start marking.
+     * @param diagram
+     *          The diagram for which the firing sequence is being recorded.
      */
-    private _closeLastFiringEntry(): void {
+    private _closeLastFiringEntry(diagram: Diagram): void {
+        diagram.resetMarking();
         this.firingEntries.update((entries) => {
             let lastEntry = entries[entries.length - 1];
             if (lastEntry && !lastEntry.isClosed) lastEntry.isClosed = true;
@@ -141,7 +151,6 @@ export class PlayService {
      * @returns A firing entry with an empty sequence
      */
     private _getEmptyFiringEntry(): FiringEntry {
-        console.log(this._startMarking);
         return new FiringEntry(
             this._getNewId(),
             '',
