@@ -50,10 +50,10 @@
     border-radius: 4px;
 }
 
-input[type="text"],
-input[type="number"] {
+input[type='text'],
+input[type='number'] {
     width: 100%;
     box-sizing: border-box;
-    font-family: "Courier New", sans-serif;
+    font-family: 'Courier New', sans-serif;
     font-size: 16px;
 }

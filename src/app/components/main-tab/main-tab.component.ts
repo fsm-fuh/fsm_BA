@@ -55,8 +55,9 @@ export class MainTabComponent {
         else if (
             this._tabStateService.currentTab() === Tab.PLAY ||
             this._tabStateService.currentTab() === Tab.REACHABILITY_GRAPH
-        ) this._playService.recoverMarking(diagram);
-        
+        )
+            this._playService.recoverMarking(diagram);
+
         this._sourcePetriNetService.updateEditedNet(diagram);
     }
 }

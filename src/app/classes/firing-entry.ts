@@ -8,7 +8,7 @@ export class FiringEntry {
         public transitionCount: number,
         public startMarking: Record<string, number>,
         public endMarking: Record<string, number>,
-        public isClosed: boolean
+        public isClosed: boolean,
     ) {}
 
     get formattedStartMarking(): string {
@@ -29,7 +29,7 @@ export class FiringEntry {
 
     /**
      * Formats a marking into a string representation.
-     * @param marking 
+     * @param marking
      *          The marking to be formatted.
      * @returns The formatted marking string.
      */

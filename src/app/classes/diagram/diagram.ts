@@ -54,7 +54,7 @@ export class Diagram implements DisplayableGraph {
 
     /**
      * Sets the marking of the diagram based on the provided mapping from place IDs to token counts.
-     * @param marking 
+     * @param marking
      *          The new marking to be set.
      */
     set marking(marking: Record<string, number>) {

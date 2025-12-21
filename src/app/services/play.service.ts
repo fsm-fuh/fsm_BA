@@ -30,7 +30,7 @@ export class PlayService {
 
     /**
      * Recovers the marking of the diagram from the last marking stored in the service.
-     * @param diagram 
+     * @param diagram
      *          The diagram to recover the marking for.
      */
     recoverMarking(diagram: Diagram): void {
@@ -48,7 +48,7 @@ export class PlayService {
     /**
      * Fires a transition if it is activated, updates the diagram
      * and records the firing in the firing sequence.
-     * @param diagram 
+     * @param diagram
      *          The diagram containing the transition.
      * @param node
      *          The transition node to be fired.
@@ -69,15 +69,16 @@ export class PlayService {
 
     /**
      * Checks if a transition can be fired in the current tab and state.
-     * @param node 
+     * @param node
      *          The transition to be checked
      * @returns true if the transition can be fired
      */
     canBeFired(node: DiagramTransition): boolean {
         return (
-            this._tabStateService.currentTab() === Tab.PLAY ||
-            this._tabStateService.currentTab() === Tab.REACHABILITY_GRAPH
-        ) && node.isActivated();
+            (this._tabStateService.currentTab() === Tab.PLAY ||
+                this._tabStateService.currentTab() === Tab.REACHABILITY_GRAPH) &&
+            node.isActivated()
+        );
     }
 
     /**
@@ -100,7 +101,7 @@ export class PlayService {
 
     /**
      * Deletes a firing entry from the firing sequence table.
-     * @param id 
+     * @param id
      *          The ID of the firing entry that is to be deleted
      */
     deleteFiringEntry(id: number): void {
@@ -128,7 +129,7 @@ export class PlayService {
     /**
      * Appends the label of a fired transition to a firing sequence
      * and updates transition count and end marking accordingly.
-     * @param entry 
+     * @param entry
      *          The entry to be updated.
      * @param label
      *          The label of the fired transition.
@@ -157,14 +158,7 @@ export class PlayService {
      * @returns A firing entry with an empty sequence
      */
     private _getEmptyFiringEntry(): FiringEntry {
-        return new FiringEntry(
-            this._getNewId(),
-            '',
-            0,
-            this._startMarking,
-            this._startMarking,
-            false,
-        );
+        return new FiringEntry(this._getNewId(), '', 0, this._startMarking, this._startMarking, false);
     }
 
     /**
