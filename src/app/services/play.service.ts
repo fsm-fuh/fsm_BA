@@ -1,11 +1,12 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { FiringEntry } from '../classes/firing-entry';
+
 import { ToasterNotificationService } from './toaster-notification.service';
-import { DiagramTransition } from '../classes/diagram/diagram-transition';
-import { Diagram } from '../classes/diagram/diagram';
 import { SourcePetriNetService } from './source-petri-net.service';
 import { TabStateService } from './tab-state.service';
 import { Tab } from '../classes/tabs';
+import { Diagram } from '../classes/diagram/diagram';
+import { DiagramTransition } from '../classes/diagram/diagram-transition';
+import { FiringEntry } from '../classes/firing-entry';
 
 @Injectable({ providedIn: 'root' })
 export class PlayService {
@@ -46,20 +47,46 @@ export class PlayService {
     }
 
     /**
+     * Plays a firing sequence on a diagram.
+     * @param diagram
+     *          The diagram on which the firing sequence is played.
+     * @param firingEntry
+     *          The firing entry containing the sequence to be played.
+     * @param transitionTime
+     *          The time period between firing each transition in milliseconds.
+     */
+    playSequence(diagram: Diagram, firingEntry: FiringEntry, transitionTime: number): void {
+        diagram.marking = { ...firingEntry.startMarking };
+        console.log('Playing sequence:', firingEntry.firingSequence);
+        for (const label of firingEntry.labels) {
+            const node: DiagramTransition | undefined = diagram.getTransitionByLabel(label);
+            if (node)
+                setTimeout(() => {
+                    this.processTransitionClick(diagram, node, true);
+                    firingEntry.endMarking = diagram.marking;
+                }, transitionTime);
+        }
+    }
+
+    /**
      * Fires a transition if it is activated, updates the diagram
      * and records the firing in the firing sequence.
      * @param diagram
      *          The diagram containing the transition.
      * @param node
      *          The transition node to be fired.
+     * @param test
+     *          Whether this is a test firing (does not update firing sequence).
      */
-    processTransitionClick(diagram: Diagram, node: DiagramTransition): void {
+    processTransitionClick(diagram: Diagram, node: DiagramTransition, test: boolean = false): void {
         if (node.isActivated()) {
             node.fire();
             diagram.updateMarking();
             this._lastMarking = diagram.marking;
-            this._sourceNetService.updateEditedNet(diagram);
-            this._addTransitionToFiringSequence(node.label);
+            if (!test) {
+                this._sourceNetService.updateEditedNet(diagram);
+                this._addTransitionToFiringSequence(node.label);
+            }
         } else
             this._notificationService.showWarning(
                 'Transition not activated',
