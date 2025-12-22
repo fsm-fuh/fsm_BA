@@ -30,7 +30,6 @@ export class FiringTableComponent implements OnInit, OnDestroy {
     private _diagram: Diagram | undefined;
     @Input() firingEntries: FiringEntry[] = [];
 
-
     ngOnInit(): void {
         this._sub = this._displayService.diagram$.subscribe((diagram) => {
             this._diagram = diagram instanceof Diagram ? diagram : undefined;

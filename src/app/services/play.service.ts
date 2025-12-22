@@ -61,7 +61,7 @@ export class PlayService {
         for (let i = 0; i < entry.labels.length; i++) {
             const label = entry.labels[i];
             const node: DiagramTransition | undefined = diagram.getTransitionByLabel(label);
-            
+
             if (node) {
                 setTimeout(() => {
                     this.processTransitionClick(diagram, node, true);

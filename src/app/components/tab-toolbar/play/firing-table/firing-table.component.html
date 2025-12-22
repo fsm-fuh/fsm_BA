@@ -21,10 +21,7 @@
         @for (entry of firingEntries; track entry.id) {
             <tr>
                 <td class="play-sequence-td">
-                    <button
-                        mat-icon-button
-                        (click)="onPlaySequence(entry)"
-                        class="play-sequence-button">
+                    <button mat-icon-button (click)="onPlaySequence(entry)" class="play-sequence-button">
                         <mat-icon>play_arrow</mat-icon>
                     </button>
                 </td>
