@@ -6,11 +6,12 @@ import { DisplayService } from '../../services/display.service';
 import { PlayService } from '../../services/play.service';
 import { MatTooltip } from '@angular/material/tooltip';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-clear-net-button',
     standalone: true,
-    imports: [MatIconButton, MatIcon, MatTooltip],
+    imports: [MatIconButton, MatIcon, MatTooltip, TranslateModule],
     templateUrl: './clear-net-button.component.html',
     styleUrls: ['./clear-net-button.component.css'],
 })
