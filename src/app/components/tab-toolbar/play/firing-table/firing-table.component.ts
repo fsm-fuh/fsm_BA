@@ -1,4 +1,5 @@
 import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconButton } from '@angular/material/button';
@@ -14,7 +15,7 @@ import { FiringEntry } from '../../../../classes/firing-entry';
 @Component({
     selector: 'app-firing-table',
     standalone: true,
-    imports: [CommonModule, FormsModule, MatIconButton, MatIcon],
+    imports: [CommonModule, FormsModule, MatIconButton, MatIcon, TranslateModule],
     templateUrl: './firing-table.component.html',
     styleUrl: './firing-table.component.css',
 })

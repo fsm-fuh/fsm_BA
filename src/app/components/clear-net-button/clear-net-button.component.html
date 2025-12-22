@@ -1,7 +1,6 @@
 <button
     mat-icon-button
-    aria-label="Petri-Netz löschen"
-    matTooltip="Petri-Netz löschen"
+    [matTooltip]="'CLEAR_NET' | translate"
     color="warn"
     (click)="clearNet()"
     class="clear-button"
