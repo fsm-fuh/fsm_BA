@@ -1,4 +1,9 @@
-<button mat-icon-button [matTooltip]="'SAVE_AS' | translate" [matMenuTriggerFor]="saveMenu" color="primary" [disabled]="isDisabled()">
+<button
+    mat-icon-button
+    [matTooltip]="'SAVE_AS' | translate"
+    [matMenuTriggerFor]="saveMenu"
+    color="primary"
+    [disabled]="isDisabled()">
     <mat-icon>save_alt</mat-icon>
 </button>
 <mat-menu #saveMenu="matMenu">
