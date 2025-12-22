@@ -1,6 +1,11 @@
 <table class="firing-table">
     <thead>
         <tr>
+            <th class="verify-all-th">
+                <button mat-icon-button class="verify-all-entries-button">
+                    <mat-icon>playlist_add_check</mat-icon>
+                </button>
+            </th>
             <th class="firing-sequence-th">Firing Sequence</th>
             <th class="transition-count-th">Transition Count</th>
             <th class="start-marking-th">Start Marking</th>
@@ -15,6 +20,14 @@
     <tbody>
         @for (entry of firingEntries; track entry.id) {
             <tr>
+                <td class="play-sequence-td">
+                    <button
+                        mat-icon-button
+                        (click)="onPlaySequence(entry)"
+                        class="play-sequence-button">
+                        <mat-icon>play_arrow</mat-icon>
+                    </button>
+                </td>
                 <td class="firing-sequence-td">
                     @if (!entry.isClosed) {
                         <input

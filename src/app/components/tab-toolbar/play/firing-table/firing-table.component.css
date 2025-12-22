@@ -37,6 +37,8 @@
     width: auto;
 }
 
+.play-sequence-button,
+.verify-all-entries-button,
 .delete-entry-button,
 .delete-all-entries-button {
     height: 24px;
@@ -44,6 +46,8 @@
     padding: 0;
 }
 
+.play-sequence-button:hover,
+.verify-all-entries-button:hover,
 .delete-entry-button:hover,
 .delete-all-entries-button:hover {
     background-color: rgba(211, 47, 47, 0.1);
