@@ -26,6 +26,34 @@ export class FiringTableComponent {
         this._playService.deleteFiringEntry(id);
     }
 
+    incrementStartMarking(entry: FiringEntry, placeId: string): void {
+        const newMarking = { ...entry.startMarking };
+        newMarking[placeId] = (newMarking[placeId] || 0) + 1;
+        entry.startMarking = newMarking;
+    }
+
+    decrementStartMarking(entry: FiringEntry, placeId: string): void {
+        if ((entry.startMarking[placeId] || 0) > 0) {
+            const newMarking = { ...entry.startMarking };
+            newMarking[placeId] = (newMarking[placeId] || 0) - 1;
+            entry.startMarking = newMarking;
+        }
+    }
+
+    incrementEndMarking(entry: FiringEntry, placeId: string): void {
+        const newMarking = { ...entry.endMarking };
+        newMarking[placeId] = (newMarking[placeId] || 0) + 1;
+        entry.endMarking = newMarking;
+    }
+
+    decrementEndMarking(entry: FiringEntry, placeId: string): void {
+        if ((entry.endMarking[placeId] || 0) > 0) {
+            const newMarking = { ...entry.endMarking };
+            newMarking[placeId] = (newMarking[placeId] || 0) - 1;
+            entry.endMarking = newMarking;
+        }
+    }
+
     onDeleteAllEntries(): void {
         this._playService.resetFiringEntries();
         this._displayService.diagram$
@@ -36,5 +64,9 @@ export class FiringTableComponent {
             .subscribe((diagram) => {
                 diagram.resetMarking();
             });
+    }
+
+    protected isDisabled(tokens: number) {
+        return tokens <= 0;
     }
 }

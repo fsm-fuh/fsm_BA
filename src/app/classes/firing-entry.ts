@@ -15,18 +15,9 @@ export class FiringEntry {
         return this.formatMarking(this.startMarking);
     }
 
-    set formattedStartMarking(formattedMarking: string) {
-        this.startMarking = this.parseMarking(formattedMarking);
-    }
-
     get formattedEndMarking(): string {
         return this.formatMarking(this.endMarking);
     }
-
-    set formattedEndMarking(formattedMarking: string) {
-        this.endMarking = this.parseMarking(formattedMarking);
-    }
-
     /**
      * Formats a marking into a string representation.
      * @param marking
@@ -37,23 +28,5 @@ export class FiringEntry {
         return Object.entries(marking)
             .map(([key, value]) => `${key}: ${value}`)
             .join(', ');
-    }
-
-    /**
-     * Parses a formatted marking string into a record of key-value pairs.
-     * @param formattedMarking
-     *          The formatted marking string.
-     * @returns A record representing the parsed marking.
-     */
-    private parseMarking(formattedMarking: string): Record<string, number> {
-        const marking: Record<string, number> = {};
-        const entries = formattedMarking.split(',').map((entry) => entry.trim());
-        for (const entry of entries) {
-            const [key, value] = entry.split(':').map((part) => part.trim());
-            if (key && value && !isNaN(Number(value))) {
-                marking[key] = Number(value);
-            }
-        }
-        return marking;
     }
 }

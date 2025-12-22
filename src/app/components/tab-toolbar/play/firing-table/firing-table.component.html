@@ -16,39 +16,77 @@
         @for (entry of firingEntries; track entry.id) {
             <tr>
                 <td class="firing-sequence-td">
-                    <ng-container *ngIf="!entry.isClosed; else displayFiringSequence">
+                    @if (!entry.isClosed) {
                         <input type="text" [(ngModel)]="entry.firingSequence" id="firing-sequence-input" />
-                    </ng-container>
-                    <ng-template #displayFiringSequence>
+                    } @else {
                         {{ entry.firingSequence }}
-                    </ng-template>
+                    }
                 </td>
                 <td class="transition-count-td">
-                    <ng-container *ngIf="!entry.isClosed; else displayTransitionCount">
+                    @if (!entry.isClosed) {
                         <input type="number" [(ngModel)]="entry.transitionCount" />
-                    </ng-container>
-                    <ng-template #displayTransitionCount>
+                    } @else {
                         {{ entry.transitionCount }}
-                    </ng-template>
+                    }
                 </td>
                 <td class="start-marking-td">
-                    <ng-container *ngIf="!entry.isClosed; else displayStartMarking">
-                        <input type="text" [(ngModel)]="entry.formattedStartMarking" />
-                    </ng-container>
-                    <ng-template #displayStartMarking>
+                    @if (!entry.isClosed) {
+                        <div class="marking-container">
+                            @for (item of entry.startMarking | keyvalue; track item.key) {
+                                <div class="marking-entry">
+                                    <span>{{ item.key }}: {{ item.value }}</span>
+                                    <div class="button-container">
+                                        <button
+                                            mat-icon-button
+                                            (click)="incrementStartMarking(entry, item.key)"
+                                            class="marking-button">
+                                            <mat-icon>add</mat-icon>
+                                        </button>
+                                        <button
+                                            mat-icon-button
+                                            (click)="decrementStartMarking(entry, item.key)"
+                                            [disabled]="isDisabled(item.value)"
+                                            class="marking-button">
+                                            <mat-icon>remove</mat-icon>
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    } @else {
                         {{ entry.formattedStartMarking }}
-                    </ng-template>
+                    }
                 </td>
                 <td class="end-marking-td">
-                    <ng-container *ngIf="!entry.isClosed; else displayEndMarking">
-                        <input type="text" [(ngModel)]="entry.formattedEndMarking" />
-                    </ng-container>
-                    <ng-template #displayEndMarking>
+                    @if (!entry.isClosed) {
+                        <div class="marking-container">
+                            @for (item of entry.endMarking | keyvalue; track item.key) {
+                                <div class="marking-entry">
+                                    <span>{{ item.key }}: {{ item.value }}</span>
+                                    <div class="button-container">
+                                        <button
+                                            mat-icon-button
+                                            (click)="incrementEndMarking(entry, item.key)"
+                                            class="marking-button">
+                                            <mat-icon>add</mat-icon>
+                                        </button>
+                                        <button
+                                            mat-icon-button
+                                            (click)="decrementEndMarking(entry, item.key)"
+                                            [disabled]="isDisabled(item.value)"
+                                            class="marking-button">
+                                            <mat-icon>remove</mat-icon>
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    } @else {
                         {{ entry.formattedEndMarking }}
-                    </ng-template>
+                    }
                 </td>
                 <td class="delete-button-td">
-                    <ng-container *ngIf="entry.isClosed; else deleteButton">
+                    @if (entry.isClosed) {
                         <button
                             mat-icon-button
                             color="warn"
@@ -56,8 +94,7 @@
                             class="delete-entry-button">
                             <mat-icon>delete</mat-icon>
                         </button>
-                    </ng-container>
-                    <ng-template #deleteButton> </ng-template>
+                    }
                 </td>
             </tr>
         }
