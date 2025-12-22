@@ -1,10 +1,14 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { PetriNetSavingService } from '../../../services/petri-net-saving.service';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatIconButton } from '@angular/material/button';
 import { MatTooltip } from '@angular/material/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
+import { DisplayService } from '../../../services/display.service';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { TabStateService } from '../../../services/tab-state.service';
+import { Tab } from '../../../classes/tabs';
 
 @Component({
     selector: 'app-save',
@@ -14,8 +18,19 @@ import { TranslateModule } from '@ngx-translate/core';
 })
 export class SaveComponent {
     private _petriNetSavingService = inject(PetriNetSavingService);
+    private _displayService = inject(DisplayService);
+    private _tabsStateService = inject(TabStateService);
+    private _diagramSignal = toSignal(this._displayService.diagram$);
+    public isDisabled = computed(() => !this._diagramSignal());
+    public isImageExportDisabled = computed(
+        () => this.isDisabled() || this._tabsStateService.currentTab() === Tab.PROCESS_NET,
+    );
 
     protected onSave(format: 'json' | 'pnml') {
         this._petriNetSavingService.savePetriNet(format);
+    }
+
+    protected onImageSave(format: 'png' | 'jpeg') {
+        this._displayService.triggerDownload(format);
     }
 }
