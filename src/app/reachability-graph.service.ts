@@ -22,16 +22,16 @@ export class ReachabilityGraphService {
   private _startMarkingRG: Record<string, number> = {};
   private _currentMarkingRG = signal<Record<string, number>>(this._startMarkingRG);
   //TODO: Later on, implement better algorithm for placement of StateNodes
-  private xCounter: number = 2;
-  private yCounter: number = 2;
+  private xCounter = 2;
+  private yCounter = 2;
   //Counter for StateNodeIDs
-  private idCounter: number = 1;
+  private idCounter = 1;
   //Counter für Kanten im EG
-  private rgEdgeCounter: number = 1;
+  private rgEdgeCounter = 1;
   //Changed for Arc recognition; StateNodes to be cmpared by ID, not by label
   private initialRgId: string = 'RG' + this.idCounter;
   private currentSourceRgId: string = this.initialRgId;
-  private currentTargetRgId: string = '';
+  private currentTargetRgId = '';
 
   set startMarkingRG(marking: Record<string, number>) {
     this._startMarkingRG = marking;
@@ -68,13 +68,13 @@ export class ReachabilityGraphService {
       //AUTOMATISCH StateNode erzeugen
       //Current marking auslesen
       this._startMarkingRG = this._sourceNetService.getCurrentSourceNet()?.startMarking || {};
-      let initialReachabilityLabel: string = Object.values(this._startMarkingRG).join(' ');
+      const initialReachabilityLabel: string = Object.values(this._startMarkingRG).join(' ');
       //let initialRgId: string = 'RG00';
       //x und y Startwert konstant festlegen
-      let initialX: number = 100;
-      let initialY: number = 100;
+      const initialX = 100;
+      const initialY = 100;
       //neuen StateNode erzeugen
-      let initialStateNode = new StateNode(
+      const initialStateNode = new StateNode(
         this.initialRgId,
         initialX,
         initialY,
@@ -85,7 +85,7 @@ export class ReachabilityGraphService {
       this._reachabilityGraph.update((graph) => {
         const newGraph = new ReachabilityGraph();
         newGraph.nodes = [...graph.nodes, initialStateNode];
-        newGraph.edges = [...graph.edges];
+        newGraph.edges = [];
         return newGraph;
       });
 
@@ -106,24 +106,24 @@ export class ReachabilityGraphService {
   //WIRKLICH VON HIER NEHMEN - ODER AUS DEM RG-Model mit Subscrbe, wenn sich das Netz ändert? - Was ist "sauberer"?
   convertFiringEntryLabelToReachabilityGraphID(firingEntry: FiringEntry) {
     //Fallunterscheidung zwischen erstem Aufruf und dann Aufruf nach Schalten / Firing --> ueber unterschiedliche Methoden geloest
-    let _markingRG = this._sourceNetService.getCurrentSourceNet()?.currentMarking$ || {};
+    const _markingRG = this._sourceNetService.getCurrentSourceNet()?.currentMarking$ || {};
     //Vorherigen Zustand für Arc speichern
-    let previousReachabilityLabel: string = Object.entries(firingEntry.startMarking)
+    const previousReachabilityLabel: string = Object.entries(firingEntry.startMarking)
       .map(([key, value]) => `${value}`)
       .join(' ');
 
     //Zustand nach Schalten / Target für Arcs
-    let currentReachabilityLabel: string = Object.entries(firingEntry.endMarking)
+    const currentReachabilityLabel: string = Object.entries(firingEntry.endMarking)
       .map(([key, value]) => `${value}`)
       .join(' ');
 
-    let currentRgId: string = 'RG' + this.idCounter;
+    const currentRgId: string = 'RG' + this.idCounter;
     this.currentTargetRgId = currentRgId;
     //x und y Startwert konstant festlegen
-    let currentX: number = this.xCounter * 100;
-    let currentY: number = this.yCounter * 100;
+    const currentX: number = this.xCounter * 100;
+    const currentY: number = this.yCounter * 100;
     //neuen StateNode erzeugen
-    let currentStateNode = new StateNode(
+    const currentStateNode = new StateNode(
       currentRgId,
       currentX,
       currentY,
@@ -131,9 +131,9 @@ export class ReachabilityGraphService {
       this.startMarkingRG
     );
 
-    let currentRgEdgeId: string = 'Edge' + this.rgEdgeCounter;
-    let currentRgEdgeLabel: string = 'E' + this.rgEdgeCounter;
-    let currentFiringEdge = new FiringEdge(
+    const currentRgEdgeId: string = 'Edge' + this.rgEdgeCounter;
+    const currentRgEdgeLabel: string = firingEntry.firingSequence;
+    const currentFiringEdge = new FiringEdge(
       currentRgEdgeId,
       this.currentSourceRgId,
       this.currentTargetRgId,

@@ -11,7 +11,7 @@ export class StateNode implements DisplayableNode {
     x = 0;
     y = 0;
     label: string;
-    rGMarking: Record<string, Number>;
+    rGMarking: Record<string, number>;
 
     //Auf previous und nextState verweisen ? alle Möglichkeiten / neighbours
     //double linked list ohne Ende
@@ -28,7 +28,7 @@ export class StateNode implements DisplayableNode {
         return signal(0);
     }
 
-    constructor(id: string, x: number, y: number, label: string, marking: Record<string, Number>) {
+    constructor(id: string, x: number, y: number, label: string, marking: Record<string, number>) {
         this.id = id;
         this.x = x;
         this.y = y;

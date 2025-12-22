@@ -16,7 +16,7 @@ import { DisplayService } from 'src/app/services/display.service';
     templateUrl: './reachability-graph.component.html',
     styleUrl: './reachability-graph.component.css',
 })
-export class ReachabilityGraphComponent implements OnInit, OnDestroy {
+export class ReachabilityGraphComponent  {
     private _tabStateService = inject(TabStateService);
     private _reachabilityGraphService = inject(ReachabilityGraphService);
     private _displayService = inject(DisplayService);
@@ -37,9 +37,9 @@ export class ReachabilityGraphComponent implements OnInit, OnDestroy {
         });
     }
 
-    ngOnInit(): void {}
+    // ngOnInit(): void {}
 
-    ngOnDestroy(): void {}
+    // ngOnDestroy(): void {}
     //         this._sub = this._displayService.diagram$
     //             .pipe(
     //                 filter((diagram) => !!diagram && diagram instanceof Diagram),
