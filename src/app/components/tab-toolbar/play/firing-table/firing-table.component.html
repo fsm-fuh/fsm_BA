@@ -17,7 +17,11 @@
             <tr>
                 <td class="firing-sequence-td">
                     @if (!entry.isClosed) {
-                        <input type="text" [(ngModel)]="entry.firingSequence" id="firing-sequence-input" />
+                        <input
+                            type="text"
+                            [(ngModel)]="entry.firingSequence"
+                            id="firing-sequence-input"
+                            (keyup)="onKeyUp(entry, $event)" />
                     } @else {
                         {{ entry.firingSequence }}
                     }
@@ -100,3 +104,4 @@
         }
     </tbody>
 </table>
+<button mat-raised-button class="new-entry-button" color="primary" (click)="onNewEntry()">New Sequence</button>

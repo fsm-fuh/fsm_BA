@@ -93,4 +93,8 @@ export class Diagram implements DisplayableGraph {
     getEdges(): DisplayableEdge[] {
         return this._arcs;
     }
+
+    getTransitionByLabel(label: string): DiagramTransition | undefined {
+        return this._transitions.find((t) => t.label === label || t.id === label);
+    }
 }

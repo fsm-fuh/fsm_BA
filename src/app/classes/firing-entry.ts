@@ -2,6 +2,8 @@
  * Representing a transition firing sequence in the petri net.
  */
 export class FiringEntry {
+    private _delimiters = /\s+|,|;/;
+
     constructor(
         public id: number,
         public firingSequence: string,
@@ -11,13 +13,33 @@ export class FiringEntry {
         public isClosed: boolean,
     ) {}
 
+    /**
+     * Returns the labels of the transitions in the firing sequence as an array of strings.
+     * @return The array of transition labels.
+     */
+    get labels(): string[] {
+        return this.firingSequence
+            .trim()
+            .split(this._delimiters)
+            .filter((label) => label.length > 0);
+    }
+
+    /**
+     * Returns the formatted start marking as a string.
+     * @return The formatted start marking string.
+     */
     get formattedStartMarking(): string {
         return this.formatMarking(this.startMarking);
     }
 
+    /**
+     * Returns the formatted end marking as a string.
+     * @return The formatted end marking string.
+     */
     get formattedEndMarking(): string {
         return this.formatMarking(this.endMarking);
     }
+
     /**
      * Formats a marking into a string representation.
      * @param marking

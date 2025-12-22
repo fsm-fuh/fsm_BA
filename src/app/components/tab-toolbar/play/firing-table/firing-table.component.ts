@@ -1,13 +1,15 @@
-import { Component, inject, Input } from '@angular/core';
+import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import { PlayService } from '../../../../services/play.service';
-import { FiringEntry } from '../../../../classes/firing-entry';
+import { filter, Subscription, take } from 'rxjs';
+
 import { DisplayService } from '../../../../services/display.service';
-import { filter, take } from 'rxjs';
+import { PlayService } from '../../../../services/play.service';
+import { PlayValidationService } from '../../../../services/play-validation.service';
 import { Diagram } from '../../../../classes/diagram/diagram';
+import { FiringEntry } from '../../../../classes/firing-entry';
 
 @Component({
     selector: 'app-firing-table',
@@ -16,14 +18,50 @@ import { Diagram } from '../../../../classes/diagram/diagram';
     templateUrl: './firing-table.component.html',
     styleUrl: './firing-table.component.css',
 })
-export class FiringTableComponent {
-    private _playService = inject(PlayService);
-    private _displayService = inject(DisplayService);
+export class FiringTableComponent implements OnInit, OnDestroy {
+    private _sub?: Subscription;
 
+    private _displayService = inject(DisplayService);
+    private _playService = inject(PlayService);
+    private _playValidationService = inject(PlayValidationService);
+
+    private _diagram: Diagram | undefined;
     @Input() firingEntries: FiringEntry[] = [];
+
+    ngOnInit(): void {
+        this._sub = this._displayService.diagram$.subscribe((diagram) => {
+            this._diagram = diagram instanceof Diagram ? diagram : undefined;
+        });
+    }
+
+    ngOnDestroy(): void {
+        this._sub?.unsubscribe();
+    }
+
+    onKeyUp(firingEntry: FiringEntry, event: KeyboardEvent): void {
+        if (event.key === 'Enter') this.onNewEntry();
+        // TODO: Make validation dependent on current mode (e.g., exam mode)
+        else this._playValidationService.validateInput(this._diagram, firingEntry, event);
+    }
 
     onDeleteEntry(id: number): void {
         this._playService.deleteFiringEntry(id);
+    }
+
+    onDeleteAllEntries(): void {
+        this._playService.resetFiringEntries();
+        this._displayService.diagram$
+            .pipe(
+                take(1),
+                filter((diagram) => !!diagram && diagram instanceof Diagram),
+            )
+            .subscribe((diagram) => {
+                diagram.resetMarking();
+            });
+    }
+
+    onNewEntry(): void {
+        if (this._diagram) this._playService.startNewFiringSequence(this._diagram);
     }
 
     incrementStartMarking(entry: FiringEntry, placeId: string): void {
@@ -52,18 +90,6 @@ export class FiringTableComponent {
             newMarking[placeId] = (newMarking[placeId] || 0) - 1;
             entry.endMarking = newMarking;
         }
-    }
-
-    onDeleteAllEntries(): void {
-        this._playService.resetFiringEntries();
-        this._displayService.diagram$
-            .pipe(
-                take(1),
-                filter((diagram) => !!diagram && diagram instanceof Diagram),
-            )
-            .subscribe((diagram) => {
-                diagram.resetMarking();
-            });
     }
 
     protected isDisabled(tokens: number) {
