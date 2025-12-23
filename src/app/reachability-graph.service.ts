@@ -30,7 +30,7 @@ export class ReachabilityGraphService {
   private rgEdgeCounter = 1;
   //Changed for Arc recognition; StateNodes to be cmpared by ID, not by label
   private initialRgId: string = 'RG' + this.idCounter;
-  private currentSourceRgId: string = this.initialRgId;
+  private currentSourceRgId: string = 'RG' + this.idCounter;
   private currentTargetRgId = '';
 
   set startMarkingRG(marking: Record<string, number>) {
@@ -85,11 +85,15 @@ export class ReachabilityGraphService {
       this._reachabilityGraph.update((graph) => {
         const newGraph = new ReachabilityGraph();
         newGraph.nodes = [...graph.nodes, initialStateNode];
-        newGraph.edges = [];
+        // newGraph.edges = [...graph.edges];
         return newGraph;
       });
+      //increment counters
+      
+      console.log('initialReachabilityLabel'+initialReachabilityLabel);
+      this.idCounter++;
 
-      console.log(initialReachabilityLabel);
+
     } else if (this._modeService.currentMode() === AppMode.EXAM) {
       //nur im Hintergrund vergleichen, User gibt NodeLabel, also Marking, selbst ein und bekommt Feedback
     }
@@ -117,8 +121,17 @@ export class ReachabilityGraphService {
       .map(([key, value]) => `${value}`)
       .join(' ');
 
+
+      //IDs werden verglichen bei Source und Target
+      //ANPASSEN UND SCHAUEN, WIE ES KLAPPT
+
+    
     const currentRgId: string = 'RG' + this.idCounter;
+    console.log('currentRGID'+currentRgId);
+    console.log('currentSourceRgId'+this.currentSourceRgId);
     this.currentTargetRgId = currentRgId;
+    console.log('currentTargetRgId'+this.currentTargetRgId);
+    
     //x und y Startwert konstant festlegen
     const currentX: number = this.xCounter * 100;
     const currentY: number = this.yCounter * 100;
