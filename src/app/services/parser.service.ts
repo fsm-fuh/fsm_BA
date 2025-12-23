@@ -60,6 +60,7 @@ export class ParserService {
                 arcs,
                 places,
             );
+            
 
             return new Diagram(places, transitions, arcs);
         } catch (e) {

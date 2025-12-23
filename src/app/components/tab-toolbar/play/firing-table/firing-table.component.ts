@@ -13,7 +13,7 @@ import { Diagram } from '../../../../classes/diagram/diagram';
 @Component({
     selector: 'app-firing-table',
     standalone: true,
-    imports: [CommonModule, FormsModule, MatIconButton, MatIcon, TranslateModule],
+    imports: [TranslateModule, CommonModule, FormsModule, MatIconButton, MatIcon],
     templateUrl: './firing-table.component.html',
     styleUrl: './firing-table.component.css',
 })
