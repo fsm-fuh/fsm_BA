@@ -3,8 +3,6 @@ import { MatIcon } from '@angular/material/icon';
 import { MatIconButton } from '@angular/material/button';
 import { MatTooltip } from '@angular/material/tooltip';
 import { SpringEmbedderService } from '../../services/spring-embedder.service';
-import { DisplayService } from '../../services/display.service';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
 import { DisplayService } from '../../services/display.service';
 import { toSignal } from '@angular/core/rxjs-interop';
