@@ -62,6 +62,7 @@ export class ReachabilityGraphService {
      *
      */
     initializeReachabilityGraphFirstStateNode() {
+        if (!this._sourceNetService.getCurrentSourceNet()) return;
         if (this._modeService.currentMode() === AppMode.LEARN) {
             //AUTOMATISCH StateNode erzeugen
             //Current marking auslesen
@@ -153,6 +154,9 @@ export class ReachabilityGraphService {
             newGraph.edges = [...graph.edges, currentFiringEdge];
             return newGraph;
         });
+
+        console.log(this._reachabilityGraph());
+
         //increment counters
         this.idCounter++;
         this.xCounter++;
