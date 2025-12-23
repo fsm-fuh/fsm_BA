@@ -1,9 +1,5 @@
 import { Component, computed, ElementRef, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { SvgNodeComponent } from '../../../display/svg-node/svg-node.component';
-import { DiagramNode } from '../../../../classes/diagram/diagram-node';
-import { DiagramPlace } from '../../../../classes/diagram/diagram-place';
-import { DiagramTransition } from '../../../../classes/diagram/diagram-transition';
-import { DisplayService } from '../../../../services/display.service';
 import { ReachabilityGraph, StateNode, FiringEdge } from 'src/app/classes/reachability-graph.model';
 import { PanningService } from 'src/app/services/panning.service';
 import { DisplayComponent } from 'src/app/components/display/display.component';
@@ -23,6 +19,10 @@ export class ReachabilityGraphDrawDisplayComponent extends DisplayComponent {
     private _reachabilityGraphService = inject(ReachabilityGraphService);
     readonly reachabilityGraphdiagram = this._reachabilityGraphService.reachabilityGraphSignal;
     readonly rgNodes = signal<StateNode[]>([]);
+    readonly rgEdges = signal<FiringEdge[]>([]);
+
+    
+
 
     //signal für states, Liste von stateNodes
     //signal für edges, Liste von edges aus reachGraph

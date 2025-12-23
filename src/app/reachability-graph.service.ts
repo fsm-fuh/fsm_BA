@@ -2,15 +2,13 @@ import { Injectable, inject, signal, WritableSignal, Signal } from '@angular/cor
 import { FiringEntry } from './classes/firing-entry';
 import { FiringEdge, ReachabilityGraph } from './classes/reachability-graph.model';
 import { StateNode } from './classes/reachability-graph.model';
+import { SvgArcComponent } from './components/display/svg-arc/svg-arc.component';
+import { SvgNodeComponent } from './components/display/svg-node/svg-node.component';
 import { ModeService } from './services/mode.service';
 import { AppMode } from './classes/app-mode';
-// import { ToasterNotificationService } from './toaster-notification.service';
-// import { DiagramTransition } from '../classes/diagram/diagram-transition';
 import { SourcePetriNetService } from './services/source-petri-net.service';
 import { Diagram } from './classes/diagram/diagram';
 import { subscribeOn } from 'rxjs';
-// import { TabStateService } from './tab-state.service';
-// import { Tab } from '../classes/tabs';
 
 @Injectable({
   providedIn: 'root',
