@@ -21,9 +21,6 @@ export class ReachabilityGraphDrawDisplayComponent extends DisplayComponent {
     readonly rgNodes = signal<StateNode[]>([]);
     readonly rgEdges = signal<FiringEdge[]>([]);
 
-    
-
-
     //signal für states, Liste von stateNodes
     //signal für edges, Liste von edges aus reachGraph
     //checken, in welchem Modus

@@ -16,7 +16,7 @@ import { DisplayService } from 'src/app/services/display.service';
     templateUrl: './reachability-graph.component.html',
     styleUrl: './reachability-graph.component.css',
 })
-export class ReachabilityGraphComponent  {
+export class ReachabilityGraphComponent {
     private _tabStateService = inject(TabStateService);
     private _reachabilityGraphService = inject(ReachabilityGraphService);
     private _displayService = inject(DisplayService);
