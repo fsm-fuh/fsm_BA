@@ -9,6 +9,7 @@ import { AppMode } from './classes/app-mode';
 import { SourcePetriNetService } from './services/source-petri-net.service';
 import { Diagram } from './classes/diagram/diagram';
 import { subscribeOn } from 'rxjs';
+import { TabStateService } from './services/tab-state.service';
 
 @Injectable({
     providedIn: 'root',
@@ -19,6 +20,8 @@ export class ReachabilityGraphService {
     private _sourceNetService = inject(SourcePetriNetService);
     private _startMarkingRG: Record<string, number> = {};
     private _currentMarkingRG = signal<Record<string, number>>(this._startMarkingRG);
+    // private _rgTabStateService = inject(TabStateService);
+    
     //TODO: Later on, implement better algorithm for placement of StateNodes
     private xCounter = 2;
     private yCounter = 2;

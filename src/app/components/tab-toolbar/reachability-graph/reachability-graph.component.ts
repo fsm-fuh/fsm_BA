@@ -38,8 +38,10 @@ export class ReachabilityGraphComponent {
     }
 
     ngOnInit(): void {
-        this.initializeTabEffect;
-    }
+const currentTab = this._tabStateService.currentTab();
+            if (currentTab === Tab.REACHABILITY_GRAPH) {
+                this._reachabilityGraphService.initializeReachabilityGraphFirstStateNode();    }
+            }
 
     // ngOnDestroy(): void {}
     //         this._sub = this._displayService.diagram$
