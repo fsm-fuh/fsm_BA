@@ -85,8 +85,9 @@ export class DisplayComponent implements OnInit, OnDestroy {
         if (this.isPlayingEnabled() && diagram && diagram instanceof Diagram && node instanceof DiagramTransition) {
             this._playService.processTransitionClick(diagram, node);
         }
-        if(this.isReachabilityGraphEnabled() && diagram && diagram instanceof ReachabilityGraph && node instanceof StateNode) {
-            this._reachabilityGraphService.switchPnStateToClickedState(diagram, node);
+        if(this.isReachabilityGraphEnabled() && node instanceof StateNode) {
+                    // if(this.isReachabilityGraphEnabled() && diagram && diagram instanceof ReachabilityGraph && node instanceof StateNode) {
+            this._reachabilityGraphService.switchPnStateToClickedState(node);
         }
     }
 

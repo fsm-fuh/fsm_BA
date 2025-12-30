@@ -5,6 +5,9 @@ import { ModeService } from './services/mode.service';
 import { AppMode } from './classes/app-mode';
 import { SourcePetriNetService } from './services/source-petri-net.service';
 import { Diagram } from './classes/diagram/diagram';
+import { ToasterNotificationService } from './services/toaster-notification.service';
+import { PetriNet } from './services/validation.service';
+import { PlayService } from './services/play.service';
 
 @Injectable({
     providedIn: 'root',
@@ -16,6 +19,8 @@ export class ReachabilityGraphService {
     private _startMarkingRG: Record<string, number> = {};
     private _currentMarkingRG = signal<Record<string, number>>(this._startMarkingRG);
     private _lastProcessedDiagram: Diagram | null = null;
+    private _notificationService = inject(ToasterNotificationService);
+    // private _playService = inject(PlayService);
 
     private currentSourceRgId = 'RG1';
 
@@ -83,10 +88,9 @@ export class ReachabilityGraphService {
     }
 
     /**
-     * Gets firing entry label (Place names and tokens) from play service
-     * Converts to RG ID (only displays token numbers sorted ascending by place id (alphanumerical))
-     * Erstellt einzelnes state-Objekt
-     * erst danach vom Firing übernehmen
+     * Gets firing entry from play service
+     * Converts marking to RG ID (only displays token numbers sorted ascending by place id (alphanumerical))
+     * 
      * @param firingEntry The firing entry containing start and end markings.
      * @param label The label of the fired transition.
      */
@@ -141,21 +145,23 @@ export class ReachabilityGraphService {
      * Changes state of the PetriNet to the State of a ReachabilityGraph StateNode, meaning the marking is adjusted.
      * Triggered by clicking a StateNode in the RG.
      * Uses the "saved" Marking of the reachability graph model where each StateNode saves it's corresponding marking.
-     * @param clickedNodeLabel The label of the clicked StateNode
+     * @param diagram The current ReachabilityGraph
+     * @param node: The clicked StateNode
      */
-    switchPnStateToClickedState(diagram: ReachabilityGraph, node: StateNode){
+    switchPnStateToClickedState(node: StateNode){
+            // switchPnStateToClickedState(diagram: ReachabilityGraph, node: StateNode){
 
+        //important: diagram is rRG, but switching / setMarking needs to be implemented in PN
 
-
-
-
+        // this._playService.adjustPnMarking(node.rGMarking);
+         let oldPetriNet = this._sourceNetService.getCurrentSourceNet;
+         console.log('Old PN:' + oldPetriNet);
+        if(oldPetriNet instanceof Diagram){
+            oldPetriNet.marking = node.rGMarking;
+            console.log('Changed PN:' + oldPetriNet);
+            this._sourceNetService.updateEditedNet(oldPetriNet);
     }
-
-
-
-
-
-
     //Methode public ALLE state nodes zurückgeben
     //Methode 2 public ALLE edges zurückgeben
+}
 }
