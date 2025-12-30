@@ -78,6 +78,20 @@ export class PanningService {
     }
 
     /**
+     * Resets the viewBox to its initial values and clears the panning state.
+     * @param drawingArea
+     *        optional reference to the SVG drawing area, to reset the cursor style
+     */
+    public resetViewBox(drawingArea?: ElementRef<SVGGraphicsElement>): void {
+        this._isPanning = false;
+        this._panStartPoint = { x: 0, y: 0 };
+        this._viewBoxValues.set({ ...this.INITIAL_VIEWBOX });
+        if (drawingArea) {
+            drawingArea.nativeElement.style.cursor = 'default';
+        }
+    }
+
+    /**
      * Handles zooming in and out based on mouse wheel events.
      * @param event
      *        the wheel event triggering the zoom

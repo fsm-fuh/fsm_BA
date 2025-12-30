@@ -1,4 +1,15 @@
-import { ChangeDetectorRef, Component, computed, ElementRef, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import {
+    ChangeDetectorRef,
+    Component,
+    computed,
+    ElementRef,
+    inject,
+    OnDestroy,
+    OnInit,
+    signal,
+    ViewChild,
+    AfterViewInit,
+} from '@angular/core';
 import { SvgNodeComponent } from '../../../display/svg-node/svg-node.component';
 import { DiagramNode, SHAPE } from '../../../../classes/diagram/diagram-node';
 import { DiagramPlace, DiagramPlaceLabelPlacement } from '../../../../classes/diagram/diagram-place';
@@ -50,7 +61,8 @@ declare global {
     providers: [PanningService],
     styleUrls: ['./process-net-draw-display.css'],
 })
-export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
+export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy, AfterViewInit {
+    @ViewChild('drawingArea') drawingArea!: ElementRef<SVGGraphicsElement>;
     readonly drawnElements = signal<DrawnElement[]>([]);
     readonly isDragOver = signal<boolean>(false);
     // Connections between nodes (directed: from aId -> bId)
@@ -87,6 +99,8 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
     private customDropListener: ((event: Event) => void) | null = null;
     private displayService = inject(DisplayService);
     private toaster = inject(ToasterNotificationService);
+    private panningService = inject(PanningService);
+    readonly viewBox = this.panningService.viewBoxAsString;
 
     // Dimensions consistent with SvgNodeComponent
     private readonly PLACE_RADIUS = 25;
@@ -105,6 +119,10 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
             // Add mousedown listener with capture phase to intercept before child elements
             canvas.addEventListener('mousedown', this.handleCanvasMouseDown, true);
         }
+    }
+
+    ngAfterViewInit() {
+        this.svgElement = (this.drawingArea?.nativeElement as SVGSVGElement) ?? null;
     }
 
     ngOnDestroy() {
@@ -364,6 +382,29 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
         }
     }
 
+    onCanvasPanStart(event: MouseEvent) {
+        if (this.isDraggingElement) return;
+        const target = event.target as Element | null;
+        const isOnElement = target?.closest('.element-wrapper') || target?.classList.contains('drag-overlay');
+        if (isOnElement) {
+            return;
+        }
+        this.panningService.startPan(event, this.displayService.diagram, this.drawingArea);
+    }
+
+    onCanvasPan(event: MouseEvent) {
+        if (this.isDraggingElement) return;
+        this.panningService.pan(event, this.drawingArea);
+    }
+
+    onCanvasPanEnd() {
+        this.panningService.endPan(this.drawingArea);
+    }
+
+    onCanvasWheel(event: WheelEvent) {
+        this.panningService.zoom(event, this.drawingArea, this.displayService.diagram);
+    }
+
     private onDocumentMouseMove = (event: MouseEvent) => {
         if (!this.draggedElement || !this.isDraggingElement) {
             return;
@@ -438,7 +479,9 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
 
     private getSvgCoordinatesFromClient(clientX: number, clientY: number): { x: number; y: number } | null {
         if (!this.svgElement) {
-            this.svgElement = document.querySelector('.drawing-canvas');
+            this.svgElement =
+                (this.drawingArea?.nativeElement as SVGSVGElement) ??
+                ((document.querySelector('.drawing-canvas') as SVGSVGElement) || null);
         }
 
         if (!this.svgElement) {
@@ -633,12 +676,16 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
         }
 
         this.clearDrawing();
+        this.panningService.resetViewBox(this.drawingArea);
 
-        const canvasHeight = 600;
+        const viewBox = this.panningService.INITIAL_VIEWBOX;
         const padding = 40;
-        const spacing = tokenInstances.length > 0 ? (canvasHeight - padding * 2) / tokenInstances.length : 0;
+        const availableHeight = viewBox.height - padding * 2;
+        const minSpacing = this.PLACE_RADIUS * 2 + 20;
+        const spacing = tokenInstances.length > 0 ? Math.max(availableHeight / tokenInstances.length, minSpacing) : 0;
 
         const newElements: DrawnElement[] = [];
+        const startX = viewBox.minX + viewBox.width * 0.25;
         tokenInstances.forEach((place, index) => {
             const innerLabel = this.getNextInnerLabel();
             const uniqueId = `start-${innerLabel}-${place.id}-${index}`;
@@ -648,8 +695,8 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy {
                 labelPlacement: 'below',
                 isStartPlace: true,
             });
-            newPlace.x = this.PLACE_RADIUS + 20;
-            newPlace.y = padding + spacing * index + spacing / 2;
+            newPlace.x = startX;
+            newPlace.y = viewBox.minY + padding + spacing * index + spacing / 2;
             newElements.push({ id: uniqueId, node: newPlace });
         });
 
