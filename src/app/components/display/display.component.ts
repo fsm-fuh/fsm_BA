@@ -14,6 +14,8 @@ import { Diagram } from '../../classes/diagram/diagram';
 import { PanningService } from '../../services/panning.service';
 import { ImageExportService } from '../../services/image-export.service';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { ReachabilityGraph, StateNode } from 'src/app/classes/reachability-graph.model';
+import { ReachabilityGraphService } from 'src/app/reachability-graph.service';
 
 @Component({
     selector: 'app-display',
@@ -33,6 +35,7 @@ export class DisplayComponent implements OnInit, OnDestroy {
     private _loaderService = inject(PetriNetLoaderService);
     private _playService = inject(PlayService);
     private _elementRef = inject(ElementRef);
+    protected _reachabilityGraphService = inject(ReachabilityGraphService);
 
     readonly viewBox = this._panningService.viewBoxAsString;
     readonly viewBoxObj = this._panningService.viewBox;
@@ -81,6 +84,9 @@ export class DisplayComponent implements OnInit, OnDestroy {
         const diagram = this.diagram();
         if (this.isPlayingEnabled() && diagram && diagram instanceof Diagram && node instanceof DiagramTransition) {
             this._playService.processTransitionClick(diagram, node);
+        }
+        if(this.isReachabilityGraphEnabled() && diagram && diagram instanceof ReachabilityGraph && node instanceof StateNode) {
+            this._reachabilityGraphService.switchPnStateToClickedState(diagram, node);
         }
     }
 

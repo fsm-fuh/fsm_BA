@@ -15,10 +15,8 @@ import { ReachabilityGraphService } from 'src/app/reachability-graph.service';
     styleUrl: './reachability-graph-draw-display.component.css',
 })
 export class ReachabilityGraphDrawDisplayComponent extends DisplayComponent {
-    private _reachabilityGraphService = inject(ReachabilityGraphService);
+    // private _reachabilityGraphService = inject(ReachabilityGraphService);
     readonly reachabilityGraphDiagram = this._reachabilityGraphService.reachabilityGraphSignal;
     readonly rgNodes = signal<StateNode[]>([]);
     readonly rgEdges = signal<FiringEdge[]>([]);
-    // override readonly isReachabilityGraphEnabled = computed(() => this._rgTabStateService.currentTab() === Tab.REACHABILITY_GRAPH);
-    // private _rgTabStateService = inject(TabStateService);
 }

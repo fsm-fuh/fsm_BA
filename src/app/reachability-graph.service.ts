@@ -15,7 +15,6 @@ export class ReachabilityGraphService {
     private _sourceNetService = inject(SourcePetriNetService);
     private _startMarkingRG: Record<string, number> = {};
     private _currentMarkingRG = signal<Record<string, number>>(this._startMarkingRG);
-    // private _rgTabStateService = inject(TabStateService);
     private _lastProcessedDiagram: Diagram | null = null;
 
     private currentSourceRgId = 'RG1';
@@ -137,6 +136,26 @@ export class ReachabilityGraphService {
 
         console.log(currentReachabilityLabel);
     }
+
+    /**
+     * Changes state of the PetriNet to the State of a ReachabilityGraph StateNode, meaning the marking is adjusted.
+     * Triggered by clicking a StateNode in the RG.
+     * Uses the "saved" Marking of the reachability graph model where each StateNode saves it's corresponding marking.
+     * @param clickedNodeLabel The label of the clicked StateNode
+     */
+    switchPnStateToClickedState(diagram: ReachabilityGraph, node: StateNode){
+
+
+
+
+
+    }
+
+
+
+
+
+
     //Methode public ALLE state nodes zurückgeben
     //Methode 2 public ALLE edges zurückgeben
 }
