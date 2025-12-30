@@ -175,7 +175,6 @@ export class PlayService {
         return this._idCounter++;
     }
 
-
     /**
      * Gets Marking from ReachabilityGraphService and sets the current PetriNet to this Marking
      * @param marking marking given by ReachabilityGraphService
@@ -185,11 +184,6 @@ export class PlayService {
     //     if(oldPetriNet instanceof Diagram){
     //         oldPetriNet.marking = marking;
     //         this._sourceNetService.updateEditedNet(oldPetriNet);
-        // }
     // }
-
-
-
-
-
+    // }
 }

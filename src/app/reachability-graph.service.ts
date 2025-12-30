@@ -90,7 +90,7 @@ export class ReachabilityGraphService {
     /**
      * Gets firing entry from play service
      * Converts marking to RG ID (only displays token numbers sorted ascending by place id (alphanumerical))
-     * 
+     *
      * @param firingEntry The firing entry containing start and end markings.
      * @param label The label of the fired transition.
      */
@@ -148,20 +148,20 @@ export class ReachabilityGraphService {
      * @param diagram The current ReachabilityGraph
      * @param node: The clicked StateNode
      */
-    switchPnStateToClickedState(node: StateNode){
-            // switchPnStateToClickedState(diagram: ReachabilityGraph, node: StateNode){
+    switchPnStateToClickedState(node: StateNode) {
+        // switchPnStateToClickedState(diagram: ReachabilityGraph, node: StateNode){
 
         //important: diagram is rRG, but switching / setMarking needs to be implemented in PN
 
         // this._playService.adjustPnMarking(node.rGMarking);
-         let oldPetriNet = this._sourceNetService.getCurrentSourceNet;
-         console.log('Old PN:' + oldPetriNet);
-        if(oldPetriNet instanceof Diagram){
+        let oldPetriNet = this._sourceNetService.getCurrentSourceNet;
+        console.log('Old PN:' + oldPetriNet);
+        if (oldPetriNet instanceof Diagram) {
             oldPetriNet.marking = node.rGMarking;
             console.log('Changed PN:' + oldPetriNet);
             this._sourceNetService.updateEditedNet(oldPetriNet);
+        }
+        //Methode public ALLE state nodes zurückgeben
+        //Methode 2 public ALLE edges zurückgeben
     }
-    //Methode public ALLE state nodes zurückgeben
-    //Methode 2 public ALLE edges zurückgeben
-}
 }
