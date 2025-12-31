@@ -13,6 +13,73 @@ export class PlayValidationService {
     private _notificationService = inject(ToasterNotificationService);
     private _playService = inject(PlayService);
 
+    private readonly _MAX_SEQUENCES: number = 10;
+    private readonly _MAX_TRANSITIONS_DEFAULT: number = 100;
+
+    findFiringSequences(
+        diagram: Diagram,
+        demandedStartMarking: Record<string, number>,
+        demandedEndMarking: Record<string, number>,
+        demandedTransitionCount?: number,
+    ): void {
+        const self: PlayValidationService = this;
+        let sequenceCount: number = 0;
+
+        function isValidTransitionCount(currentLength: number): boolean {
+            if (demandedTransitionCount !== undefined) return currentLength === demandedTransitionCount;
+            else return currentLength <= self._MAX_TRANSITIONS_DEFAULT;
+        }
+
+        function depthFirstSearch(
+            currentMarking: Record<string, number>,
+            firedTransitions: string[],
+            visited: Set<string>,
+        ) {
+            if (sequenceCount >= self._MAX_SEQUENCES) return;
+
+            if (isEqualMarking(currentMarking, demandedEndMarking) && isValidTransitionCount(firedTransitions.length)) {
+                self._playService.addFiringEntry(
+                    firedTransitions.join(' '),
+                    firedTransitions.length,
+                    demandedStartMarking,
+                    demandedEndMarking,
+                );
+                sequenceCount++;
+            }
+
+            if (firedTransitions.length >= (demandedTransitionCount ?? self._MAX_SEQUENCES)) return;
+
+            // Prevent cycle formation
+            const markingKey = JSON.stringify(currentMarking);
+            if (visited.has(markingKey)) return;
+            const newVisited = new Set(visited);
+            newVisited.add(markingKey);
+
+            for (const transition of diagram.transitions) {
+                // Save old marking for the case of the current transition not firing
+                const oldMarking = { ...diagram.marking };
+                const successfullyFired = self._playService.processTransitionClick(diagram, transition, true, false);
+                if (successfullyFired) {
+                    depthFirstSearch(
+                        { ...diagram.marking },
+                        [...firedTransitions, transition.label || transition.id],
+                        newVisited,
+                    );
+                    diagram.marking = oldMarking;
+                }
+            }
+        }
+
+        depthFirstSearch(demandedStartMarking, [], new Set());
+
+        function isEqualMarking(a: Record<string, number>, b: Record<string, number>): boolean {
+            const aKeys = Object.keys(a);
+            const bKeys = Object.keys(b);
+            if (aKeys.length !== bKeys.length) return false;
+            return aKeys.every((key) => key in b && a[key] === b[key]);
+        }
+    }
+
     /**
      * Validates a firing entry input based on the diagram and the keyboard event.
      * @param diagram

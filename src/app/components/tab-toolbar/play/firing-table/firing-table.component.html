@@ -2,7 +2,7 @@
     <thead>
         <tr>
             <th class="verify-all-th">
-                <button mat-icon-button class="verify-all-entries-button">
+                <button mat-icon-button (click)="onFindSequences()" class="verify-all-entries-button">
                     <mat-icon>playlist_add_check</mat-icon>
                 </button>
             </th>
@@ -36,69 +36,9 @@
                         {{ entry.firingSequence }}
                     }
                 </td>
-                <td class="transition-count-td">
-                    @if (!entry.isClosed) {
-                        <input type="number" [(ngModel)]="entry.transitionCount" />
-                    } @else {
-                        {{ entry.transitionCount }}
-                    }
-                </td>
-                <td class="start-marking-td">
-                    @if (!entry.isClosed) {
-                        <div class="marking-container">
-                            @for (item of entry.startMarking | keyvalue; track item.key) {
-                                <div class="marking-entry">
-                                    <span>{{ item.key }}: {{ item.value }}</span>
-                                    <div class="button-container">
-                                        <button
-                                            mat-icon-button
-                                            (click)="incrementStartMarking(entry, item.key)"
-                                            class="marking-button">
-                                            <mat-icon>add</mat-icon>
-                                        </button>
-                                        <button
-                                            mat-icon-button
-                                            (click)="decrementStartMarking(entry, item.key)"
-                                            [disabled]="isDisabled(item.value)"
-                                            class="marking-button">
-                                            <mat-icon>remove</mat-icon>
-                                        </button>
-                                    </div>
-                                </div>
-                            }
-                        </div>
-                    } @else {
-                        {{ entry.formattedStartMarking }}
-                    }
-                </td>
-                <td class="end-marking-td">
-                    @if (!entry.isClosed) {
-                        <div class="marking-container">
-                            @for (item of entry.endMarking | keyvalue; track item.key) {
-                                <div class="marking-entry">
-                                    <span>{{ item.key }}: {{ item.value }}</span>
-                                    <div class="button-container">
-                                        <button
-                                            mat-icon-button
-                                            (click)="incrementEndMarking(entry, item.key)"
-                                            class="marking-button">
-                                            <mat-icon>add</mat-icon>
-                                        </button>
-                                        <button
-                                            mat-icon-button
-                                            (click)="decrementEndMarking(entry, item.key)"
-                                            [disabled]="isDisabled(item.value)"
-                                            class="marking-button">
-                                            <mat-icon>remove</mat-icon>
-                                        </button>
-                                    </div>
-                                </div>
-                            }
-                        </div>
-                    } @else {
-                        {{ entry.formattedEndMarking }}
-                    }
-                </td>
+                <td class="transition-count-td">{{ entry.transitionCount }}</td>
+                <td class="start-marking-td">{{ entry.formattedStartMarking }}</td>
+                <td class="end-marking-td">{{ entry.formattedEndMarking }}</td>
                 <td class="delete-button-td">
                     @if (entry.isClosed) {
                         <button
@@ -114,4 +54,71 @@
         }
     </tbody>
 </table>
-<button mat-raised-button class="new-entry-button" color="primary" (click)="onNewEntry()">New Sequence</button>
+<div class="tab-toolbar-container">
+    <div class="main-button-container">
+        <button mat-raised-button id="new-entry-button" (click)="onNewEntry()">New Sequence</button>
+        <button mat-raised-button id="validate-firing-table-button">Validate Firing Table</button>
+        <button mat-raised-button id="find-sequences-button" [color]="buttonColor" (click)="toggleFindSequencesModal()">
+            Find Firing Sequences
+        </button>
+    </div>
+    @if (isFindSequencesModalVisible) {
+        <form (ngSubmit)="onFindSequences()" class="find-sequences-form">
+            <div class="form-input-container">
+                <div class="marking-input-container">
+                    <span>Start Marking</span>
+                    @for (item of demandedStartMarking | keyvalue; track item.key) {
+                        <div class="marking-entry">
+                            <span>{{ item.key }}: <input
+                                matInput
+                                type="number"
+                                min="0"
+                                step="1"
+                                inputmode="numeric"
+                                pattern="[0-9]*"
+                                [(ngModel)]="demandedStartMarking[item.key]"
+                                [name]="'start_' + item.key"
+                                required /></span>
+                        </div>
+                    }
+                </div>
+
+                <div class="marking-input-container">
+                    <span>End Marking</span>
+                    @for (item of demandedEndMarking | keyvalue; track item.key) {
+                        <div class="marking-entry">
+                            <span>{{ item.key }}: <input
+                                matInput
+                                type="number"
+                                min="0"
+                                step="1"
+                                inputmode="numeric"
+                                pattern="[0-9]*"
+                                [(ngModel)]="demandedEndMarking[item.key]"
+                                [name]="'start_' + item.key"
+                                required /></span>
+                        </div>
+                    }
+                </div>
+
+                <div class="transition-count-input-container">
+                    <span>Transition Count (optional)</span>
+                    <input
+                        matInput
+                        type="number"
+                        min="0"
+                        step="1"
+                        inputmode="numeric"
+                        pattern="[0-9]*"
+                        [(ngModel)]="demandedTransitionCount"
+                        name="demandedTransitionCount" />
+                </div>
+            </div>
+
+            <div class="form-button-container">
+                <button type="submit" mat-raised-button color="primary">Submit</button>
+                <button mat-raised-button color="warn" (click)="toggleFindSequencesModal()">Cancel</button>
+            </div>
+        </form>
+    }
+</div>

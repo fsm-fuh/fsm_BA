@@ -57,7 +57,6 @@ export class PlayService {
      */
     playSequence(diagram: Diagram, entry: FiringEntry, transitionTime: number): void {
         diagram.marking = { ...entry.startMarking };
-        console.log('Playing sequence:', entry.firingSequence);
         for (let i = 0; i < entry.labels.length; i++) {
             const label = entry.labels[i];
             const node: DiagramTransition | undefined = diagram.getTransitionByLabel(label);
@@ -81,7 +80,12 @@ export class PlayService {
      * @param test
      *          Whether this is a test firing (does not update firing sequence).
      */
-    processTransitionClick(diagram: Diagram, node: DiagramTransition, test: boolean = false): void {
+    processTransitionClick(
+        diagram: Diagram,
+        node: DiagramTransition,
+        test: boolean = false,
+        notify: boolean = true,
+    ): boolean {
         if (node.isActivated()) {
             node.fire();
             diagram.updateMarking();
@@ -90,12 +94,15 @@ export class PlayService {
                 this._sourceNetService.updateEditedNet(diagram);
                 this._addTransitionToFiringSequence(node.label);
             }
-        } else
+            return true;
+        } else if (notify) {
             this._notificationService.showWarning(
                 'TOASTER.HEADER.TRANSITION_NOT_ACTIVATED',
                 'TOASTER.BODY.TRANSITION_NOT_ACTIVATED',
                 { messageParams: { label: node.label } },
             );
+        }
+        return false;
     }
 
     /**
@@ -112,15 +119,24 @@ export class PlayService {
         );
     }
 
+    getLastFiringEntry(): FiringEntry {
+        if (this.firingEntries().length === 0)
+            this.firingEntries.update((entries) => {
+                entries.push(this._getEmptyFiringEntry());
+                return entries;
+            });
+        return this.firingEntries().at(-1)!;
+    }
+
     /**
      * Starts a new, empty firing sequence.
      * @param diagram
      *          The diagram for which the firing sequence is started.
      */
     startNewFiringSequence(diagram: Diagram): void {
-        diagram.resetMarking();
-        this._lastMarking = diagram.marking;
-        this._closeLastFiringEntry();
+        diagram.marking = this._startMarking;
+        this._lastMarking = this._startMarking;
+        this.closeLastFiringEntry();
         this.firingEntries.update((entries) => {
             entries.push(this._getEmptyFiringEntry());
             return entries;
@@ -132,11 +148,34 @@ export class PlayService {
 
     /**
      * Deletes a firing entry from the firing sequence table.
+     * If no ID is given, the last firing entry is deleted.
      * @param id
      *          The ID of the firing entry that is to be deleted
      */
-    deleteFiringEntry(id: number): void {
-        this.firingEntries.update((entries) => entries.filter((entry) => entry.id !== id));
+    deleteFiringEntry(id: number | undefined = undefined): void {
+        if (!id) this.closeLastFiringEntry();
+        this.firingEntries.update((entries) => entries.filter((entry) => entry.id !== id || this._idCounter));
+    }
+
+    addFiringEntry(
+        firingSequence: string,
+        transitionCount: number,
+        startMarking: Record<string, number>,
+        endMarking: Record<string, number>,
+    ) {
+        this.closeLastFiringEntry();
+        const newEntry = new FiringEntry(
+            this.getNewId(),
+            firingSequence,
+            transitionCount,
+            startMarking,
+            endMarking,
+            true,
+        );
+        this.firingEntries.update((entries) => {
+            entries.push(newEntry);
+            return entries;
+        });
     }
 
     /**
@@ -176,7 +215,7 @@ export class PlayService {
     /**
      * Closes the last firing entry in the firing table, preventing further updates to it.
      */
-    private _closeLastFiringEntry(): void {
+    closeLastFiringEntry(): void {
         this.firingEntries.update((entries) => {
             const lastEntry = entries[entries.length - 1];
             if (lastEntry && !lastEntry.isClosed) lastEntry.isClosed = true;
@@ -189,14 +228,14 @@ export class PlayService {
      * @returns A firing entry with an empty sequence
      */
     private _getEmptyFiringEntry(): FiringEntry {
-        return new FiringEntry(this._getNewId(), '', 0, this._startMarking, this._startMarking, false);
+        return new FiringEntry(this.getNewId(), '', 0, this._startMarking, this._startMarking, false);
     }
 
     /**
      * Generates a new unique ID for a firing entry.
      * @returns The new ID
      */
-    private _getNewId(): number {
+    getNewId(): number {
         return this._idCounter++;
     }
 }

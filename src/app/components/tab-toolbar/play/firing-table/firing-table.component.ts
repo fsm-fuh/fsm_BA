@@ -2,6 +2,9 @@ import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { filter, Subscription, take } from 'rxjs';
@@ -15,7 +18,16 @@ import { FiringEntry } from '../../../../classes/firing-entry';
 @Component({
     selector: 'app-firing-table',
     standalone: true,
-    imports: [CommonModule, FormsModule, MatIconButton, MatIcon, TranslateModule],
+    imports: [
+        CommonModule,
+        FormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        MatIconButton,
+        MatIcon,
+        TranslateModule,
+    ],
     templateUrl: './firing-table.component.html',
     styleUrl: './firing-table.component.css',
 })
@@ -26,14 +38,34 @@ export class FiringTableComponent implements OnInit, OnDestroy {
     private _playService = inject(PlayService);
     private _playValidationService = inject(PlayValidationService);
 
-    private readonly TRANSITION_TIME_CONSTANT: number = 1000;
+    private readonly _TRANSITION_TIME: number = 1000;
+
     private _lastFiringSequence: string = '';
     private _diagram: Diagram | undefined;
     @Input() firingEntries: FiringEntry[] = [];
 
+    isFindSequencesModalVisible: boolean = false;
+    demandedStartMarking: Record<string, number> = {};
+    demandedEndMarking: Record<string, number> = {};
+    demandedTransitionCount: number | undefined;
+    buttonColor: string = 'basic';
+
     ngOnInit(): void {
         this._sub = this._displayService.diagram$.subscribe((diagram) => {
             this._diagram = diagram instanceof Diagram ? diagram : undefined;
+
+            this.demandedStartMarking = diagram instanceof Diagram ? { ...diagram.startMarking } : {};
+
+            this.demandedEndMarking =
+                diagram instanceof Diagram
+                    ? Object.keys(diagram.startMarking).reduce(
+                          (acc, key) => {
+                              acc[key] = 0;
+                              return acc;
+                          },
+                          {} as { [key: string]: number },
+                      )
+                    : {};
         });
     }
 
@@ -70,38 +102,22 @@ export class FiringTableComponent implements OnInit, OnDestroy {
     }
 
     onPlaySequence(entry: FiringEntry): void {
-        if (this._diagram) this._playService.playSequence(this._diagram, entry, this.TRANSITION_TIME_CONSTANT);
+        if (this._diagram) this._playService.playSequence(this._diagram, entry, this._TRANSITION_TIME);
     }
 
-    incrementStartMarking(entry: FiringEntry, placeId: string): void {
-        const newMarking = { ...entry.startMarking };
-        newMarking[placeId] = (newMarking[placeId] || 0) + 1;
-        entry.startMarking = newMarking;
+    onFindSequences(): void {
+        this.isFindSequencesModalVisible = false;
+        if (this._diagram)
+            this._playValidationService.findFiringSequences(
+                this._diagram,
+                this.demandedStartMarking,
+                this.demandedEndMarking,
+                this.demandedTransitionCount,
+            );
     }
 
-    decrementStartMarking(entry: FiringEntry, placeId: string): void {
-        if ((entry.startMarking[placeId] || 0) > 0) {
-            const newMarking = { ...entry.startMarking };
-            newMarking[placeId] = (newMarking[placeId] || 0) - 1;
-            entry.startMarking = newMarking;
-        }
-    }
-
-    incrementEndMarking(entry: FiringEntry, placeId: string): void {
-        const newMarking = { ...entry.endMarking };
-        newMarking[placeId] = (newMarking[placeId] || 0) + 1;
-        entry.endMarking = newMarking;
-    }
-
-    decrementEndMarking(entry: FiringEntry, placeId: string): void {
-        if ((entry.endMarking[placeId] || 0) > 0) {
-            const newMarking = { ...entry.endMarking };
-            newMarking[placeId] = (newMarking[placeId] || 0) - 1;
-            entry.endMarking = newMarking;
-        }
-    }
-
-    protected isDisabled(tokens: number) {
-        return tokens <= 0;
+    toggleFindSequencesModal(): void {
+        this.isFindSequencesModalVisible = !this.isFindSequencesModalVisible;
+        this.buttonColor = this.isFindSequencesModalVisible ? 'primary' : 'basic';
     }
 }
