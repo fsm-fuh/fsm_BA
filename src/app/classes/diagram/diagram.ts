@@ -61,6 +61,7 @@ export class Diagram implements DisplayableGraph {
         this._places.forEach((place) => {
             place.tokens = marking[place.id] || 0;
         });
+        this.updateMarking();
     }
 
     get startMarking(): Record<string, number> {
@@ -96,5 +97,9 @@ export class Diagram implements DisplayableGraph {
 
     getTransitionByLabel(label: string): DiagramTransition | undefined {
         return this._transitions.find((t) => t.label === label || t.id === label);
+    }
+
+    getTransitionLabels(): string[] {
+        return this._transitions.map((t) => t.label || t.id) || [];
     }
 }
