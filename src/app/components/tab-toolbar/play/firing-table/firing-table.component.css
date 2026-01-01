@@ -37,7 +37,7 @@
 }
 
 .play-sequence-button,
-.verify-all-entries-button,
+.invalid-sequence-button,
 .delete-entry-button,
 .delete-all-entries-button {
     height: 24px;
@@ -46,11 +46,18 @@
 }
 
 .play-sequence-button:hover,
-.verify-all-entries-button:hover,
 .delete-entry-button:hover,
 .delete-all-entries-button:hover {
     background-color: rgba(211, 47, 47, 0.1);
     border-radius: 4px;
+}
+
+.invalid-sequence-button {
+    pointer-events: none;
+}
+
+.play-icon {
+    color: limegreen;
 }
 
 .marking-container {
@@ -94,16 +101,16 @@
     line-height: 18px;
 }
 
-textarea {
+input[type="text"] {
     width: 100%;
     box-sizing: border-box;
     font-family: 'Courier New', sans-serif;
     font-size: 16px;
     text-wrap: wrap;
-    resize: none;
+    line-height: 2;
 }
 
-input {
+input[type="number"] {
     width: 100%;
     box-sizing: border-box;
     font-family: 'Courier New', sans-serif;
