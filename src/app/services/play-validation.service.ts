@@ -91,28 +91,28 @@ export class PlayValidationService {
      *          The keyboard event that triggered the validation.
      * @returns
      */
-    validateInput(diagram: Diagram | undefined, entry: FiringEntry, event: KeyboardEvent): void {
-        if (!diagram || event.key === ' ' || event.key === ',' || event.key === ';') return;
-        if (event.key.length === 1 || event.key === 'Backspace' || event.key === 'Delete') {
+    async validateInput(diagram: Diagram, entry: FiringEntry, event?: KeyboardEvent | undefined): Promise<void> {
+        if (event?.key === ' ' || event?.key === ',' || event?.key === ';') return;
+        if (!event || event?.key.length === 1 || event?.key === 'Backspace' || event?.key === 'Delete') {
             let isValid: boolean = false;
             entry.transitionCount = entry.labels.length;
-            const possibleTransitions: string[] = diagram.transitions.map((t) => t.label || t.id) || [];
-            const hasOnlyValidTransitions: boolean = this._hasOnlyValidTransitions(possibleTransitions, entry.labels);
+            const hasOnlyValidTransitions: boolean = this._hasOnlyValidTransitions(diagram, entry.labels);
             // TODO: provide user feedback if invalid transitions are present
-            if (hasOnlyValidTransitions) isValid = this._isValidFiringEntry(diagram, entry);
+            if (hasOnlyValidTransitions) isValid = await this._isValidFiringEntry(diagram, entry);
             entry.isValid = isValid;
         }
     }
 
     /**
      * Checks if all labels correspond to (the start of) existing transitions in the diagram.
-     * @param possibleTransitions
-     *          The transitions present in the diagram.
+     * @param diagram
+     *          The diagram for which the sequence is to be checked.
      * @param labels
      *          The labels to be validated.
      * @returns true if all labels correnspond to (the start of) existing transitions, false otherwise.
      */
-    private _hasOnlyValidTransitions(possibleTransitions: string[], labels: string[]): boolean {
+    private _hasOnlyValidTransitions(diagram: Diagram, labels: string[]): boolean {
+        const possibleTransitions: string[] = diagram.getTransitionLabels();
         if (labels.length === 0) return true;
         if (possibleTransitions.length === 0 && labels.length > 0) return false;
         return labels.every(
@@ -130,9 +130,8 @@ export class PlayValidationService {
      *          The firing entry to be validated.
      * @returns true if the firing entry is valid, false otherwise.
      */
-    private _isValidFiringEntry(diagram: Diagram, entry: FiringEntry): boolean {
-        const endMarking: string = entry.formattedEndMarking;
-        this._playService.playSequence(diagram, entry, 0, false);
-        return endMarking === entry.formattedEndMarking;
+    private async _isValidFiringEntry(diagram: Diagram, entry: FiringEntry): Promise<boolean> {
+        diagram.marking = {...entry.startMarking};
+        return await this._playService.playSequence(diagram, entry, 0, false);
     }
 }

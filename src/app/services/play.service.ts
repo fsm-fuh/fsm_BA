@@ -1,5 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 
+import { ModeService } from './mode.service';
 import { ToasterNotificationService } from './toaster-notification.service';
 import { SourcePetriNetService } from './source-petri-net.service';
 import { TabStateService } from './tab-state.service';
@@ -10,13 +11,15 @@ import { FiringEntry } from '../classes/firing-entry';
 
 @Injectable({ providedIn: 'root' })
 export class PlayService {
+    private _modeService = inject(ModeService);
     private _notificationService = inject(ToasterNotificationService);
     private _sourceNetService = inject(SourcePetriNetService);
     private _tabStateService = inject(TabStateService);
 
     private _startMarking: Record<string, number> = {};
     private _currentMarking = signal<Record<string, number>>(this._startMarking);
-    private _lastMarking: Record<string, number> | undefined = undefined;
+    private _currentFiringEntry: FiringEntry | undefined;
+    private _lastMarking: Record<string, number> | undefined;
     private _idCounter = 0;
 
     firingEntries = signal<FiringEntry[]>([]);
@@ -44,6 +47,7 @@ export class PlayService {
     resetFiringEntries(): void {
         this.firingEntries.set([]);
         this._lastMarking = undefined;
+        this._currentFiringEntry = undefined;
     }
 
     /**
@@ -57,19 +61,27 @@ export class PlayService {
      * @param displayFiring
      *          Indicates whether the color of the firing transition should be animated while firing.
      */
-    playSequence(diagram: Diagram, entry: FiringEntry, transitionTime: number, displayFiring: boolean): void {
+    async playSequence(diagram: Diagram, entry: FiringEntry, transitionTime: number, displayFiring: boolean): Promise<boolean> {
+        this._currentFiringEntry = entry;
+        let isEntryValid: boolean = true;
         diagram.marking = { ...entry.startMarking };
+
         for (let i = 0; i < entry.labels.length; i++) {
+            await this._sleep(transitionTime);
+
             const label = entry.labels[i];
             const node: DiagramTransition | undefined = diagram.getTransitionByLabel(label);
 
-            if (node) {
-                setTimeout(() => {
-                    this.processTransitionClick(diagram, node, false, true, displayFiring);
-                    entry.endMarking = diagram.marking;
-                }, transitionTime * i);
+            if (node) {                
+                const successfullyFired: boolean = this.processTransitionClick(diagram, node, false, true, displayFiring);
+                if (!successfullyFired) {
+                    isEntryValid = false;
+                    return isEntryValid;
+                }
+                entry.endMarking = diagram.marking;
             }
         }
+        return isEntryValid;
     }
 
     /**
@@ -129,15 +141,6 @@ export class PlayService {
         );
     }
 
-    getLastFiringEntry(): FiringEntry {
-        if (this.firingEntries().length === 0)
-            this.firingEntries.update((entries) => {
-                entries.push(this._getEmptyFiringEntry());
-                return entries;
-            });
-        return this.firingEntries().at(-1)!;
-    }
-
     /**
      * Starts a new, empty firing sequence.
      * @param diagram
@@ -146,11 +149,8 @@ export class PlayService {
     startNewFiringSequence(diagram: Diagram): void {
         diagram.marking = this._startMarking;
         this._lastMarking = this._startMarking;
-        this.closeLastFiringEntry();
-        this.firingEntries.update((entries) => {
-            entries.push(this._getEmptyFiringEntry());
-            return entries;
-        });
+        this.closeCurrentFiringEntry();
+        this._getEmptyFiringEntry();
         setTimeout(() => {
             document.getElementById('firing-sequence-input')?.focus();
         }, 0);
@@ -172,7 +172,7 @@ export class PlayService {
         endMarking: Record<string, number>,
         isValid: boolean | undefined,
     ) {
-        this.closeLastFiringEntry();
+        this.closeCurrentFiringEntry();
         const newEntry = new FiringEntry(
             this.getNewId(),
             firingSequence,
@@ -198,7 +198,7 @@ export class PlayService {
      *          the case of an invalid input to the firing sequence.
      */
     private _updateFiringEntry(label: string, updateEndMarking: boolean = true): void {
-        const entry: FiringEntry = this.getLastFiringEntry();
+        const entry = this._currentFiringEntry || this._getEmptyFiringEntry();
         entry.firingSequence += ` ${label}`;
         entry.transitionCount += 1;
         if (updateEndMarking) entry.endMarking = this._currentMarking();
@@ -210,27 +210,32 @@ export class PlayService {
      *          Indicates whether the current firing entry is valid.
      */
     private _setValidStatus(isValid: boolean): void {
-        const entry: FiringEntry = this.getLastFiringEntry();
-        entry.isValid = isValid;
+        if (this._currentFiringEntry) this._currentFiringEntry.isValid = isValid;
     }
 
     /**
-     * Closes the last firing entry in the firing table, preventing further updates to it.
+     * Closes the current firing entry in the firing table, preventing further updates to it.
      */
-    closeLastFiringEntry(): void {
-        this.firingEntries.update((entries) => {
-            const lastEntry = entries[entries.length - 1];
-            if (lastEntry && !lastEntry.isClosed) lastEntry.isClosed = true;
+    closeCurrentFiringEntry(): void {
+        if (this._currentFiringEntry) this.firingEntries.update((entries) => {
+            this._currentFiringEntry!.isClosed = true;
             return entries;
         });
     }
 
     /**
      * Creates a new empty firing entry with start values.
-     * @returns A firing entry with an empty sequence
+     * @returns A firing entry with an empty sequence.
      */
     private _getEmptyFiringEntry(): FiringEntry {
-        return new FiringEntry(this.getNewId(), '', 0, this._startMarking, this._startMarking, false, undefined);
+        const endMarking = this._modeService.isExamMode() ? undefined : this._startMarking;
+        const newFiringEntry = new FiringEntry(this.getNewId(), '', 0, this._startMarking, endMarking, false, undefined);
+        this._currentFiringEntry = newFiringEntry;
+        this.firingEntries.update((entries) => {
+            entries.push(newFiringEntry);
+            return entries;
+        });
+        return newFiringEntry;
     }
 
     /**
@@ -239,5 +244,9 @@ export class PlayService {
      */
     getNewId(): number {
         return this._idCounter++;
+    }
+
+    private _sleep(time: number): Promise<void> {
+        return new Promise(resolve => setTimeout(resolve, time));
     }
 }

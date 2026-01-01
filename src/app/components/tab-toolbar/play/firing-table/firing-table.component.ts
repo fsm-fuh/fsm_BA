@@ -86,7 +86,8 @@ export class FiringTableComponent implements OnInit, OnDestroy {
         this._sub?.unsubscribe();
     }
 
-    onKeyUp(entry: FiringEntry, event: KeyboardEvent): void {
+    onKeyDown(entry: FiringEntry, event: KeyboardEvent): void {
+        if (!this._diagram) return;
         if (entry.firingSequence.trim() === this._lastFiringSequence.trim()) return;
         this._lastFiringSequence = entry.firingSequence;
         if (event.key === 'Enter') this.onNewEntry();
@@ -115,6 +116,13 @@ export class FiringTableComponent implements OnInit, OnDestroy {
 
     onPlaySequence(entry: FiringEntry): void {
         if (this._diagram) this._playService.playSequence(this._diagram, entry, this._TRANSITION_TIME, true);
+    }
+
+    async onValidateFiringTable(): Promise<void> {
+        if (!this._diagram) return;
+        for (const entry of this.firingEntries) {
+            await this._playValidationService.validateInput(this._diagram, entry);
+        }
     }
 
     onFindSequences(): void {
