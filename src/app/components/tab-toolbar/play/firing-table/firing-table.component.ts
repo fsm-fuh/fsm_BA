@@ -35,7 +35,7 @@ import { FiringEntry } from '../../../../classes/firing-entry';
 export class FiringTableComponent implements OnInit, OnDestroy {
     private _sub?: Subscription;
 
-    private _modeService = inject(ModeService);
+    protected modeService = inject(ModeService);
     private _displayService = inject(DisplayService);
     private _playService = inject(PlayService);
     private _playValidationService = inject(PlayValidationService);
@@ -91,7 +91,7 @@ export class FiringTableComponent implements OnInit, OnDestroy {
         if (entry.firingSequence.trim() === this._lastFiringSequence.trim()) return;
         this._lastFiringSequence = entry.firingSequence;
         if (event.key === 'Enter') this.onNewEntry();
-        else if (!this._modeService.isExamMode()) this._playValidationService.validateInput(this._diagram, entry, event);
+        else if (!this.modeService.isExamMode()) this._playValidationService.validateInput(this._diagram, entry, event);
     }
 
     onDeleteEntry(id: number): void {
@@ -140,6 +140,11 @@ export class FiringTableComponent implements OnInit, OnDestroy {
     toggleFindSequencesForm(): void {
         this.isFindSequencesFormVisible = !this.isFindSequencesFormVisible;
         this.buttonColor = this.isFindSequencesFormVisible ? 'primary' : 'basic';
+    }
+    
+    updateMarking(tokenCount: number, event: Event): void {
+        const value = Number((event.target as HTMLInputElement).value);
+        tokenCount = value;
     }
     
     updateDemandedStartMarking(key: string, event: Event): void {

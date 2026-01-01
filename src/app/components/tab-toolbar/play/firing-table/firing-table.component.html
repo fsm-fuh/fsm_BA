@@ -40,9 +40,56 @@
                         {{ entry.firingSequence }}
                     }
                 </td>
-                <td class="transition-count-td">{{ entry.transitionCount }}</td>
-                <td class="start-marking-td">{{ entry.formattedStartMarking }}</td>
-                <td class="end-marking-td">{{ entry.endMarking ? entry.formattedEndMarking : '?' }}</td>
+                <td class="transition-count-td">
+                    @if (!entry.isClosed && this.modeService.isExamMode()) {
+                        <input type="number" [(ngModel)]="entry.transitionCount" />
+                    } @else {
+                        {{ entry.transitionCount }}
+                    }
+                </td>
+                <td class="start-marking-td">
+                    @if (!entry.isClosed && this.modeService.isExamMode()) {
+                        <div class="marking-container">
+                            @for (item of entry.startMarking | keyvalue; track item.key) {
+                                <div class="marking-entry">
+                                    <span>{{ item.key }}:</span>
+                                    <input
+                                        matInput
+                                        type="number"
+                                        min="0"
+                                        step="1"
+                                        inputmode="numeric"
+                                        pattern="[0-9]*"
+                                        [value]="item.value"
+                                        (input)="updateMarking(entry.startMarking[item.key], $event)"
+                                        required />
+                                </div>
+                            }
+                        </div>
+                    } @else {
+                        {{ entry.formattedStartMarking }}
+                    }
+                </td>
+                <td class="end-marking-td">
+                    @if (!entry.isClosed && this.modeService.isExamMode()) {
+                        <div class="marking-container">
+                            @for (item of entry.endMarking | keyvalue; track item.key) {
+                                <div class="marking-entry">
+                                    <span>{{ item.key }}:</span>
+                                    <input
+                                        matInput
+                                        type="number"
+                                        min="0"
+                                        step="1"
+                                        inputmode="numeric"
+                                        pattern="[0-9]*"
+                                        (input)="updateMarking(entry.endMarking[item.key], $event)" />
+                                </div>
+                            }
+                        </div>
+                    } @else {
+                        {{ entry.formattedEndMarking }}
+                    }
                 <td class="delete-button-td">
                     @if (entry.isClosed) {
                         <button

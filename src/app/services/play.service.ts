@@ -228,7 +228,7 @@ export class PlayService {
      * @returns A firing entry with an empty sequence.
      */
     private _getEmptyFiringEntry(): FiringEntry {
-        const endMarking = this._modeService.isExamMode() ? undefined : this._startMarking;
+        let endMarking = this._startMarking;
         const newFiringEntry = new FiringEntry(this.getNewId(), '', 0, this._startMarking, endMarking, false, undefined);
         this._currentFiringEntry = newFiringEntry;
         this.firingEntries.update((entries) => {
