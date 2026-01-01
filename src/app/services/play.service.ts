@@ -68,9 +68,10 @@ export class PlayService {
                 }, transitionTime * i);
             }
         }
+        // Reset diagram marking to start marking after playing the sequence
         setTimeout(() => {
             diagram.marking = { ...entry.startMarking };
-        }, transitionTime);
+        }, transitionTime * entry.labels.length);
     }
 
     /**
@@ -95,7 +96,7 @@ export class PlayService {
             this._lastMarking = diagram.marking;
             if (!test) {
                 this._sourceNetService.updateEditedNet(diagram);
-                this._addTransitionToFiringSequence(node.label);
+                this._addTransitionToFiringSequence(node.label || node.id);
             }
             return true;
         } else if (notify) {
