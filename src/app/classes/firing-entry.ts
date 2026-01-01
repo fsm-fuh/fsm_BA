@@ -9,7 +9,7 @@ export class FiringEntry {
         public firingSequence: string,
         public transitionCount: number,
         public startMarking: Record<string, number>,
-        public endMarking: Record<string, number>,
+        public endMarking: Record<string, number> | undefined,
         public isClosed: boolean,
         public isValid: boolean | undefined,
     ) {}
@@ -38,7 +38,7 @@ export class FiringEntry {
      * @return The formatted end marking string.
      */
     get formattedEndMarking(): string {
-        return this.formatMarking(this.endMarking);
+        return this.endMarking ? this.formatMarking(this.endMarking) : '';
     }
 
     /**

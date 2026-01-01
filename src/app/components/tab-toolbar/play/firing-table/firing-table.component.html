@@ -1,10 +1,8 @@
 <table class="firing-table">
     <thead>
         <tr>
-            <th class="verify-all-th">
-                <button mat-icon-button (click)="onFindSequences()" class="verify-all-entries-button">
-                    <mat-icon>playlist_add_check</mat-icon>
-                </button>
+            <th>
+                <mat-icon>playlist_add_check</mat-icon>
             </th>
             <th class="firing-sequence-th">{{ 'FIRING_SEQUENCE' | translate }}</th>
             <th class="transition-count-th">{{ 'TRANSITION_COUNT' | translate }}</th>
@@ -21,24 +19,30 @@
         @for (entry of firingEntries; track entry.id) {
             <tr>
                 <td class="play-sequence-td">
-                    <button mat-icon-button (click)="onPlaySequence(entry)" class="play-sequence-button">
-                        <mat-icon>play_arrow</mat-icon>
-                    </button>
+                    @if (entry.isValid) {
+                        <button mat-icon-button (click)="onPlaySequence(entry)" class="play-sequence-button">
+                            <mat-icon class="play-icon">play_circle</mat-icon>
+                        </button>
+                    } @else if (entry.isValid === false) {
+                        <button mat-icon-button class="invalid-sequence-button">
+                            <mat-icon color="warn">cancel</mat-icon>
+                        </button>
+                    }
                 </td>
                 <td class="firing-sequence-td">
                     @if (!entry.isClosed) {
-                        <textarea
+                        <input
+                            type="text"
                             [(ngModel)]="entry.firingSequence"
                             id="firing-sequence-input"
-                            (keyup)="onKeyUp(entry, $event)">
-                        </textarea>
+                            (keydown)="onKeyDown(entry, $event)"/>
                     } @else {
                         {{ entry.firingSequence }}
                     }
                 </td>
                 <td class="transition-count-td">{{ entry.transitionCount }}</td>
                 <td class="start-marking-td">{{ entry.formattedStartMarking }}</td>
-                <td class="end-marking-td">{{ entry.formattedEndMarking }}</td>
+                <td class="end-marking-td">{{ entry.endMarking ? entry.formattedEndMarking : '?' }}</td>
                 <td class="delete-button-td">
                     @if (entry.isClosed) {
                         <button
@@ -58,7 +62,7 @@
     <div class="tab-toolbar-row">
         <div class="main-button-container">
             <button mat-raised-button id="new-entry-button" (click)="onNewEntry()">{{ 'NEW_SEQUENCE' | translate }}</button>
-            <button mat-raised-button id="validate-firing-table-button">{{ 'VALIDATE_FIRING_TABLE' | translate }}</button>
+            <button mat-raised-button id="validate-firing-table-button" (click)="onValidateFiringTable()">{{ 'VALIDATE_FIRING_TABLE' | translate }}</button>
             <button
                 mat-raised-button
                 id="find-sequences-button"
