@@ -40,6 +40,14 @@ export class SvgNodeComponent {
         return false;
     });
 
+    readonly isFiring = computed(() => {
+        const node = this.diagramNode();
+        if (node instanceof DiagramTransition) {
+            return node.isFiring();
+        }
+        return false;
+    });
+
     // Mark if this node is currently selected (for connection creation)
     readonly selected = input<boolean>(false);
 
@@ -48,6 +56,9 @@ export class SvgNodeComponent {
     readonly fillColor = signal('white');
 
     readonly transitionFillColor = computed(() => {
+        if (this.isFiring()) {
+            return 'lime';
+        }
         if (this.isTransitionAndActive()) {
             return 'dimgray';
         }
@@ -55,21 +66,21 @@ export class SvgNodeComponent {
     });
 
     readonly transitionStrokeColor = computed(() => {
-        if (this.isTransitionAndActive()) {
+        if (this.isFiring() || this.isTransitionAndActive()) {
             return 'darkgreen';
         }
         return 'black';
     });
 
     readonly transitionStrokeWidth = computed(() => {
-        if (this.isTransitionAndActive()) {
+        if (this.isFiring() || this.isTransitionAndActive()) {
             return 4;
         }
         return 2;
     });
 
     readonly transitionCornerRadius = computed(() => {
-        if (this.isTransitionAndActive()) {
+        if (this.isFiring() || this.isTransitionAndActive()) {
             return 5;
         }
         return 0;
