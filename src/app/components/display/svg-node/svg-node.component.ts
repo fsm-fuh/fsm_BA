@@ -235,5 +235,6 @@ export class SvgNodeComponent {
     public click() {
         const node = this.diagramNode();
         if (node) this.clickNode.emit(node);
+        console.log('click');
     }
 }

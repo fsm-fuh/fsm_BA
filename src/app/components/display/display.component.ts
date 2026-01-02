@@ -14,8 +14,8 @@ import { Diagram } from '../../classes/diagram/diagram';
 import { PanningService } from '../../services/panning.service';
 import { ImageExportService } from '../../services/image-export.service';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ReachabilityGraph, StateNode } from 'src/app/classes/reachability-graph.model';
 import { ReachabilityGraphService } from 'src/app/reachability-graph.service';
+import { StateNode } from '../../classes/reachability-graph.model';
 
 @Component({
     selector: 'app-display',
@@ -86,12 +86,12 @@ export class DisplayComponent implements OnInit, OnDestroy {
             this._playService.processTransitionClick(diagram, node);
         }
     }
-    
-    public stateNodeClicked(node: StateNode){        
-        if (this.isReachabilityGraphEnabled() && node ) {
+
+    public stateNodeClicked(node: DisplayableNode) {
+        if (this.isReachabilityGraphEnabled() && node instanceof StateNode) {
             // if(this.isReachabilityGraphEnabled() && diagram && diagram instanceof ReachabilityGraph && node instanceof StateNode) {
-            console.log('StateNode clicked.')
-            this._reachabilityGraphService.switchPnStateToClickedState(node);
+            console.log('StateNode clicked.');
+            this._reachabilityGraphService.switchPnStateToClickedState(node as StateNode);
         }
     }
 
