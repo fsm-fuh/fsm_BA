@@ -35,18 +35,13 @@
                             type="text"
                             [(ngModel)]="entry.firingSequence"
                             id="firing-sequence-input"
-                            (keydown)="onKeyDown(entry, $event)"/>
+                            (input)="onInputChange(entry)"
+                            (keydown.enter)="onNewEntry()"/>
                     } @else {
                         {{ entry.firingSequence }}
                     }
                 </td>
-                <td class="transition-count-td">
-                    @if (!entry.isClosed && this.modeService.isExamMode()) {
-                        <input type="number" [(ngModel)]="entry.transitionCount" />
-                    } @else {
-                        {{ entry.transitionCount }}
-                    }
-                </td>
+                <td class="transition-count-td">{{ entry.transitionCount }}</td>
                 <td class="start-marking-td">
                     @if (!entry.isClosed && this.modeService.isExamMode()) {
                         <div class="marking-container">
@@ -61,7 +56,7 @@
                                         inputmode="numeric"
                                         pattern="[0-9]*"
                                         [value]="item.value"
-                                        (input)="updateMarking(entry.startMarking[item.key], $event)"
+                                        (input)="updateMarking(item.value, $event)"
                                         required />
                                 </div>
                             }
@@ -83,7 +78,8 @@
                                         step="1"
                                         inputmode="numeric"
                                         pattern="[0-9]*"
-                                        (input)="updateMarking(entry.endMarking[item.key], $event)" />
+                                        [value]="item.value"
+                                        (input)="updateMarking(item.value, $event)" />
                                 </div>
                             }
                         </div>

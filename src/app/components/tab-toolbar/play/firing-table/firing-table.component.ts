@@ -86,12 +86,19 @@ export class FiringTableComponent implements OnInit, OnDestroy {
         this._sub?.unsubscribe();
     }
 
-    onKeyDown(entry: FiringEntry, event: KeyboardEvent): void {
+    /**
+     * Handles input changes for a firing sequence and validates the input if not in exam mode.
+     * Updates the last recorded firing sequence and triggers validation.
+     * @param entry - The firing entry containing the firing sequence to validate.
+     * @returns A Promise that resolves when the validation is complete.
+     */
+    async onInputChange(entry: FiringEntry): Promise<void> {
         if (!this._diagram) return;
-        if (entry.firingSequence.trim() === this._lastFiringSequence.trim()) return;
-        this._lastFiringSequence = entry.firingSequence;
-        if (event.key === 'Enter') this.onNewEntry();
-        else if (!this.modeService.isExamMode()) this._playValidationService.validateInput(this._diagram, entry, event);
+        if (!this.modeService.isExamMode()) {
+            if (entry.firingSequence.trim() === this._lastFiringSequence.trim()) return;
+            this._lastFiringSequence = entry.firingSequence;
+            await this._playValidationService.validateInput(this._diagram, entry);
+        }
     }
 
     onDeleteEntry(id: number): void {
@@ -142,9 +149,9 @@ export class FiringTableComponent implements OnInit, OnDestroy {
         this.buttonColor = this.isFindSequencesFormVisible ? 'primary' : 'basic';
     }
     
-    updateMarking(tokenCount: number, event: Event): void {
-        const value = Number((event.target as HTMLInputElement).value);
-        tokenCount = value;
+    updateMarking(tokenCount: number | undefined, event: Event): void {
+        const inputValue = (event.target as HTMLInputElement).value;
+        tokenCount = inputValue === '' ? undefined : Number(inputValue);
     }
     
     updateDemandedStartMarking(key: string, event: Event): void {

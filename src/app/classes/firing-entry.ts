@@ -9,7 +9,7 @@ export class FiringEntry {
         public firingSequence: string,
         public transitionCount: number,
         public startMarking: Record<string, number>,
-        public endMarking: Record<string, number>,
+        public endMarking: Record<string, number | undefined>,
         public isClosed: boolean,
         public isValid: boolean | undefined,
     ) {}
@@ -42,14 +42,24 @@ export class FiringEntry {
     }
 
     /**
+     * Replaces every token count of the end marking with undefined.
+     * Used for invalid firing entries or input in exam mode (corresponds to empty input fields).
+     */
+    maskEndMarking(): void {
+        Object.keys(this.endMarking).forEach(key => {
+            this.endMarking[key] = undefined;
+        });
+    }
+
+    /**
      * Formats a marking into a string representation.
      * @param marking
      *          The marking to be formatted.
      * @returns The formatted marking string.
      */
-    private formatMarking(marking: Record<string, number>): string {
+    private formatMarking(marking: Record<string, number | undefined>): string {
         return Object.entries(marking)
-            .map(([key, value]) => `${key}: ${value}`)
+            .map(([key, value]) => `${key}: ${value === undefined ? '?' : value}`)
             .join(', ');
     }
 }

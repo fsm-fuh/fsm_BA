@@ -60,6 +60,7 @@ export class PlayService {
      *          The time period between firing each transition in milliseconds.
      * @param displayFiring
      *          Indicates whether the color of the firing transition should be animated while firing.
+     * @return A Promise that resolves when the sequence firing is complete.
      */
     async playSequence(diagram: Diagram, entry: FiringEntry, transitionTime: number, displayFiring: boolean): Promise<boolean> {
         this._currentFiringEntry = entry;
@@ -67,18 +68,18 @@ export class PlayService {
         diagram.marking = { ...entry.startMarking };
 
         for (let i = 0; i < entry.labels.length; i++) {
-            await this._sleep(transitionTime);
+            await this.sleep(transitionTime);
 
             const label = entry.labels[i];
             const node: DiagramTransition | undefined = diagram.getTransitionByLabel(label);
 
-            if (node) {                
+            if (node) {
                 const successfullyFired: boolean = this.processTransitionClick(diagram, node, false, true, displayFiring);
                 if (!successfullyFired) {
                     isEntryValid = false;
                     return isEntryValid;
                 }
-                entry.endMarking = diagram.marking;
+                entry.endMarking = { ...diagram.marking };
             }
         }
         return isEntryValid;
@@ -86,7 +87,7 @@ export class PlayService {
 
     /**
      * Fires a transition if it is activated, updates the diagram
-     * and records the firing in the firing sequence.
+     * and optionally records the firing in the firing sequence.
      * @param diagram
      *          The diagram containing the transition.
      * @param node
@@ -97,6 +98,7 @@ export class PlayService {
      *          Whether notifications (e. g., transition not activated) should be displayed.
      * @param displayFiring
      *          Whether the color of the firing transition should be animated while firing.
+     * @return true if the transition was fired successfully, otherwise false.
      */
     processTransitionClick(
         diagram: Diagram,
@@ -111,7 +113,8 @@ export class PlayService {
             this._lastMarking = diagram.marking;
             if (updateSequence) {
                 this._sourceNetService.updateEditedNet(diagram);
-                this._updateFiringEntry(node.label);
+                const updateEndMarking: boolean = !this._modeService.isExamMode();
+                this._updateFiringEntry(node.label, updateEndMarking);
             }
             this._setValidStatus(true);
             return true;
@@ -124,6 +127,7 @@ export class PlayService {
         }
         if (updateSequence) this._updateFiringEntry(node.label, false);
         this._setValidStatus(false);
+        this._currentFiringEntry?.maskEndMarking();
         return false;
     }
 
@@ -165,6 +169,19 @@ export class PlayService {
         this.firingEntries.update((entries) => entries.filter((entry) => entry.id !== id));
     }
 
+    /**
+     * 
+     * @param firingSequence
+     *          The firing sequence.
+     * @param transitionCount
+     *          The transition count.
+     * @param startMarking
+     *          The start marking.
+     * @param endMarking 
+     *          The end marking.
+     * @param isValid
+     *          Indicates whether the firing entry is valid.
+     */
     addFiringEntry(
         firingSequence: string,
         transitionCount: number,
@@ -190,7 +207,7 @@ export class PlayService {
 
     /**
      * Appends the label of a fired transition to the current firing sequence
-     * and updates transition count and end marking accordingly.
+     * and updates transition count and optionally the end marking accordingly.
      * @param label
      *          The label of the fired transition.
      * @param updateEndMarking
@@ -228,8 +245,9 @@ export class PlayService {
      * @returns A firing entry with an empty sequence.
      */
     private _getEmptyFiringEntry(): FiringEntry {
-        let endMarking = this._startMarking;
-        const newFiringEntry = new FiringEntry(this.getNewId(), '', 0, this._startMarking, endMarking, false, undefined);
+        let endMarking = { ...this._startMarking };
+        const newFiringEntry = new FiringEntry(this.getNewId(), '', 0, { ...this._startMarking }, endMarking, false, undefined);
+        if (this._modeService.isExamMode()) newFiringEntry.maskEndMarking();
         this._currentFiringEntry = newFiringEntry;
         this.firingEntries.update((entries) => {
             entries.push(newFiringEntry);
@@ -246,7 +264,7 @@ export class PlayService {
         return this._idCounter++;
     }
 
-    private _sleep(time: number): Promise<void> {
+    private sleep(time: number): Promise<void> {
         return new Promise(resolve => setTimeout(resolve, time));
     }
 }
