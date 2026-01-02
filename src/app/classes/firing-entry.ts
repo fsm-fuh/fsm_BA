@@ -46,7 +46,7 @@ export class FiringEntry {
      * Used for invalid firing entries or input in exam mode (corresponds to empty input fields).
      */
     maskEndMarking(): void {
-        Object.keys(this.endMarking).forEach(key => {
+        Object.keys(this.endMarking).forEach((key) => {
             this.endMarking[key] = undefined;
         });
     }

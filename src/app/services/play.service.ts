@@ -62,7 +62,12 @@ export class PlayService {
      *          Indicates whether the color of the firing transition should be animated while firing.
      * @return A Promise that resolves when the sequence firing is complete.
      */
-    async playSequence(diagram: Diagram, entry: FiringEntry, transitionTime: number, displayFiring: boolean): Promise<boolean> {
+    async playSequence(
+        diagram: Diagram,
+        entry: FiringEntry,
+        transitionTime: number,
+        displayFiring: boolean,
+    ): Promise<boolean> {
         this._currentFiringEntry = entry;
         let isEntryValid: boolean = true;
         diagram.marking = { ...entry.startMarking };
@@ -74,7 +79,13 @@ export class PlayService {
             const node: DiagramTransition | undefined = diagram.getTransitionByLabel(label);
 
             if (node) {
-                const successfullyFired: boolean = this.processTransitionClick(diagram, node, false, true, displayFiring);
+                const successfullyFired: boolean = this.processTransitionClick(
+                    diagram,
+                    node,
+                    false,
+                    true,
+                    displayFiring,
+                );
                 if (!successfullyFired) {
                     isEntryValid = false;
                     return isEntryValid;
@@ -170,14 +181,14 @@ export class PlayService {
     }
 
     /**
-     * 
+     *
      * @param firingSequence
      *          The firing sequence.
      * @param transitionCount
      *          The transition count.
      * @param startMarking
      *          The start marking.
-     * @param endMarking 
+     * @param endMarking
      *          The end marking.
      * @param isValid
      *          Indicates whether the firing entry is valid.
@@ -234,10 +245,11 @@ export class PlayService {
      * Closes the current firing entry in the firing table, preventing further updates to it.
      */
     closeCurrentFiringEntry(): void {
-        if (this._currentFiringEntry) this.firingEntries.update((entries) => {
-            this._currentFiringEntry!.isClosed = true;
-            return entries;
-        });
+        if (this._currentFiringEntry)
+            this.firingEntries.update((entries) => {
+                this._currentFiringEntry!.isClosed = true;
+                return entries;
+            });
     }
 
     /**
@@ -246,7 +258,15 @@ export class PlayService {
      */
     private _getEmptyFiringEntry(): FiringEntry {
         let endMarking = { ...this._startMarking };
-        const newFiringEntry = new FiringEntry(this.getNewId(), '', 0, { ...this._startMarking }, endMarking, false, undefined);
+        const newFiringEntry = new FiringEntry(
+            this.getNewId(),
+            '',
+            0,
+            { ...this._startMarking },
+            endMarking,
+            false,
+            undefined,
+        );
         if (this._modeService.isExamMode()) newFiringEntry.maskEndMarking();
         this._currentFiringEntry = newFiringEntry;
         this.firingEntries.update((entries) => {
@@ -265,6 +285,6 @@ export class PlayService {
     }
 
     private sleep(time: number): Promise<void> {
-        return new Promise(resolve => setTimeout(resolve, time));
+        return new Promise((resolve) => setTimeout(resolve, time));
     }
 }

@@ -112,7 +112,7 @@
     line-height: 18px;
 }
 
-input[type="text"] {
+input[type='text'] {
     width: 100%;
     box-sizing: border-box;
     font-family: 'Courier New', sans-serif;
@@ -121,7 +121,7 @@ input[type="text"] {
     line-height: 2;
 }
 
-input[type="number"] {
+input[type='number'] {
     width: 100%;
     box-sizing: border-box;
     font-family: 'Courier New', sans-serif;
@@ -167,7 +167,7 @@ input[type="number"] {
 }
 
 .custom-input-label {
-    min-width: 18ch; 
+    min-width: 18ch;
 }
 
 .transition-count-input-label {

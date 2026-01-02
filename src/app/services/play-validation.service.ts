@@ -25,7 +25,7 @@ export class PlayValidationService {
      *          The required start marking obtained from the form.
      * @param requiredEndMarking
      *          The required end marking obtained from the form.
-     * @param requiredTransitionCount 
+     * @param requiredTransitionCount
      *          Optional. The exact number of transitions the firing sequences should contain.
      *          If not provided, sequences with up to `_MAX_TRANSITIONS_DEFAULT` transitions are considered.
      */
@@ -50,13 +50,16 @@ export class PlayValidationService {
         ) {
             if (sequenceCount >= self._MAX_SEQUENCES) return;
 
-            if (self._isEquivalentMarking(currentMarking, requiredEndMarking) && isValidTransitionCount(firedTransitions.length)) {
+            if (
+                self._isEquivalentMarking(currentMarking, requiredEndMarking) &&
+                isValidTransitionCount(firedTransitions.length)
+            ) {
                 self._playService.addFiringEntry(
                     firedTransitions.join(' '),
                     firedTransitions.length,
                     requiredStartMarking,
                     requiredEndMarking,
-                    true
+                    true,
                 );
                 sequenceCount++;
             }
@@ -72,7 +75,13 @@ export class PlayValidationService {
             for (const transition of diagram.transitions) {
                 // Save old marking for the case of the current transition not firing
                 const oldMarking = { ...diagram.marking };
-                const successfullyFired = self._playService.processTransitionClick(diagram, transition, false, false, false);
+                const successfullyFired = self._playService.processTransitionClick(
+                    diagram,
+                    transition,
+                    false,
+                    false,
+                    false,
+                );
                 if (successfullyFired) {
                     depthFirstSearch(
                         { ...diagram.marking },
@@ -135,7 +144,8 @@ export class PlayValidationService {
         diagram.marking = { ...entry.startMarking };
         const givenEndMarking: Record<string, number | undefined> = { ...entry.endMarking };
         const successfullyPlayed: boolean = await this._playService.playSequence(diagram, entry, 0, false);
-        const isValidEndMarking = !this._modeService.isExamMode() || this._isEquivalentMarking(givenEndMarking, diagram.marking);
+        const isValidEndMarking =
+            !this._modeService.isExamMode() || this._isEquivalentMarking(givenEndMarking, diagram.marking);
         const isValid: boolean = successfullyPlayed && isValidEndMarking;
         if (isValid) entry.endMarking = { ...diagram.marking };
         return isValid;
@@ -148,15 +158,18 @@ export class PlayValidationService {
      * Checks whether two markings are equivalent.
      * @param a
      *          The first marking.
-     * @param b 
+     * @param b
      *          The second marking.
      * @returns true if the markings are equivalent, else false (undefined token counts are used as wildcards).
      */
-    private _isEquivalentMarking(a: Record<string, number | undefined>, b: Record<string, number | undefined>): boolean {
+    private _isEquivalentMarking(
+        a: Record<string, number | undefined>,
+        b: Record<string, number | undefined>,
+    ): boolean {
         const aKeys = Object.keys(a);
         const bKeys = Object.keys(b);
         if (aKeys.length !== bKeys.length) return false;
-        return aKeys.every(key => {
+        return aKeys.every((key) => {
             const valA = a[key];
             const valB = b[key];
             if (valA === undefined || valB === undefined) return true;

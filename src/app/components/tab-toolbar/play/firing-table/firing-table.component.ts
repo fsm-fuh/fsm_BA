@@ -56,12 +56,12 @@ export class FiringTableComponent implements OnInit, OnDestroy {
         this._sub = this._displayService.diagram$
             .pipe(
                 tap((diagram) => {
-                if (!diagram) {
-                    this._diagram = undefined;
-                    this.requiredStartMarking.set({});
-                    this.requiredEndMarking.set({});
-                    this.requiredTransitionCount.set(undefined);
-                }
+                    if (!diagram) {
+                        this._diagram = undefined;
+                        this.requiredStartMarking.set({});
+                        this.requiredEndMarking.set({});
+                        this.requiredTransitionCount.set(undefined);
+                    }
                 }),
                 filter((diagram): diagram is Diagram => !!diagram && diagram instanceof Diagram),
                 tap((diagram: Diagram) => {
@@ -69,15 +69,15 @@ export class FiringTableComponent implements OnInit, OnDestroy {
                     this.requiredStartMarking.set({ ...diagram.startMarking });
                     this.requiredEndMarking.set(
                         Object.keys(diagram.startMarking).reduce(
-                        (acc, key) => {
-                            acc[key] = 0;
-                            return acc;
-                        },
-                        {} as { [key: string]: number }
-                        )
+                            (acc, key) => {
+                                acc[key] = 0;
+                                return acc;
+                            },
+                            {} as { [key: string]: number },
+                        ),
                     );
                     this.requiredTransitionCount.set(undefined);
-                })
+                }),
             )
             .subscribe();
     }
@@ -148,12 +148,12 @@ export class FiringTableComponent implements OnInit, OnDestroy {
         this.isFindSequencesFormVisible = !this.isFindSequencesFormVisible;
         this.buttonColor = this.isFindSequencesFormVisible ? 'primary' : 'basic';
     }
-    
+
     updateMarking(tokenCount: number | undefined, event: Event): void {
         const inputValue = (event.target as HTMLInputElement).value;
         tokenCount = inputValue === '' ? undefined : Number(inputValue);
     }
-    
+
     updateRequiredStartMarking(key: string, event: Event): void {
         const value = Number((event.target as HTMLInputElement).value);
         this.requiredStartMarking.set({

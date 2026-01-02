@@ -14,7 +14,7 @@ export class DiagramTransition extends DiagramNode {
     private readonly _inputArcs: DiagramArc[];
     private readonly _outputArcs: DiagramArc[];
     private readonly _innerLabel?: string;
-    
+
     isFiring = signal<boolean>(false);
 
     constructor(

@@ -36,7 +36,7 @@
                             [(ngModel)]="entry.firingSequence"
                             id="firing-sequence-input"
                             (input)="onInputChange(entry)"
-                            (keydown.enter)="onNewEntry()"/>
+                            (keydown.enter)="onNewEntry()" />
                     } @else {
                         {{ entry.firingSequence }}
                     }
@@ -86,6 +86,8 @@
                     } @else {
                         {{ entry.formattedEndMarking }}
                     }
+                </td>
+
                 <td class="delete-button-td">
                     @if (entry.isClosed) {
                         <button
@@ -104,8 +106,12 @@
 <div class="tab-toolbar-container">
     <div class="tab-toolbar-row">
         <div class="main-button-container">
-            <button mat-raised-button id="new-entry-button" (click)="onNewEntry()">{{ 'NEW_SEQUENCE' | translate }}</button>
-            <button mat-raised-button id="validate-firing-table-button" (click)="onValidateSequences()">{{ 'VALIDATE_SEQUENCES' | translate }}</button>
+            <button mat-raised-button id="new-entry-button" (click)="onNewEntry()">
+                {{ 'NEW_SEQUENCE' | translate }}
+            </button>
+            <button mat-raised-button id="validate-firing-table-button" (click)="onValidateSequences()">
+                {{ 'VALIDATE_SEQUENCES' | translate }}
+            </button>
             <button
                 mat-raised-button
                 id="find-sequences-button"
@@ -163,7 +169,9 @@
 
                 <div class="transition-count-and-buttons-container">
                     <div class="transition-count-input-container">
-                        <span class="custom-input-label transition-count-input-label">{{ 'TRANSITION_COUNT' | translate }} (optional)</span>
+                        <span class="custom-input-label transition-count-input-label"
+                            >{{ 'TRANSITION_COUNT' | translate }} (optional)</span
+                        >
                         <input
                             matInput
                             type="number"
@@ -177,7 +185,9 @@
                     </div>
                     <div class="form-button-container">
                         <button mat-raised-button color="primary">{{ 'START' | translate }}</button>
-                        <button mat-raised-button color="warn" (click)="toggleFindSequencesForm()">{{ 'CANCEL' | translate }}</button>
+                        <button mat-raised-button color="warn" (click)="toggleFindSequencesForm()">
+                            {{ 'CANCEL' | translate }}
+                        </button>
                     </div>
                 </div>
             </form>
