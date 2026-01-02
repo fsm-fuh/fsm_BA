@@ -148,12 +148,12 @@ export class ReachabilityGraphService {
      * Uses the "saved" Marking of the reachability graph model where each StateNode saves it's corresponding marking.
      * @param node: The clicked StateNode
      */
-        switchPnStateToClickedState(node: StateNode) {
+    switchPnStateToClickedState(node: StateNode) {
         console.log('ChangeStateMethod started.');
-        console.log('StateNode ID'+node.id);
-        console.log('Label'+node.label);
+        console.log('StateNode ID' + node.id);
+        console.log('Label' + node.label);
         console.log('Marking + ${rGMarking[RG1]');
-            //important: diagram is rRG, but switching / setMarking needs to be implemented in PN
+        //important: diagram is rRG, but switching / setMarking needs to be implemented in PN
 
         // this._playService.adjustPnMarking(node.rGMarking);
         let oldPetriNet = this._sourceNetService.getCurrentSourceNet;
