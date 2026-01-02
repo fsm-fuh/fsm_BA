@@ -9,6 +9,7 @@ import { Tab } from '../../classes/tabs';
 import { PetriNetLoaderService } from '../../services/petri-net-loader.service';
 import { DisplayableNode } from '../../classes/displayable-graph.interface';
 import { DiagramTransition } from '../../classes/diagram/diagram-transition';
+import { ModeService } from '../../services/mode.service';
 import { PlayService } from '../../services/play.service';
 import { Diagram } from '../../classes/diagram/diagram';
 import { PanningService } from '../../services/panning.service';
@@ -32,6 +33,7 @@ export class DisplayComponent implements OnInit, OnDestroy {
     private _tabStateService = inject(TabStateService);
     private _imageExportService = inject(ImageExportService);
     private _loaderService = inject(PetriNetLoaderService);
+    private _modeService = inject(ModeService);
     private _playService = inject(PlayService);
     private _elementRef = inject(ElementRef);
 
@@ -80,7 +82,9 @@ export class DisplayComponent implements OnInit, OnDestroy {
     public processNodeClick(node: DisplayableNode) {
         const diagram = this.diagram();
         if (this.isPlayingEnabled() && diagram && diagram instanceof Diagram && node instanceof DiagramTransition) {
-            this._playService.processTransitionClick(diagram, node, true, true, true);
+            if (this._modeService.isExamMode()) {
+                this._playService.updateFiringEntry(node.label, false);
+            } else this._playService.processTransitionClick(diagram, node, true, true, true);
         }
     }
 

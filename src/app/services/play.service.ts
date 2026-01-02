@@ -125,7 +125,7 @@ export class PlayService {
             if (updateSequence) {
                 this._sourceNetService.updateEditedNet(diagram);
                 const updateEndMarking: boolean = !this._modeService.isExamMode();
-                this._updateFiringEntry(node.label, updateEndMarking);
+                this.updateFiringEntry(node.label, updateEndMarking);
             }
             this._setValidStatus(true);
             return true;
@@ -136,7 +136,7 @@ export class PlayService {
                 { messageParams: { label: node.label } },
             );
         }
-        if (updateSequence) this._updateFiringEntry(node.label, false);
+        if (updateSequence) this.updateFiringEntry(node.label, false);
         this._setValidStatus(false);
         this._currentFiringEntry?.maskEndMarking();
         return false;
@@ -225,7 +225,7 @@ export class PlayService {
      *          Indicates whether the end marking should be updated. Is set to false in
      *          the case of an invalid input to the firing sequence.
      */
-    private _updateFiringEntry(label: string, updateEndMarking: boolean = true): void {
+    updateFiringEntry(label: string, updateEndMarking: boolean = true): void {
         const entry = this._currentFiringEntry || this._getEmptyFiringEntry();
         entry.firingSequence += ` ${label}`;
         entry.transitionCount += 1;
