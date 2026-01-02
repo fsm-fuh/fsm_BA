@@ -155,12 +155,13 @@ export class ReachabilityGraphService {
         // this._playService.adjustPnMarking(node.rGMarking);
         let oldPetriNet = this._sourceNetService.getCurrentSourceNet;
         console.log('Old PN:' + oldPetriNet);
+        //Bis hierhin klappt Aufruf
         if (oldPetriNet instanceof Diagram) {
-            // oldPetriNet.marking = node.rGMarking;
+            oldPetriNet.marking = node.rGMarking;
             console.log('Changed PN:' + oldPetriNet);
             this._sourceNetService.updateEditedNet(oldPetriNet);
         }
-        //Methode public ALLE state nodes zurückgeben
+        // Methode public ALLE state nodes zurückgeben
         //Methode 2 public ALLE edges zurückgeben
     }
 }
