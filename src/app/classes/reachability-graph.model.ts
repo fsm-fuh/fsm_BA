@@ -10,8 +10,8 @@ export class StateNode implements DisplayableNode {
     id: string;
     _x: WritableSignal<number>;
     _y: WritableSignal<number>;
-    label: string;
-    rGMarking: Record<string, number>;
+    label?: string;
+    rGMarking?: Record<string, number>;
 
     //Auf previous und nextState verweisen ? alle Möglichkeiten / neighbours
     //double linked list ohne Ende

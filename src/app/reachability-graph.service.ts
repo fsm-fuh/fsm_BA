@@ -8,6 +8,7 @@ import { Diagram } from './classes/diagram/diagram';
 import { ToasterNotificationService } from './services/toaster-notification.service';
 import { PetriNet } from './services/validation.service';
 import { PlayService } from './services/play.service';
+import { DisplayableNode } from './classes/displayable-graph.interface';
 
 @Injectable({
     providedIn: 'root',
@@ -148,7 +149,8 @@ export class ReachabilityGraphService {
      * @param diagram The current ReachabilityGraph
      * @param node: The clicked StateNode
      */
-    switchPnStateToClickedState(node: StateNode) {
+    switchPnStateToClickedState(nodeId: string) {
+        // switchPnStateToClickedState(node: DisplayableNode) {
         // switchPnStateToClickedState(diagram: ReachabilityGraph, node: StateNode){
 
         //important: diagram is rRG, but switching / setMarking needs to be implemented in PN
@@ -157,7 +159,7 @@ export class ReachabilityGraphService {
         let oldPetriNet = this._sourceNetService.getCurrentSourceNet;
         console.log('Old PN:' + oldPetriNet);
         if (oldPetriNet instanceof Diagram) {
-            oldPetriNet.marking = node.rGMarking;
+            // oldPetriNet.marking = node.rGMarking;
             console.log('Changed PN:' + oldPetriNet);
             this._sourceNetService.updateEditedNet(oldPetriNet);
         }

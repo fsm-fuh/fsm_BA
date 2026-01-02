@@ -28,6 +28,7 @@ export class SvgNodeComponent {
     });
 
     readonly diagramNode = input<DisplayableNode>();
+    // readonly diagramNode = input<DisplayableNode | StateNode>();
     private _playService = inject(PlayService);
 
     readonly showInnerLabel = input<boolean>(false);
@@ -45,6 +46,10 @@ export class SvgNodeComponent {
     readonly selected = input<boolean>(false);
 
     clickNode = output<DisplayableNode>();
+
+    onClick = output<string>();
+
+    // clickStateNode = output<StateNode>();
 
     readonly fillColor = signal('white');
 
