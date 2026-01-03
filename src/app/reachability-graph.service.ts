@@ -21,7 +21,6 @@ export class ReachabilityGraphService {
     private _currentMarkingRG = signal<Record<string, number>>(this._startMarkingRG);
     private _lastProcessedDiagram: Diagram | null = null;
     private _notificationService = inject(ToasterNotificationService);
-    // private _playService = inject(PlayService);
 
     private currentSourceRgId = 'RG1';
 
@@ -165,6 +164,12 @@ export class ReachabilityGraphService {
             console.log('Changed PN:' + oldPetriNet);
             this._sourceNetService.updateEditedNet(oldPetriNet);
         }
+        //Toaster hier für alle Fälle
+                        this._notificationService.showSuccess('TOASTER.HEADER.SUCCESS', 'TOASTER.BODY.SWITCHED_STATE_SUCCESSFULLY');
+
+
+
+
         // Methode public ALLE state nodes zurückgeben
         //Methode 2 public ALLE edges zurückgeben
     }
