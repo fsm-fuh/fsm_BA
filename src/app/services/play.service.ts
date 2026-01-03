@@ -212,7 +212,6 @@ export class PlayService {
         );
         this.firingEntries.update((entries) => {
             entries.push(newEntry);
-            this._reachabilityGraphService.convertFiringEntryLabelToReachabilityGraphID(lastEntry, label);
             return entries;
         });
     }
@@ -231,6 +230,7 @@ export class PlayService {
         entry.firingSequence += ` ${label}`;
         entry.transitionCount += 1;
         if (updateEndMarking) entry.endMarking = this._currentMarking();
+        this._reachabilityGraphService.convertFiringEntryLabelToReachabilityGraphID(entry, label);
     }
 
     /**

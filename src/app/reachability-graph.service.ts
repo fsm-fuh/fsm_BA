@@ -114,7 +114,7 @@ export class ReachabilityGraphService {
             currentX,
             currentY,
             currentReachabilityLabel,
-            firingEntry.endMarking,
+            firingEntry.endMarking as Record<string, number>,
         );
 
         const nextEdgeIndex = graph.edges.length + 1;
