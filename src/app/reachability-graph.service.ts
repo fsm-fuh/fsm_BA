@@ -148,14 +148,13 @@ export class ReachabilityGraphService {
      * @param node: The clicked StateNode
      */
     switchPnStateToClickedState(node: StateNode) {
+        //important: diagram is rRG, but switching / setMarking needs to be implemented in PN
         console.log('ChangeStateMethod started.');
         console.log('StateNode ID' + node.id);
         console.log('Label' + node.label);
-        // console.log('Marking + ${rGMarking[RG1]');
-        //important: diagram is rRG, but switching / setMarking needs to be implemented in PN
-
-        // this._playService.adjustPnMarking(node.rGMarking);
-        
+        if(node.rGMarking){
+            console.log('Marking' + node.rGMarking);
+        }
         
         if (!this._sourceNetService.getCurrentSourceNet){
             this._notificationService.showError('TOASTER.HEADER.ERROR', 'TOASTER.BODY.NO_CURRENT_NET');
@@ -163,18 +162,14 @@ export class ReachabilityGraphService {
         }
         
         else{
+            //TO-DO: Find better way than unknown cast for type assertion
             let oldPetriNet = this._sourceNetService.getCurrentSourceNet as unknown as Diagram;
-            console.log('Old PN:' );
+            console.log('Old PN nodes:  ' + oldPetriNet.allNodes + '      ' +'marking  ' + oldPetriNet.currentMarking$);
             oldPetriNet.marking = node.rGMarking;
             oldPetriNet.updateMarking;
             this._sourceNetService.updateEditedNet(oldPetriNet);
-            console.log('Changed PN:' + oldPetriNet);
-            // }
+            console.log('Changed PN:' + oldPetriNet.currentMarking$);
+            this._notificationService.showSuccess('TOASTER.HEADER.SUCCESS', 'TOASTER.BODY.SWITCHED_STATE_SUCCESSFULLY');
         }
-        //Toaster hier für alle Fälle
-        this._notificationService.showSuccess('TOASTER.HEADER.SUCCESS', 'TOASTER.BODY.SWITCHED_STATE_SUCCESSFULLY');
-
-        // Methode public ALLE state nodes zurückgeben
-        //Methode 2 public ALLE edges zurückgeben
     }
 }
