@@ -165,10 +165,7 @@ export class ReachabilityGraphService {
             this._sourceNetService.updateEditedNet(oldPetriNet);
         }
         //Toaster hier für alle Fälle
-                        this._notificationService.showSuccess('TOASTER.HEADER.SUCCESS', 'TOASTER.BODY.SWITCHED_STATE_SUCCESSFULLY');
-
-
-
+        this._notificationService.showSuccess('TOASTER.HEADER.SUCCESS', 'TOASTER.BODY.SWITCHED_STATE_SUCCESSFULLY');
 
         // Methode public ALLE state nodes zurückgeben
         //Methode 2 public ALLE edges zurückgeben
