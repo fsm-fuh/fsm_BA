@@ -151,18 +151,25 @@ export class ReachabilityGraphService {
         console.log('ChangeStateMethod started.');
         console.log('StateNode ID' + node.id);
         console.log('Label' + node.label);
-        console.log('Marking + ${rGMarking[RG1]');
+        // console.log('Marking + ${rGMarking[RG1]');
         //important: diagram is rRG, but switching / setMarking needs to be implemented in PN
 
         // this._playService.adjustPnMarking(node.rGMarking);
-        let oldPetriNet = this._sourceNetService.getCurrentSourceNet;
-        console.log('Old PN:' + oldPetriNet);
-        //Bis hierhin klappt Aufruf
-        if (oldPetriNet instanceof Diagram) {
+        
+        
+        if (!this._sourceNetService.getCurrentSourceNet){
+            this._notificationService.showError('TOASTER.HEADER.ERROR', 'TOASTER.BODY.NO_CURRENT_NET');
+            return;
+        }
+        
+        else{
+            let oldPetriNet = this._sourceNetService.getCurrentSourceNet as unknown as Diagram;
+            console.log('Old PN:' );
             oldPetriNet.marking = node.rGMarking;
             oldPetriNet.updateMarking;
-            console.log('Changed PN:' + oldPetriNet);
             this._sourceNetService.updateEditedNet(oldPetriNet);
+            console.log('Changed PN:' + oldPetriNet);
+            // }
         }
         //Toaster hier für alle Fälle
         this._notificationService.showSuccess('TOASTER.HEADER.SUCCESS', 'TOASTER.BODY.SWITCHED_STATE_SUCCESSFULLY');
