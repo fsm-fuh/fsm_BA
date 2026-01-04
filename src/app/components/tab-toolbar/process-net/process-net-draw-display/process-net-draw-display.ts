@@ -3,6 +3,7 @@ import {
     ChangeDetectorRef,
     Component,
     computed,
+    effect,
     ElementRef,
     inject,
     OnDestroy,
@@ -10,6 +11,7 @@ import {
     signal,
     ViewChild,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { SvgNodeComponent } from '../../../display/svg-node/svg-node.component';
 import { DiagramNode, SHAPE } from '../../../../classes/diagram/diagram-node';
 import { DiagramPlace, DiagramPlaceLabelPlacement } from '../../../../classes/diagram/diagram-place';
@@ -20,11 +22,13 @@ import {
     type ProcessConnection,
     type ProcessElement,
     validateProcessNet,
-} from '../../../../services/validation.service';
+} from '../../../../services/process-net-validation.service';
 import { ToasterNotificationService } from '../../../../services/toaster-notification.service';
 import { PanningService } from '../../../../services/panning.service';
 import { TOAST_POSITIONS, ToastList } from '../../../../classes/toast';
 import { TranslateModule } from '@ngx-translate/core';
+import { ModeService } from '../../../../services/mode.service';
+import { AppMode } from '../../../../classes/app-mode';
 
 interface DrawnElement {
     node: DiagramNode;
@@ -100,8 +104,19 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy, AfterV
     private displayService = inject(DisplayService);
     private toaster = inject(ToasterNotificationService);
     private panningService = inject(PanningService);
+    private modeService = inject(ModeService);
+    private diagramSignal = toSignal(this.displayService.diagram$, { initialValue: undefined });
     readonly viewBox = this.panningService.viewBoxAsString;
     readonly viewBoxObj = this.panningService.viewBox;
+    private modeChange = effect(() => {
+        const diagram = this.diagramSignal();
+        if (!diagram) return;
+        if (this.modeService.currentMode() == AppMode.EXAM) {
+            this.clearDrawing();
+        } else {
+            this.onCreateStartPosition();
+        }
+    });
 
     // Dimensions consistent with SvgNodeComponent
     private readonly PLACE_RADIUS = 25;
