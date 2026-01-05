@@ -607,7 +607,7 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy, AfterV
 
     // Trigger validation of the drawn process net against the loaded Petri net
     onValidate() {
-        const base = this.displayService.diagram;
+        const base = this.sourcePetriNetService.getCurrentSourceNet();
         if (!base) {
             this.toaster.showError('TOASTER.HEADER.VALIDATION', 'TOASTER.BODY.VALIDATION_ERROR', {
                 duration: 0,
@@ -618,6 +618,7 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy, AfterV
         }
         const nodes = base.getNodes();
         const edges = base.getEdges();
+        const startMarkingEntries = Object.entries(base.startMarking || {}).filter(([, tokens]) => (tokens ?? 0) > 0);
         const petri: PetriNet = {
             places: nodes.filter((n) => n.shape === 'circle').map((n) => n.id),
             transitions: nodes.filter((n) => n.shape === 'rect').map((n) => n.id),
@@ -628,15 +629,7 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy, AfterV
                 ]),
             ),
             labels: Object.fromEntries(nodes.filter((n) => n.shape === 'rect').map((n) => [n.id, n.displayLabel])),
-            marking: Object.fromEntries(
-                nodes
-                    .filter((n) => n.shape === 'circle')
-                    .map((place) => {
-                        const tokens = place.tokenCount();
-                        return [place.id, tokens] as [string, number];
-                    })
-                    .filter(([, tokens]) => tokens > 0),
-            ),
+            marking: Object.fromEntries(startMarkingEntries),
         };
         const elements: ProcessElement[] = this.drawnElements().map((el) => {
             const isPlace = el.node instanceof DiagramPlace;
