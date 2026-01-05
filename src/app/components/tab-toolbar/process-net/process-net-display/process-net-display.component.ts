@@ -9,6 +9,7 @@ import { DiagramTransition } from '../../../../classes/diagram/diagram-transitio
 import { ToasterNotificationService } from '../../../../services/toaster-notification.service';
 import { Tab } from '../../../../classes/tabs';
 import { DisplayService } from '../../../../services/display.service';
+import { DiagramPlace } from '../../../../classes/diagram/diagram-place';
 
 // Added strongly typed drag data interfaces and Window augmentation
 interface BasicDragData {
@@ -166,8 +167,14 @@ export class ProcessNetDisplayComponent extends DisplayComponent {
             this.isProcessNetTab() === Tab.PROCESS_NET
         ) {
             if (node.isActivated()) {
+                const timestamp = new Date().toISOString();
+                const firedTransition = node.label ?? node.id;
+                const consumed = this.describeFlow(node.getInputFlow());
+                const produced = this.describeFlow(node.getOutputFlow());
                 node.fire(true);
                 diagram.updateMarking();
+                const flowDescription = `${consumed} -> ${firedTransition} -> ${produced}`;
+                console.log('fire', timestamp, 'transition', firedTransition, flowDescription);
                 this.displayService.display(diagram, { triggeredByFiring: true });
             } else {
                 this.toaster.showWarning(
@@ -183,5 +190,8 @@ export class ProcessNetDisplayComponent extends DisplayComponent {
         super.processNodeClick(node);
     }
 
-    // Add any additional functionality specific to process-net-display here
+    private describeFlow(flow: { place: DiagramPlace; weight: number }[]): string {
+        const expanded = flow.flatMap(({ place, weight }) => Array.from({ length: weight }, () => place.displayLabel));
+        return `{${expanded.join(', ')}}`;
+    }
 }
