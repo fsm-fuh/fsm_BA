@@ -351,6 +351,11 @@ export class ParserService {
                     count = parseInt(c.trim(), 10);
                     placeId = p.trim();
                 }
+
+                if (isNaN(count)) {
+                    throw new Error(`Invalid marking weight for place '${placeId}'`);
+                }
+
                 marking[placeId] = (marking[placeId] || 0) + count;
             }
         }
@@ -388,6 +393,10 @@ export class ParserService {
                     const [w, t] = part.split('⋅');
                     weight = parseInt(w.trim(), 10);
                     tuplePart = t.trim();
+                }
+
+                if (isNaN(weight)) {
+                    throw new Error(`Invalid arc weight in '${part}'`);
                 }
 
                 if (tuplePart.startsWith('(') && tuplePart.endsWith(')')) {
