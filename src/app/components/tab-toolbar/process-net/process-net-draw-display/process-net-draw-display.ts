@@ -128,7 +128,7 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy, AfterV
         const firingChange =
             this.displayService.consumeTriggeredByFiring() ||
             this.sourcePetriNetService.consumeChangeTriggeredByFiring();
-        if (firingChange) {
+        if (firingChange && this.modeService.currentMode() === AppMode.LEARN) {
             return;
         }
         this.clearDrawing();
