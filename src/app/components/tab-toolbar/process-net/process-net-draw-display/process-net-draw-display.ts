@@ -29,9 +29,9 @@ import { TOAST_POSITIONS, ToastList } from '../../../../classes/toast';
 import { TranslateModule } from '@ngx-translate/core';
 import { ModeService } from '../../../../services/mode.service';
 import { AppMode } from '../../../../classes/app-mode';
-import { MainTabComponent } from '../../../main-tab/main-tab.component';
 import { TabStateService } from '../../../../services/tab-state.service';
 import { Tab } from '../../../../classes/tabs';
+import { SourcePetriNetService } from '../../../../services/source-petri-net.service';
 
 interface DrawnElement {
     node: DiagramNode;
@@ -108,6 +108,7 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy, AfterV
     private toaster = inject(ToasterNotificationService);
     private panningService = inject(PanningService);
     private modeService = inject(ModeService);
+    private sourcePetriNetService = inject(SourcePetriNetService);
     private diagramSignal = toSignal(this.displayService.diagram$, { initialValue: undefined });
     private tabStateService = inject(TabStateService);
     readonly viewBox = this.panningService.viewBoxAsString;
@@ -118,6 +119,12 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy, AfterV
         }
         const diagram = this.diagramSignal();
         if (!diagram) return;
+        const firingChange =
+            this.displayService.consumeTriggeredByFiring() ||
+            this.sourcePetriNetService.consumeChangeTriggeredByFiring();
+        if (firingChange) {
+            return;
+        }
         if (this.modeService.currentMode() == AppMode.EXAM) {
             this.clearDrawing();
         } else {

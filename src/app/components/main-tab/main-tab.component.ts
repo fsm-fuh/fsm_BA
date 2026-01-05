@@ -47,7 +47,7 @@ export class MainTabComponent implements OnInit {
     private _playService: PlayService = inject(PlayService);
     private readonly _tabs: Tab[] = [Tab.DRAW, Tab.PLAY, Tab.REACHABILITY_GRAPH, Tab.PROCESS_NET];
 
-    selectedIndex = Tab.DRAW; // Select which tab to show by default
+    selectedIndex = Tab.PROCESS_NET; // Select which tab to show by default
 
     ngOnInit(): void {
         this._tabStateService.switchTo(this._tabs[this.selectedIndex]);
@@ -67,6 +67,9 @@ export class MainTabComponent implements OnInit {
         )
             this._playService.recoverLastMarking(diagram);
 
-        this._sourcePetriNetService.updateEditedNet(diagram);
+        const sourceDiagram = this._sourcePetriNetService.getCurrentSourceNet();
+        if (sourceDiagram) {
+            this._sourcePetriNetService.updateEditedNet(sourceDiagram, { triggeredByFiring: false });
+        }
     }
 }

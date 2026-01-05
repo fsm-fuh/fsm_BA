@@ -123,7 +123,7 @@ export class PlayService {
             diagram.updateMarking();
             this._lastMarking = diagram.marking;
             if (updateSequence) {
-                this._sourceNetService.updateEditedNet(diagram);
+                this._sourceNetService.updateEditedNet(diagram, { triggeredByFiring: true });
                 const updateEndMarking = !this._modeService.isExamMode();
                 this.updateFiringEntry(node.label, updateEndMarking);
             }

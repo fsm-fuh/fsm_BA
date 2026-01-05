@@ -45,7 +45,8 @@ export class ProcessNetComponent implements OnInit, OnDestroy {
             const json = this.serializationService.serializeJson(net);
             const clone = this.parserService.parseJson(json);
             if (clone) {
-                this.displayService.display(clone);
+                const triggeredByFiring = this.sourcePetriNetService.consumeChangeTriggeredByFiring();
+                this.displayService.display(clone, { triggeredByFiring });
             } else {
                 this.displayService.clear();
             }

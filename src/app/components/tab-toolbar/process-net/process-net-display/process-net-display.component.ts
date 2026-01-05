@@ -8,6 +8,7 @@ import { Diagram } from '../../../../classes/diagram/diagram';
 import { DiagramTransition } from '../../../../classes/diagram/diagram-transition';
 import { ToasterNotificationService } from '../../../../services/toaster-notification.service';
 import { Tab } from '../../../../classes/tabs';
+import { DisplayService } from '../../../../services/display.service';
 
 // Added strongly typed drag data interfaces and Window augmentation
 interface BasicDragData {
@@ -40,6 +41,7 @@ export class ProcessNetDisplayComponent extends DisplayComponent {
     private isDragging = false;
     private dragStartPos = { x: 0, y: 0 };
     private currentDragData: BasicDragData | null = null;
+    private displayService = inject(DisplayService);
     private toaster = inject(ToasterNotificationService);
 
     readonly isProcessNetTab = this._tabStateService.currentTab;
@@ -166,6 +168,7 @@ export class ProcessNetDisplayComponent extends DisplayComponent {
             if (node.isActivated()) {
                 node.fire(true);
                 diagram.updateMarking();
+                this.displayService.display(diagram, { triggeredByFiring: true });
             } else {
                 this.toaster.showWarning(
                     'TOASTER.HEADER.TRANSITION_NOT_ACTIVATED',
