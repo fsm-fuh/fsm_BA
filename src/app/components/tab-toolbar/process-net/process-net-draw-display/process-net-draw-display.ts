@@ -34,6 +34,7 @@ import { TabStateService } from '../../../../services/tab-state.service';
 import { Tab } from '../../../../classes/tabs';
 import { SourcePetriNetService } from '../../../../services/source-petri-net.service';
 import { ProcessNetFiringService, ProcessNetFiringEvent } from '../../../../services/process-net-firing.service';
+import { Subscription } from 'rxjs';
 
 interface DrawnElement {
     node: DiagramNode;
@@ -116,6 +117,10 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy, AfterV
     private firingService = inject(ProcessNetFiringService);
     private firingSub?: ReturnType<typeof this.firingService.events$.subscribe>;
     private autoFiringCount = 0;
+    private firingChangeVersion = signal(0);
+    private lastProcessedFiringVersion = 0;
+    private displaySub?: Subscription;
+    private sourceSub?: Subscription;
 
     readonly viewBox = this.panningService.viewBoxAsString;
     readonly viewBoxObj = this.panningService.viewBox;
@@ -125,10 +130,10 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy, AfterV
         }
         const diagram = this.diagramSignal();
         if (!diagram) return;
-        const firingChange =
-            this.displayService.consumeTriggeredByFiring() ||
-            this.sourcePetriNetService.consumeChangeTriggeredByFiring();
-        if (firingChange && this.modeService.currentMode() === AppMode.LEARN) {
+        const firingVersion = this.firingChangeVersion();
+        const isNewFiringChange = firingVersion > this.lastProcessedFiringVersion;
+        this.lastProcessedFiringVersion = firingVersion;
+        if (isNewFiringChange && this.modeService.currentMode() === AppMode.LEARN) {
             return;
         }
         this.clearDrawing();
@@ -152,6 +157,18 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy, AfterV
             canvas.addEventListener('mousedown', this.handleCanvasMouseDown, true);
         }
         this.firingSub = this.firingService.events$.subscribe((event) => this.addFiringToDrawing(event));
+        this.displaySub = this.displayService.diagram$.subscribe(() => {
+            const triggeredByFiring = this.displayService.consumeTriggeredByFiring();
+            if (triggeredByFiring) {
+                this.firingChangeVersion.update((v) => v + 1);
+            }
+        });
+        this.sourceSub = this.sourcePetriNetService.sourceNet$.subscribe(() => {
+            const triggeredByFiring = this.sourcePetriNetService.consumeChangeTriggeredByFiring();
+            if (triggeredByFiring) {
+                this.firingChangeVersion.update((v) => v + 1);
+            }
+        });
     }
 
     ngAfterViewInit() {
@@ -166,6 +183,8 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy, AfterV
             canvas.removeEventListener('mousedown', this.handleCanvasMouseDown, true);
         }
         this.firingSub?.unsubscribe();
+        this.displaySub?.unsubscribe();
+        this.sourceSub?.unsubscribe();
     }
 
     private handleCanvasMouseDown = (event: MouseEvent) => {
@@ -571,6 +590,7 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy, AfterV
         this.connectionIdCounter = 0;
         this.bLabelCounter = 0;
         this.eLabelCounter = 0;
+        this.lastProcessedFiringVersion = this.firingChangeVersion();
 
         const diagram = this.displayService.diagram;
         if (diagram instanceof Diagram) {
@@ -890,6 +910,7 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy, AfterV
             this.connections.update((connections) => [...connections, ...newConnections]);
         }
         this.autoFiringCount++;
+        this.lastProcessedFiringVersion = this.firingChangeVersion();
     }
 
     private resolvePlaceForFlow(
