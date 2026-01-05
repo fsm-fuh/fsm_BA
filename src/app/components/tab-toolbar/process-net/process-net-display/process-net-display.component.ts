@@ -1,9 +1,13 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild, inject } from '@angular/core';
 import { DisplayComponent } from '../../../display/display.component';
 import { SvgNodeComponent } from '../../../display/svg-node/svg-node.component';
 import { SvgArcComponent } from '../../../display/svg-arc/svg-arc.component';
 import { SHAPE } from '../../../../classes/diagram/diagram-node';
 import { DisplayableNode } from '../../../../classes/displayable-graph.interface';
+import { Diagram } from '../../../../classes/diagram/diagram';
+import { DiagramTransition } from '../../../../classes/diagram/diagram-transition';
+import { ToasterNotificationService } from '../../../../services/toaster-notification.service';
+import { Tab } from '../../../../classes/tabs';
 
 // Added strongly typed drag data interfaces and Window augmentation
 interface BasicDragData {
@@ -36,6 +40,9 @@ export class ProcessNetDisplayComponent extends DisplayComponent {
     private isDragging = false;
     private dragStartPos = { x: 0, y: 0 };
     private currentDragData: BasicDragData | null = null;
+    private toaster = inject(ToasterNotificationService);
+
+    readonly isProcessNetTab = this._tabStateService.currentTab;
 
     override processDropEvent(e: DragEvent) {
         super.processDropEvent(e);
@@ -147,6 +154,30 @@ export class ProcessNetDisplayComponent extends DisplayComponent {
 
         // Clean up
         delete window.__dragData;
+    }
+
+    override processNodeClick(node: DisplayableNode) {
+        const diagram = this.diagram();
+        if (
+            diagram instanceof Diagram &&
+            node instanceof DiagramTransition &&
+            this.isProcessNetTab() === Tab.PROCESS_NET
+        ) {
+            if (node.isActivated()) {
+                node.fire(true);
+                diagram.updateMarking();
+            } else {
+                this.toaster.showWarning(
+                    'TOASTER.HEADER.TRANSITION_NOT_ACTIVATED',
+                    'TOASTER.BODY.TRANSITION_NOT_ACTIVATED',
+                    {
+                        messageParams: { label: node.label },
+                    },
+                );
+            }
+            return;
+        }
+        super.processNodeClick(node);
     }
 
     // Add any additional functionality specific to process-net-display here

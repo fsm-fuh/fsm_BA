@@ -151,7 +151,8 @@ export class PlayService {
     canBeFired(node: DiagramTransition): boolean {
         return (
             (this._tabStateService.currentTab() === Tab.PLAY ||
-                this._tabStateService.currentTab() === Tab.REACHABILITY_GRAPH) &&
+                this._tabStateService.currentTab() === Tab.REACHABILITY_GRAPH ||
+                this._tabStateService.currentTab() === Tab.PROCESS_NET) &&
             node.isActivated()
         );
     }

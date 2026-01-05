@@ -30,6 +30,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ModeService } from '../../../../services/mode.service';
 import { AppMode } from '../../../../classes/app-mode';
 import { MainTabComponent } from '../../../main-tab/main-tab.component';
+import { TabStateService } from '../../../../services/tab-state.service';
 import { Tab } from '../../../../classes/tabs';
 
 interface DrawnElement {
@@ -108,11 +109,11 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy, AfterV
     private panningService = inject(PanningService);
     private modeService = inject(ModeService);
     private diagramSignal = toSignal(this.displayService.diagram$, { initialValue: undefined });
+    private tabStateService = inject(TabStateService);
     readonly viewBox = this.panningService.viewBoxAsString;
     readonly viewBoxObj = this.panningService.viewBox;
     private modeChange = effect(() => {
-        // return if the current tab is not process net draw
-        if (inject(MainTabComponent).selectedIndex !== Tab.PROCESS_NET) {
+        if (this.tabStateService.currentTab() !== Tab.PROCESS_NET) {
             return;
         }
         const diagram = this.diagramSignal();
