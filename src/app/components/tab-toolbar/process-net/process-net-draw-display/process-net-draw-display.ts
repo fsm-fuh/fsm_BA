@@ -16,6 +16,7 @@ import { SvgNodeComponent } from '../../../display/svg-node/svg-node.component';
 import { DiagramNode, SHAPE } from '../../../../classes/diagram/diagram-node';
 import { DiagramPlace, DiagramPlaceLabelPlacement } from '../../../../classes/diagram/diagram-place';
 import { DiagramTransition, DiagramTransitionOptions } from '../../../../classes/diagram/diagram-transition';
+import { Diagram } from '../../../../classes/diagram/diagram';
 import { DisplayService } from '../../../../services/display.service';
 import {
     type PetriNet,
@@ -130,11 +131,7 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy, AfterV
         if (firingChange) {
             return;
         }
-        if (this.modeService.currentMode() == AppMode.EXAM) {
-            this.clearDrawing();
-        } else {
-            this.onCreateStartPosition();
-        }
+        this.clearDrawing();
     });
 
     // Dimensions consistent with SvgNodeComponent
@@ -574,6 +571,18 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy, AfterV
         this.connectionIdCounter = 0;
         this.bLabelCounter = 0;
         this.eLabelCounter = 0;
+
+        const diagram = this.displayService.diagram;
+        if (diagram instanceof Diagram) {
+            diagram.resetMarking();
+        }
+
+        if (this.modeService.currentMode() == AppMode.LEARN) {
+            this.onCreateStartPosition();
+        }
+
+        // reset the auto firing count
+        this.autoFiringCount = 0;
     }
 
     deleteElement(element: DrawnElement) {
@@ -712,7 +721,6 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy, AfterV
             return;
         }
 
-        this.clearDrawing();
         this.panningService.resetViewBox(this.drawingArea);
 
         const viewBox = this.panningService.INITIAL_VIEWBOX;
