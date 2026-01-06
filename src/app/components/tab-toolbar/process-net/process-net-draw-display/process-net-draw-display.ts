@@ -515,25 +515,14 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy, AfterV
         const ux = dx / len;
         const uy = dy / len;
 
-        const getOffset = (node: DiagramNode): number => {
-            if (node instanceof DiagramPlace) {
-                return this.PLACE_RADIUS;
-            }
-            // Transition (Rectangle/Square)
-            // intersection with box [-w, w] x [-h, h]
-            const w = this.TRANSITION_HALF_W;
-            const h = this.TRANSITION_HALF_H;
-            const absUx = Math.abs(ux);
-            const absUy = Math.abs(uy);
-            // distance along ray to x-edge: w / |ux|
-            const distW = absUx > 0.001 ? w / absUx : Infinity;
-            // distance along ray to y-edge: h / |uy|
-            const distH = absUy > 0.001 ? h / absUy : Infinity;
-            return Math.min(distW, distH);
-        };
-
-        const aOffset = getOffset(a.node);
-        const bOffset = getOffset(b.node);
+        const aOffset =
+            a.node instanceof DiagramPlace
+                ? this.PLACE_RADIUS
+                : Math.min(this.TRANSITION_HALF_W, this.TRANSITION_HALF_H);
+        const bOffset =
+            b.node instanceof DiagramPlace
+                ? this.PLACE_RADIUS
+                : Math.min(this.TRANSITION_HALF_W, this.TRANSITION_HALF_H);
 
         const x1 = ax + ux * aOffset;
         const y1 = ay + uy * aOffset;
