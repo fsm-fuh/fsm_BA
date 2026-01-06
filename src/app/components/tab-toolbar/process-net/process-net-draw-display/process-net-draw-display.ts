@@ -28,6 +28,7 @@ import { ToasterNotificationService } from '../../../../services/toaster-notific
 import { PanningService } from '../../../../services/panning.service';
 import { TOAST_POSITIONS, ToastList } from '../../../../classes/toast';
 import { TranslateModule } from '@ngx-translate/core';
+import { PLACE_RADIUS, TRANSITION_SIZE } from '../../../display/display.constants';
 import { ModeService } from '../../../../services/mode.service';
 import { AppMode } from '../../../../classes/app-mode';
 import { TabStateService } from '../../../../services/tab-state.service';
@@ -140,9 +141,9 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy, AfterV
     });
 
     // Dimensions consistent with SvgNodeComponent
-    private readonly PLACE_RADIUS = 25;
-    private readonly TRANSITION_HALF_W = 25; // RECT_WIDTH/2
-    private readonly TRANSITION_HALF_H = 15; // RECT_HEIGHT/2
+    private readonly PLACE_RADIUS = PLACE_RADIUS;
+    private readonly TRANSITION_HALF_W = TRANSITION_SIZE / 2;
+    private readonly TRANSITION_HALF_H = TRANSITION_SIZE / 2;
 
     ngOnInit() {
         // Listen for custom drop events
