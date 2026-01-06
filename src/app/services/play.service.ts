@@ -122,7 +122,7 @@ export class PlayService {
         displayFiring: boolean,
     ): boolean {
         const entry: FiringEntry = this._currentFiringEntry || this._getEmptyFiringEntry();
-        if (node.isActivated()) {
+        if (node.isActivated() && entry.isValid !== false) {
             node.fire(displayFiring);
             diagram.updateMarking();
             this._currentMarking.set(diagram.marking);
@@ -233,6 +233,7 @@ export class PlayService {
         if (entry.firingSequence.length === 0) entry.firingSequence = label;
         else entry.firingSequence = entry.firingSequence.replace(/[\s,;]+$/, '') + delimiter + label;
         entry.transitionCount += 1;
+        if (this._modeService.isExamMode()) entry.isValid = undefined;
         if (updateEndMarking) entry.endMarking = this._currentMarking();
         this._reachabilityGraphService.convertFiringEntryLabelToReachabilityGraphID(entry, label);
     }
