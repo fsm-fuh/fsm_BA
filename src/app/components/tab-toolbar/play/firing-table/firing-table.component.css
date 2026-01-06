@@ -18,19 +18,15 @@
 }
 
 .firing-sequence-th {
-    width: 22%;
-}
-
-.transition-count-th {
-    width: 7%;
-}
-
-.start-marking-th {
-    width: 35%;
+    width: 65%;
 }
 
 .end-marking-th {
-    width: 35%;
+    width: 30%;
+}
+
+.transition-count-th {
+    width: 5%;
 }
 
 .action-column-th {

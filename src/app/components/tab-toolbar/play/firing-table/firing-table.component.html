@@ -5,9 +5,8 @@
                 <mat-icon>playlist_add_check</mat-icon>
             </th>
             <th class="firing-sequence-th">{{ 'FIRING_SEQUENCE' | translate }}</th>
-            <th class="transition-count-th">{{ 'TRANSITION_COUNT' | translate }}</th>
-            <th class="start-marking-th">{{ 'START_MARKING' | translate }}</th>
             <th class="end-marking-th">{{ 'END_MARKING' | translate }}</th>
+            <th class="transition-count-th">{{ 'TRANSITION_COUNT' | translate }}</th>
             <th class="delete-button-th">
                 <button mat-icon-button color="warn" (click)="onDeleteAllEntries()" class="delete-all-entries-button">
                     <mat-icon>delete_sweep</mat-icon>
@@ -36,58 +35,20 @@
                             [(ngModel)]="entry.firingSequence"
                             id="firing-sequence-input"
                             (input)="onInputChange(entry)"
+                            (keyup)="onInputChange(entry)"
                             (keydown.enter)="onNewEntry()" />
                     } @else {
                         {{ entry.firingSequence }}
                     }
                 </td>
-                <td class="transition-count-td">{{ entry.transitionCount }}</td>
-                <td class="start-marking-td">
-                    @if (!entry.isClosed && this.modeService.isExamMode()) {
-                        <div class="marking-container">
-                            @for (item of entry.startMarking | keyvalue; track item.key) {
-                                <div class="marking-entry">
-                                    <span>{{ item.key }}:</span>
-                                    <input
-                                        matInput
-                                        type="number"
-                                        min="0"
-                                        step="1"
-                                        inputmode="numeric"
-                                        pattern="[0-9]*"
-                                        [value]="item.value"
-                                        (input)="updateMarking(item.value, $event)"
-                                        required />
-                                </div>
-                            }
-                        </div>
-                    } @else {
-                        {{ entry.formattedStartMarking }}
-                    }
-                </td>
                 <td class="end-marking-td">
-                    @if (!entry.isClosed && this.modeService.isExamMode()) {
-                        <div class="marking-container">
-                            @for (item of entry.endMarking | keyvalue; track item.key) {
-                                <div class="marking-entry">
-                                    <span>{{ item.key }}:</span>
-                                    <input
-                                        matInput
-                                        type="number"
-                                        min="0"
-                                        step="1"
-                                        inputmode="numeric"
-                                        pattern="[0-9]*"
-                                        [value]="item.value"
-                                        (input)="updateMarking(item.value, $event)" />
-                                </div>
-                            }
-                        </div>
+                    @if (entry.isValid === false) {
+                        X
                     } @else {
                         {{ entry.formattedEndMarking }}
                     }
                 </td>
-
+                <td class="transition-count-td">{{ entry.transitionCount }}</td>
                 <td class="delete-button-td">
                     @if (entry.isClosed) {
                         <button
