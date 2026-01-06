@@ -25,6 +25,7 @@ import { ToasterNotificationService } from '../../../../services/toaster-notific
 import { PanningService } from '../../../../services/panning.service';
 import { TOAST_POSITIONS, ToastList } from '../../../../classes/toast';
 import { TranslateModule } from '@ngx-translate/core';
+import { PLACE_RADIUS, TRANSITION_SIZE } from '../../../display/display.constants';
 
 interface DrawnElement {
     node: DiagramNode;
@@ -104,9 +105,9 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy, AfterV
     readonly viewBoxObj = this.panningService.viewBox;
 
     // Dimensions consistent with SvgNodeComponent
-    private readonly PLACE_RADIUS = 25;
-    private readonly TRANSITION_HALF_W = 25; // RECT_WIDTH/2
-    private readonly TRANSITION_HALF_H = 15; // RECT_HEIGHT/2
+    private readonly PLACE_RADIUS = PLACE_RADIUS;
+    private readonly TRANSITION_HALF_W = TRANSITION_SIZE / 2;
+    private readonly TRANSITION_HALF_H = TRANSITION_SIZE / 2;
 
     ngOnInit() {
         // Listen for custom drop events
@@ -514,14 +515,25 @@ export class ProcessNetDrawDisplayComponent implements OnInit, OnDestroy, AfterV
         const ux = dx / len;
         const uy = dy / len;
 
-        const aOffset =
-            a.node instanceof DiagramPlace
-                ? this.PLACE_RADIUS
-                : Math.min(this.TRANSITION_HALF_W, this.TRANSITION_HALF_H);
-        const bOffset =
-            b.node instanceof DiagramPlace
-                ? this.PLACE_RADIUS
-                : Math.min(this.TRANSITION_HALF_W, this.TRANSITION_HALF_H);
+        const getOffset = (node: DiagramNode): number => {
+            if (node instanceof DiagramPlace) {
+                return this.PLACE_RADIUS;
+            }
+            // Transition (Rectangle/Square)
+            // intersection with box [-w, w] x [-h, h]
+            const w = this.TRANSITION_HALF_W;
+            const h = this.TRANSITION_HALF_H;
+            const absUx = Math.abs(ux);
+            const absUy = Math.abs(uy);
+            // distance along ray to x-edge: w / |ux|
+            const distW = absUx > 0.001 ? w / absUx : Infinity;
+            // distance along ray to y-edge: h / |uy|
+            const distH = absUy > 0.001 ? h / absUy : Infinity;
+            return Math.min(distW, distH);
+        };
+
+        const aOffset = getOffset(a.node);
+        const bOffset = getOffset(b.node);
 
         const x1 = ax + ux * aOffset;
         const y1 = ay + uy * aOffset;
