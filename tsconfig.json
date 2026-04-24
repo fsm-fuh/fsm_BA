@@ -2,9 +2,9 @@
 {
     "compileOnSave": false,
     "compilerOptions": {
-        // "baseUrl": "./",     
+        "baseUrl": "./",     
         "outDir": "./dist/out-tsc",
-        "rootDir": "./src",          
+        // "rootDir": "./src",          
         "forceConsistentCasingInFileNames": true,
         "esModuleInterop": true,
         "strict": true,
@@ -20,8 +20,8 @@
         "target": "ES2022",
         "module": "ES2022",
         "useDefineForClassFields": false,
-        "types": ["jest", "node"],
-        "useUnknownInCatchVariables": false,
+        // "types": ["jest", "node"],
+        // "useUnknownInCatchVariables": false,
         "lib": ["ES2022", "dom"]
     },
     "angularCompilerOptions": {
