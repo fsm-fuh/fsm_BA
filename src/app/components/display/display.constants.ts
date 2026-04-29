@@ -19,6 +19,7 @@ export const GRAPH_IDS = {
     PETRI_NET: 'petri-net',
     REACHABILITY: 'reachability-graph',
     PROCESS_NET: 'process-net',
+    COVERABILITY: 'coverability-graph',
 } as const;
 
 export type GraphId = (typeof GRAPH_IDS)[keyof typeof GRAPH_IDS];
@@ -27,6 +28,7 @@ export const GRAPH_FILENAMES: Record<GraphId, string> = {
     [GRAPH_IDS.PETRI_NET]: 'petri-net',
     [GRAPH_IDS.REACHABILITY]: 'reachability-graph',
     [GRAPH_IDS.PROCESS_NET]: 'process-net',
+    [GRAPH_IDS.COVERABILITY]: 'coverability-graph',
 };
 
 export const VIEW_MODES = {
