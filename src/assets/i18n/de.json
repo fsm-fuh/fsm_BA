@@ -171,7 +171,11 @@
             "MARKING_DIALOG_DISMISSED": "Dialog abgebrochen",
             "RG_CHECK_SUCCESS": "Erreichbarkeitsgraph vollständig",
             "RG_CHECK_INCOMPLETE": "Unvollständiger Graph",
-            "RG_INFO": "Wechsel zum selbst erstellten Graphen notwendig"
+            "RG_INFO": "Wechsel zum selbst erstellten Graphen notwendig",
+            "CG_CHECK_SUCCESS": "Überdeckungsgraph vollständig",
+            "CG_CHECK_INCOMPLETE": "Unvollständiger Graph",
+            "CG_INFO": "Wechsel zum selbst erstellten Graphen notwendig"
+
         },
         "BODY": {
             "NO_NET_TO_SAVE": "Es ist kein Petri-Netz zum Speichern vorhanden.",
@@ -206,7 +210,11 @@
             "RG_CHECK_SUCCESS": "Der erstellte Erreichbarkeitsgraph ist vollständig und korrekt.",
             "RG_CHECK_MISSING_EDGES": "Fehlende Transitionen: {{edges}}",
             "RG_CHECK_MISSING_EDGES_LIST": "Die folgenden Transitionen fehlen:",
-            "SWITCH_BACK_TO_USER_GRAPH": "Bitte wechseln Sie zurück zum selbst erstellten Graphen, um fortzufahren."
+            "SWITCH_BACK_TO_USER_GRAPH": "Bitte wechseln Sie zurück zum selbst erstellten Graphen, um fortzufahren.",
+            "CG_CHECK_SUCCESS": "Der erstellte Überdeckungsgraph ist vollständig und korrekt.",
+            "CG_CHECK_MISSING_EDGES": "Fehlende Transitionen: {{edges}}",
+            "CG_CHECK_MISSING_EDGES_LIST": "Die folgenden Transitionen fehlen:",
+            "CG_SWITCH_BACK_TO_USER_GRAPH": "Bitte wechseln Sie zurück zum selbst erstellten Graphen, um fortzufahren."
         },
         "VALIDATION_MESSAGES": {
             "TRANSITION_NO_MATCH": "❌ Transition {{label}} hat keine passende Beschriftung im Petri-Netz.",

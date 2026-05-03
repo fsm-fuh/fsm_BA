@@ -19,7 +19,7 @@ export class CoverabilityGraphDisplayComponent extends DisplayComponent{
     handleDisabledClick(event: Event) {
         event.stopPropagation();
         event.preventDefault();
-        this._toaster.showInfo('TOASTER.HEADER.RG_INFO', 'TOASTER.BODY.SWITCH_BACK_TO_USER_GRAPH');
+        this._toaster.showInfo('TOASTER.HEADER.CG_INFO', 'TOASTER.BODY.CG_SWITCH_BACK_TO_USER_GRAPH');
     }
 
 }

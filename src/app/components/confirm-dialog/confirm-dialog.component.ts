@@ -8,6 +8,7 @@ import { DrawService } from '../../services/draw.service';
 import { ReachabilityGraphService } from '../../reachability-graph.service';
 import { ProcessNetFiringService } from '../../services/process-net-firing.service';
 import { ModeService } from '../../services/mode.service';
+import { CoverabilityGraphService } from 'src/app/services/coverability-graph.service';
 
 export interface ConfirmDialogData {
     title: string;
@@ -28,6 +29,7 @@ export class ConfirmDialogComponent {
 
     private readonly processNetFiringService = inject(ProcessNetFiringService);
     private readonly reachabilityGraphService = inject(ReachabilityGraphService);
+    private readonly coverabilityGraphService = inject(CoverabilityGraphService);
     private readonly drawService = inject(DrawService);
     private readonly modeService = inject(ModeService);
 
@@ -46,6 +48,10 @@ export class ConfirmDialogComponent {
             case Tab.REACHABILITY_GRAPH:
                 this.reachabilityGraphService.clear();
                 break;
+            case Tab.COVERABILITY_GRAPH:
+                this.coverabilityGraphService.clear();
+                break;
+
             default:
                 break;
         }
