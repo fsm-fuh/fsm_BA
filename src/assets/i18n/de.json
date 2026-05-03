@@ -44,6 +44,14 @@
         "KEEP": "Behalten",
         "DISCARD": "Verwerfen"
     },
+    "CGMARKING_DIALOG": {
+        "TITLE": "Markierung eingeben",
+        "MESSAGE_DEFAULT": "Bitte geben Sie die korrekte Markierung des Petrinetzes nach dem Schalten ein.",
+        "AUTOFILL": "Loesungsvorschlag",
+        "USERVALUE": "Bestaetigen",
+        "KEEP": "Behalten",
+        "DISCARD": "Verwerfen"
+    },
     "SWITCH_TO_LEARNING_MODE": "Wechsel zu Lernmodus",
     "SWITCH_TO_EXAM_MODE": "Wechsel zu Prüfungsmodus",
     "EXAM_MODE": "Prüfungsmodus",

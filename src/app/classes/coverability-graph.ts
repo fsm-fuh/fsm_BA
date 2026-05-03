@@ -1,0 +1,115 @@
+
+import { DisplayableEdge, DisplayableGraph, DisplayableNode } from './displayable-graph.interface';
+import { SHAPE } from './diagram/diagram-node';
+import { Coords } from './json-petri-net';
+import { signal, Signal, WritableSignal } from '@angular/core';
+import { Visited } from './visited';
+
+/**
+ * A node representing a state in the coverability graph.
+ */
+export class CoverabilityStateNode implements DisplayableNode {
+    id: string;
+    _x: WritableSignal<number>;
+    _y: WritableSignal<number>;
+    label: string;
+    covMarking: Record<string, number>;
+    nodeVisitedStateForAlgorithm: Visited = Visited.WHITE;
+    nodeVisitedStateForLimitCheck = false;
+    isStartingState = false;
+    predecessors: CoverabilityStateNode[] = [];
+    successors: CoverabilityStateNode[] = [];
+    isMorMStrich = false;
+    tokenSum = 0;
+    firingPath: string;
+    //TO-DO add stack for saving transitions for algorithm?
+
+    get shape(): SHAPE {
+        return SHAPE.CIRCLE;
+    }
+    get displayLabel(): string {
+        return `(${this.label.replace(/ /g, ',')})`;
+    }
+
+    get tokenCount(): Signal<number> {
+        return signal(0);
+    }
+
+    constructor(id: string, x: number, y: number, label: string, marking: Record<string, number>, firingPath = '') {
+        this.id = id;
+        this._x = signal(x);
+        this._y = signal(y);
+        this.label = label;
+        this.covMarking = marking;
+        this.firingPath = firingPath;
+        
+        //TODO anpassen für Omega-Werte
+        this.calculateTokenSum(marking);
+    }
+
+    get x(): number {
+        return this._x();
+    }
+
+    set x(value: number) {
+        this._x.set(value);
+    }
+
+    get y(): number {
+        return this._y();
+    }
+
+    set y(value: number) {
+        this._y.set(value);
+    }
+
+    private calculateTokenSum(marking: Record<string, number>) {
+        console.log('calculateTokenSum' + this.id);
+        for (const tokens of Object.values(marking)) {
+            this.tokenSum = this.tokenSum + tokens;
+            console.log('calculatedSum' + this.tokenSum);
+        }
+    }
+}
+
+/**
+ * An edge representing a transition firing in the reachability graph.
+ */
+export class CoverabilityFiringEdge implements DisplayableEdge {
+    id: string;
+    source: string;
+    target: string;
+    displayLabel: string;
+    bendPoints: Coords[] = [];
+    rgFiringSequencePath: string;
+    isPartOfUnlimitedPath = false;
+
+    constructor(id: string, source: string, target: string, transitionLabel: string, firedSequence: string) {
+        this.id = id;
+        this.source = source;
+        this.target = target;
+        this.displayLabel = transitionLabel;
+        this.rgFiringSequencePath = firedSequence;
+    }
+}
+
+/**
+ * The reachability graph of a Petri net.
+ */
+export class CoverabilityGraph implements DisplayableGraph {
+
+    nodes: CoverabilityStateNode[] = [];
+    edges: CoverabilityFiringEdge[] = [];
+    isUnlimited = false;
+    breakLoop = false;
+
+    getNodes(): DisplayableNode[] {
+        return this.nodes;
+    }
+    getEdges(): DisplayableEdge[] {
+        return this.edges;
+    }
+}
+
+
+
