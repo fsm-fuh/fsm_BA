@@ -14,6 +14,8 @@ import { StateNode } from '../../../../classes/reachability-graph.model';
 import { ModeService } from '../../../../services/mode.service';
 import { Tab } from '../../../../classes/tabs';
 import { TranslateModule } from '@ngx-translate/core';
+import { CoverabilityGraphService } from 'src/app/services/coverability-graph.service';
+import { CoverabilityStateNode } from 'src/app/classes/coverability-graph';
 
 @Component({
     selector: 'app-coverability-graph-draw-display',
@@ -24,14 +26,15 @@ import { TranslateModule } from '@ngx-translate/core';
     styleUrl: './coverability-graph-draw-display.component.css',
 })
 export class CoverabilityGraphDrawDisplayComponent extends DisplayComponent {
-    protected override graphId = GRAPH_IDS.REACHABILITY;
-    readonly userReachabilityGraphDiagram = this._reachabilityGraphService.reachabilityGraphSignal;
-    readonly completeReachabilityGraphDiagram = this._reachabilityGraphService.completeReachabilityGraph;
-    readonly showCompleteGraph = this._reachabilityGraphService.showingCompleteGraph;
+    protected override graphId = GRAPH_IDS.COVERABILITY;
+    readonly userCoverabilityGraphDiagram = this._coverabilityGraphService.coverabilityGraphSignal;
+    //TODO WARUM NICHT SHOW COV GRAPH MÖGLICH???
+    readonly completeCoverabilityGraphDiagram = this._coverabilityGraphService.completeReachabilityGraph;
+    readonly showCompleteGraph = this._coverabilityGraphService.showingCompleteGraph;
     readonly displayDiagram = computed(() =>
-        this.showCompleteGraph() ? this.completeReachabilityGraphDiagram() : this.userReachabilityGraphDiagram(),
+        this.showCompleteGraph() ? this.completeCoverabilityGraphDiagram() : this.userCoverabilityGraphDiagram(),
     );
-    readonly isEmpty = computed(() => this.userReachabilityGraphDiagram().nodes.length === 0);
+    readonly isEmpty = computed(() => this.userCoverabilityGraphDiagram().nodes.length === 0);
     readonly viewMode = signal<ViewMode>(VIEW_MODES.DESCRIPTIVE);
     readonly _modeService = inject(ModeService);
     readonly _drawPanningService = inject(PanningService);
@@ -39,7 +42,7 @@ export class CoverabilityGraphDrawDisplayComponent extends DisplayComponent {
     constructor() {
         super();
         effect(() => {
-            const isExamSignal = this._modeService.getIsExamModeSignal(Tab.REACHABILITY_GRAPH);
+            const isExamSignal = this._modeService.getIsExamModeSignal(Tab.COVERABILITY_GRAPH);
             if (isExamSignal && isExamSignal()) {
                 this.viewMode.set(VIEW_MODES.SIMPLE);
             }
@@ -50,7 +53,7 @@ export class CoverabilityGraphDrawDisplayComponent extends DisplayComponent {
     private dragOffset = { x: 0, y: 0 };
     private isDraggingNode = false;
 
-    calculateWidth(node: StateNode) {
+    calculateWidth(node: CoverabilityStateNode) {
         if (this.viewMode() === VIEW_MODES.SIMPLE) {
             return 40;
         }
@@ -135,7 +138,7 @@ export class CoverabilityGraphDrawDisplayComponent extends DisplayComponent {
     }
 
     /**
-     * Toolbar actions for the reachability graph drawing display.
+     * Toolbar actions for the coverability graph drawing display.
      * Add or modify actions as needed.
      * @protected
      */
@@ -149,13 +152,16 @@ export class CoverabilityGraphDrawDisplayComponent extends DisplayComponent {
         },
         {
             icon: 'checklist',
-            tooltip: 'REACHABILITY_GRAPH.BUTTON_VALIDATE_NET',
+            //TODO ANPASSEN Tooltipps
+            tooltip: 'COVERABILITY_GRAPH.BUTTON_VALIDATE_NET',
             isActive: !this.isEmpty() && !this.showCompleteGraph(),
             color: 'primary',
             action: () => this.onValidate(),
         },
         {
             icon: 'swap_horiz',
+                        //TODO ANPASSEN Tooltipps
+
             tooltip: 'REACHABILITY_GRAPH.TOGGLE_VIEW',
             isActive: !this.isEmpty(),
             color: 'accent',
@@ -203,10 +209,10 @@ export class CoverabilityGraphDrawDisplayComponent extends DisplayComponent {
         this._reachabilityGraphService.setShowingCompleteGraph(!this.showCompleteGraph());
         if (this.showCompleteGraph()) {
             this._reachabilityGraphService.generateReachabilityGraph();
-            this._drawPanningService.fitViewToGraph(this.completeReachabilityGraphDiagram());
+            this._drawPanningService.fitViewToGraph(this.completeCoverabilityGraphDiagram());
         } else {
-            if (this.userReachabilityGraphDiagram().nodes.length > 1) {
-                this._drawPanningService.fitViewToGraph(this.userReachabilityGraphDiagram());
+            if (this.userCoverabilityGraphDiagram().nodes.length > 1) {
+                this._drawPanningService.fitViewToGraph(this.userCoverabilityGraphDiagram());
             }
         }
     }
