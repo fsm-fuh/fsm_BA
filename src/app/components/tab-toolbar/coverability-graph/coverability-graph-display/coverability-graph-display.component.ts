@@ -14,7 +14,7 @@ import { ToasterNotificationService } from 'src/app/services/toaster-notificatio
 export class CoverabilityGraphDisplayComponent extends DisplayComponent {
     private _toaster = inject(ToasterNotificationService);
 
-    readonly isDisabled = this._coverabilityGraphService.showingCompleteGraph;
+    readonly isDisabled = this._coverabilityGraphService.showingCompleteCoverabilityGraph;
 
     handleDisabledClick(event: Event) {
         event.stopPropagation();

@@ -28,9 +28,8 @@ import { CoverabilityStateNode } from 'src/app/classes/coverability-graph';
 export class CoverabilityGraphDrawDisplayComponent extends DisplayComponent {
     protected override graphId = GRAPH_IDS.COVERABILITY;
     readonly userCoverabilityGraphDiagram = this._coverabilityGraphService.coverabilityGraphSignal;
-    //TODO WARUM NICHT SHOW COV GRAPH MÖGLICH???
-    readonly completeCoverabilityGraphDiagram = this._coverabilityGraphService.completeReachabilityGraph;
-    readonly showCompleteGraph = this._coverabilityGraphService.showingCompleteGraph;
+    readonly completeCoverabilityGraphDiagram = this._coverabilityGraphService.completeCoverabilityGraph;
+    readonly showCompleteGraph = this._coverabilityGraphService.showingCompleteCoverabilityGraph;
     readonly displayDiagram = computed(() =>
         this.showCompleteGraph() ? this.completeCoverabilityGraphDiagram() : this.userCoverabilityGraphDiagram(),
     );
@@ -186,29 +185,30 @@ export class CoverabilityGraphDrawDisplayComponent extends DisplayComponent {
      * @protected
      */
     protected readonly toolbarInstructions = computed<DrawToolbarInstruction[]>(() => [
-        { label: 'REACHABILITY_GRAPH.ACTION_BUILD', text: 'REACHABILITY_GRAPH.INSTRUCTION_BUILD' },
-        { label: 'REACHABILITY_GRAPH.ACTION_MOVE', text: 'REACHABILITY_GRAPH.INSTRUCTION_MOVE' },
-        { label: 'REACHABILITY_GRAPH.ACTION_RESET', text: 'REACHABILITY_GRAPH.INSTRUCTION_RESET' },
-        { label: 'REACHABILITY_GRAPH.ACTION_VALIDATE', text: 'REACHABILITY_GRAPH.INSTRUCTION_VALIDATE' },
-        { label: 'REACHABILITY_GRAPH.ACTION_TOGGLEVIEW', text: 'REACHABILITY_GRAPH.INSTRUCTION_TOGGLEVIEW' },
+        { label: 'COVERABILITY_GRAPH.ACTION_BUILD', text: 'COVERABILITY_GRAPH.INSTRUCTION_BUILD' },
+        { label: 'COVERABILITY_GRAPH.ACTION_MOVE', text: 'COVERABILITY_GRAPH.INSTRUCTION_MOVE' },
+        { label: 'COVERABILITY_GRAPH.ACTION_RESET', text: 'COVERABILITY_GRAPH.INSTRUCTION_RESET' },
+        { label: 'COVERABILITY_GRAPH.ACTION_VALIDATE', text: 'COVERABILITY_GRAPH.INSTRUCTION_VALIDATE' },
+        { label: 'COVERABILITY_GRAPH.ACTION_TOGGLEVIEW', text: 'COVERABILITY_GRAPH.INSTRUCTION_TOGGLEVIEW' },
         {
-            label: 'REACHABILITY_GRAPH.ACTION_SHOWCOMPLETEGRAPH',
-            text: 'REACHABILITY_GRAPH.INSTRUCTION_SHOWCOMPLETEGRAPH',
+            label: 'COVERABILITY_GRAPH.ACTION_SHOWCOMPLETEGRAPH',
+            text: 'COVERABILITY_GRAPH.INSTRUCTION_SHOWCOMPLETEGRAPH',
         },
         {
-            label: 'REACHABILITY_GRAPH.ACTION_HIDECOMPLETEGRAPH',
-            text: 'REACHABILITY_GRAPH.INSTRUCTION_HIDECOMPLETEGRAPH',
+            label: 'COVERABILITY_GRAPH.ACTION_HIDECOMPLETEGRAPH',
+            text: 'COVERABILITY_GRAPH.INSTRUCTION_HIDECOMPLETEGRAPH',
         },
     ]);
 
     private clearDrawing() {
-        this._reachabilityGraphService.clear();
+        this._coverabilityGraphService.clear();
     }
 
     private onGenerate() {
-        this._reachabilityGraphService.setShowingCompleteGraph(!this.showCompleteGraph());
+        this._coverabilityGraphService.setShowingCompleteCoverabilityGraph(!this.showCompleteGraph());
         if (this.showCompleteGraph()) {
-            this._reachabilityGraphService.generateReachabilityGraph();
+            //TODO ändern auf neue Methode
+            this._coverabilityGraphService.generateCoverabilityGraphOldMethod();
             this._drawPanningService.fitViewToGraph(this.completeCoverabilityGraphDiagram());
         } else {
             if (this.userCoverabilityGraphDiagram().nodes.length > 1) {
@@ -218,20 +218,20 @@ export class CoverabilityGraphDrawDisplayComponent extends DisplayComponent {
     }
 
     readonly generateTooltip = computed(() =>
-        this.showCompleteGraph() ? 'REACHABILITY_GRAPH.HIDE_COMPLETE_GRAPH' : 'REACHABILITY_GRAPH.SHOW_COMPLETE_GRAPH',
+        this.showCompleteGraph() ? 'COVERABILITY_GRAPH.HIDE_COMPLETE_GRAPH' : 'COVERABILITY_GRAPH.SHOW_COMPLETE_GRAPH',
     );
 
     readonly generateIcon = computed(() => (this.showCompleteGraph() ? 'visibility_off' : 'account_tree'));
 
     private onValidate() {
-        this._reachabilityGraphService.checkReachabilityGraphCompleteness();
+        this._coverabilityGraphService.checkCoverabilityGraphCompleteness();
     }
 
     private toggleViewMode() {
         this.viewMode.update((mode) => (mode === VIEW_MODES.SIMPLE ? VIEW_MODES.DESCRIPTIVE : VIEW_MODES.SIMPLE));
     }
 
-    protected computePosition(node: StateNode) {
+    protected computePosition(node: CoverabilityStateNode) {
         return node.x - this.calculateWidth(node) / 2;
     }
 }

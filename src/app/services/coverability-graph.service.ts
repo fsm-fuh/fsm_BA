@@ -47,15 +47,15 @@ export class CoverabilityGraphService {
         return this._coverabilityGraph.asReadonly();
     }
 
-    get completeReachabilityGraph(): Signal<CoverabilityGraph> {
+    get completeCoverabilityGraph(): Signal<CoverabilityGraph> {
         return this._completeCoverabilityGraph;
     }
 
-    get showingCompleteGraph(): Signal<boolean> {
+    get showingCompleteCoverabilityGraph(): Signal<boolean> {
         return this._showingCompleteGraph.asReadonly();
     }
 
-    setShowingCompleteGraph(show: boolean) {
+    setShowingCompleteCoverabilityGraph(show: boolean) {
         this._showingCompleteGraph.set(show);
     }
 

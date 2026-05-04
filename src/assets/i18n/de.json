@@ -28,6 +28,27 @@
         "INSTRUCTION_HIDECOMPLETEGRAPH": "Blendet den automatisch erzeugten vollständigen Erreichbarkeitsgraphen aus und wechselt zurück zum durch den User erzeugten EG.",
         "LABEL_CALCULATED_GRAPH": "Vollständiger Graph (Berechnet)"
     },
+    "COVERABILITY_GRAPH": {
+        "TOGGLE_VIEW": "Ansichtsmodus umschalten",
+        "BUTTON_VALIDATE_NET": "Überdeckungsgraphen validieren",
+        "SHOW_COMPLETE_GRAPH": "Vollständigen Graphen anzeigen",
+        "HIDE_COMPLETE_GRAPH": "Vollständigen Graphen ausblenden",
+        "ACTION_BUILD": "Graph aufbauen",
+        "INSTRUCTION_BUILD": "Schalte aktivierte Transitionen im Petri-Netz, um den Überdeckungsgraphen schrittweise zu erkunden.",
+        "ACTION_MOVE": "Knoten verschieben",
+        "INSTRUCTION_MOVE": "Linksklick und Ziehen, um Zustandsknoten frei anzuordnen.",
+        "ACTION_RESET": "Zu Zustand springen",
+        "INSTRUCTION_RESET": "Doppelklick auf einen Zustandsknoten, um das Petri-Netz auf diese Markierung zurückzusetzen. Danach kann von dort aus weitergeschaltet werden.",
+        "ACTION_VALIDATE": "Überdeckungsgraphen validieren",
+        "INSTRUCTION_VALIDATE": "Validiert den Überdeckungsgraphen und prüft auf Vollständigkeit. Dies prüft, ob alle aktivierten Transitionen, die vom aktuellen Zustand des Petrinetzes aus erreichbar sind, geschaltet wurden. Funktioniert nicht, wenn der automatisch erzeugte vollständige ÜG angezeigt wird.",
+        "ACTION_TOGGLEVIEW": "Ansichtsmodus umschalten",
+        "INSTRUCTION_TOGGLEVIEW": "Schaltet zwischen der Überdeckungsgraph-Ansicht, die im Kurstext verwendet wird und einer weiteren Ansicht, in der die Markierungen direkt an den Zustandsknoten angezeigt werden, um.",
+        "ACTION_SHOWCOMPLETEGRAPH": "Vollständigen Graph anzeigen",
+        "INSTRUCTION_SHOWCOMPLETEGRAPH": "Zeigt den vollständigen Überdeckungsgraphen eines Petrinetzes an.",
+        "ACTION_HIDECOMPLETEGRAPH": "Vollständigen Graph ausblenden",
+        "INSTRUCTION_HIDECOMPLETEGRAPH": "Blendet den automatisch erzeugten vollständigen Überdeckungsgraphen aus und wechselt zurück zum durch den User erzeugten ÜG.",
+        "LABEL_CALCULATED_GRAPH": "Vollständiger Graph (Berechnet)"
+    },
     "TOGGLE_MODE": "Modus umschalten",
     "CONFIRM_DIALOG": {
         "TITLE": "Modus wechseln",
