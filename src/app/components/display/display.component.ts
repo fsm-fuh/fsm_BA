@@ -20,6 +20,7 @@ import { GRAPH_FILENAMES, GRAPH_IDS, GraphId } from './display.constants';
 import { ProcessNetFiringService } from '../../services/process-net-firing.service';
 import { ToasterNotificationService } from '../../services/toaster-notification.service';
 import { CoverabilityGraphService } from 'src/app/services/coverability-graph.service';
+import { CoverabilityStateNode } from 'src/app/classes/coverability-graph';
 
 @Component({
     selector: 'app-display',
@@ -53,6 +54,7 @@ export class DisplayComponent implements OnInit, OnDestroy {
         () =>
             this._tabStateService.currentTab() === Tab.PLAY ||
             this._tabStateService.currentTab() === Tab.REACHABILITY_GRAPH ||
+            this._tabStateService.currentTab() === Tab.COVERABILITY_GRAPH ||
             this._tabStateService.currentTab() === Tab.PROCESS_NET,
     );
     readonly isReachabilityGraphEnabled = computed(() => this._tabStateService.currentTab() === Tab.REACHABILITY_GRAPH);
@@ -126,8 +128,8 @@ export class DisplayComponent implements OnInit, OnDestroy {
         if (currentTab === Tab.COVERABILITY_GRAPH) {
             if (node.isActivated()) {
                 this._playService.fireTransition(node, diagram, true);
+                this._coverabilityGraphService.convertFiringEntryLabelToCoverabilityGraphID(diagram, node.label);
                 //TODO: AKTIONEN für COVERABILITY GRAPH EINFÜGEN
-                // this._reachabilityGraphService.convertFiringEntryLabelToReachabilityGraphID(diagram, node.label);
             } else {
                 this._notificationService.showWarning(
                     'TOASTER.HEADER.TRANSITION_NOT_ACTIVATED',
@@ -152,9 +154,9 @@ export class DisplayComponent implements OnInit, OnDestroy {
     }
 
     public coverabilityGraphStateNodeClicked(node: DisplayableNode) {
-        if (this.isCoverabilityGraphEnabled() && node instanceof StateNode) {
-            console.log('StateNode clicked.' + node.id);
-            // this._reachabilityGraphService.switchPnStateToClickedState(node as StateNode);
+        if (this.isCoverabilityGraphEnabled() && node instanceof CoverabilityStateNode) {
+            console.log('CoverabilityStateNode clicked.' + node.id);
+            this._coverabilityGraphService.switchPnStateToClickedState(node as CoverabilityStateNode);
             //TODO Funktion für CovGraph ergänzen
         }
     }

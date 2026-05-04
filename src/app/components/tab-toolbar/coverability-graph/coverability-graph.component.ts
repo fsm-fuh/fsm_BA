@@ -33,7 +33,7 @@ export class CoverabilityGraphComponent {
                 // Use untracked to prevent the effect from subscribing to signals
                 // read inside the service method (like AppMode or internal state)
                 untracked(() => {
-                    // this._reachabilityGraphService.initializeReachabilityGraphFirstStateNode();
+                    this._coverabilityGraphService.initializeCoverabilityGraphFirstStateNode();
                 });
             }
         });
