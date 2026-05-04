@@ -137,11 +137,7 @@ export class DisplayComponent implements OnInit, OnDestroy {
                     { messageParams: { label: node.label } },
                 );
             }
-
         }
-
-
-
 
         this._sourcePetriNetService.updateEditedNet(diagram, { triggeredByFiring: true });
     }

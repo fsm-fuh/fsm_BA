@@ -20,9 +20,10 @@ export interface ConfirmCoverabilityUserMarkingDialogData {
     message: string;
 }
 @Component({
-  selector: 'app-cg-marking-dialog',
-  standalone: true,
-  imports: [       CommonModule,
+    selector: 'app-cg-marking-dialog',
+    standalone: true,
+    imports: [
+        CommonModule,
         MatDialogModule,
         MatButtonModule,
         TranslateModule,
@@ -33,12 +34,13 @@ export interface ConfirmCoverabilityUserMarkingDialogData {
         MatIcon,
         MatSliderModule,
         MatExpansionModule,
-        KeyValuePipe,],
-  templateUrl: './cg-marking-dialog.component.html',
-  styleUrl: './cg-marking-dialog.component.css',
+        KeyValuePipe,
+    ],
+    templateUrl: './cg-marking-dialog.component.html',
+    styleUrl: './cg-marking-dialog.component.css',
 })
 export class CgMarkingDialogComponent {
-  //TODO anpassen für Omega-Erkennung
+    //TODO anpassen für Omega-Erkennung
 
     private _notificationService = inject(ToasterNotificationService);
     data = inject<ConfirmCoverabilityUserMarkingDialogData>(MAT_DIALOG_DATA);
@@ -70,7 +72,7 @@ export class CgMarkingDialogComponent {
             this._dialogRef.close(this.currentDialogMarking);
         } else {
             this._notificationService.showError(
-              //TODO Toaster anpassen für Omega?
+                //TODO Toaster anpassen für Omega?
                 'TOASTER.HEADER.MARKING_INPUT_WRONG',
                 'TOASTER.BODY.MARKING_INPUT_WRONG',
             );

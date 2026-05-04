@@ -5,14 +5,14 @@ import { SvgNodeComponent } from 'src/app/components/display/svg-node/svg-node.c
 import { ToasterNotificationService } from 'src/app/services/toaster-notification.service';
 
 @Component({
-  selector: 'app-coverability-graph-display',
-  standalone: true,
-  imports: [SvgNodeComponent, SvgArcComponent],
-  templateUrl: './coverability-graph-display.component.html',
-  styleUrl: './coverability-graph-display.component.css',
+    selector: 'app-coverability-graph-display',
+    standalone: true,
+    imports: [SvgNodeComponent, SvgArcComponent],
+    templateUrl: './coverability-graph-display.component.html',
+    styleUrl: './coverability-graph-display.component.css',
 })
-export class CoverabilityGraphDisplayComponent extends DisplayComponent{
-      private _toaster = inject(ToasterNotificationService);
+export class CoverabilityGraphDisplayComponent extends DisplayComponent {
+    private _toaster = inject(ToasterNotificationService);
 
     readonly isDisabled = this._coverabilityGraphService.showingCompleteGraph;
 
@@ -21,5 +21,4 @@ export class CoverabilityGraphDisplayComponent extends DisplayComponent{
         event.preventDefault();
         this._toaster.showInfo('TOASTER.HEADER.CG_INFO', 'TOASTER.BODY.CG_SWITCH_BACK_TO_USER_GRAPH');
     }
-
 }

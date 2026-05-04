@@ -1,4 +1,3 @@
-
 import { DisplayableEdge, DisplayableGraph, DisplayableNode } from './displayable-graph.interface';
 import { SHAPE } from './diagram/diagram-node';
 import { Coords } from './json-petri-net';
@@ -42,7 +41,7 @@ export class CoverabilityStateNode implements DisplayableNode {
         this.label = label;
         this.covMarking = marking;
         this.firingPath = firingPath;
-        
+
         //TODO anpassen für Omega-Werte
         this.calculateTokenSum(marking);
     }
@@ -97,7 +96,6 @@ export class CoverabilityFiringEdge implements DisplayableEdge {
  * The reachability graph of a Petri net.
  */
 export class CoverabilityGraph implements DisplayableGraph {
-
     nodes: CoverabilityStateNode[] = [];
     edges: CoverabilityFiringEdge[] = [];
     isUnlimited = false;
@@ -110,6 +108,3 @@ export class CoverabilityGraph implements DisplayableGraph {
         return this.edges;
     }
 }
-
-
-

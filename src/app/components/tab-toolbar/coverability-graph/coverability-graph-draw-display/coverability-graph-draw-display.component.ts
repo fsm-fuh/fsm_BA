@@ -16,19 +16,19 @@ import { Tab } from '../../../../classes/tabs';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-coverability-graph-draw-display',
-  standalone: true,
-  imports: [SvgStateNodeComponent, SvgStateArcComponent, DrawToolbarComponent, TranslateModule],
-  providers: [PanningService],
-  templateUrl: './coverability-graph-draw-display.component.html',
-  styleUrl: './coverability-graph-draw-display.component.css',
+    selector: 'app-coverability-graph-draw-display',
+    standalone: true,
+    imports: [SvgStateNodeComponent, SvgStateArcComponent, DrawToolbarComponent, TranslateModule],
+    providers: [PanningService],
+    templateUrl: './coverability-graph-draw-display.component.html',
+    styleUrl: './coverability-graph-draw-display.component.css',
 })
 export class CoverabilityGraphDrawDisplayComponent extends DisplayComponent {
-  protected override graphId = GRAPH_IDS.REACHABILITY;
-  readonly userReachabilityGraphDiagram = this._reachabilityGraphService.reachabilityGraphSignal;
-  readonly completeReachabilityGraphDiagram = this._reachabilityGraphService.completeReachabilityGraph;
-  readonly showCompleteGraph = this._reachabilityGraphService.showingCompleteGraph;
-  readonly displayDiagram = computed(() =>
+    protected override graphId = GRAPH_IDS.REACHABILITY;
+    readonly userReachabilityGraphDiagram = this._reachabilityGraphService.reachabilityGraphSignal;
+    readonly completeReachabilityGraphDiagram = this._reachabilityGraphService.completeReachabilityGraph;
+    readonly showCompleteGraph = this._reachabilityGraphService.showingCompleteGraph;
+    readonly displayDiagram = computed(() =>
         this.showCompleteGraph() ? this.completeReachabilityGraphDiagram() : this.userReachabilityGraphDiagram(),
     );
     readonly isEmpty = computed(() => this.userReachabilityGraphDiagram().nodes.length === 0);
@@ -228,6 +228,4 @@ export class CoverabilityGraphDrawDisplayComponent extends DisplayComponent {
     protected computePosition(node: StateNode) {
         return node.x - this.calculateWidth(node) / 2;
     }
-
-
 }

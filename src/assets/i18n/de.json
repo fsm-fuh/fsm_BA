@@ -175,7 +175,6 @@
             "CG_CHECK_SUCCESS": "Überdeckungsgraph vollständig",
             "CG_CHECK_INCOMPLETE": "Unvollständiger Graph",
             "CG_INFO": "Wechsel zum selbst erstellten Graphen notwendig"
-
         },
         "BODY": {
             "NO_NET_TO_SAVE": "Es ist kein Petri-Netz zum Speichern vorhanden.",
