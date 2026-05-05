@@ -16,11 +16,13 @@ import { Tab } from '../../../../classes/tabs';
 import { TranslateModule } from '@ngx-translate/core';
 import { CoverabilityGraphService } from 'src/app/services/coverability-graph.service';
 import { CoverabilityStateNode } from 'src/app/classes/coverability-graph';
+import { SvgCovStateNodeComponent } from 'src/app/components/display/svg-cov-state-node/svg-cov-state-node.component';
+import { SvgCovStateArcComponent } from 'src/app/components/display/svg-cov-state-arc/svg-cov-state-arc.component';
 
 @Component({
     selector: 'app-coverability-graph-draw-display',
     standalone: true,
-    imports: [SvgStateNodeComponent, SvgStateArcComponent, DrawToolbarComponent, TranslateModule],
+    imports: [SvgCovStateNodeComponent, SvgCovStateArcComponent, DrawToolbarComponent, TranslateModule],
     providers: [PanningService],
     templateUrl: './coverability-graph-draw-display.component.html',
     styleUrl: './coverability-graph-draw-display.component.css',

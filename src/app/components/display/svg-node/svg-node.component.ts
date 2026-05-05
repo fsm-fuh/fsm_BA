@@ -250,4 +250,6 @@ export class SvgNodeComponent {
         const node = this.diagramNode();
         if (node) this.stateNodeClick.emit(node as StateNode);
     }
+
+    //TODO hier spezielles für cov state node?
 }

@@ -31,7 +31,7 @@
         </defs>
         @for (edge of displayDiagram().getEdges(); track edge.id) {
             <g
-                appSvgStateArc
+                appSvgCovStateArc
                 [diagramArc]="edge"
                 [nodes]="displayDiagram().getNodes() || []"
                 [edges]="displayDiagram().getEdges() || []"
@@ -40,7 +40,7 @@
 
         @for (node of displayDiagram().nodes; track node.id) {
             <g class="node-wrapper" [attr.data-node-id]="node.id">
-                <g appSvgStateNode [stateNode]="node" [viewMode]="viewMode()" />
+                <g appSvgCovStateNode [covStateNode]="node" [viewMode]="viewMode()" />
                 <rect
                     class="drag-overlay"
                     [attr.x]="computePosition(node)"
