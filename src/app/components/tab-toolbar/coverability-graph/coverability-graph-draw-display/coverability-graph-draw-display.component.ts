@@ -163,7 +163,7 @@ export class CoverabilityGraphDrawDisplayComponent extends DisplayComponent {
             icon: 'swap_horiz',
                         //TODO ANPASSEN Tooltipps
 
-            tooltip: 'REACHABILITY_GRAPH.TOGGLE_VIEW',
+            tooltip: 'COVERABILITY_GRAPH.TOGGLE_VIEW',
             isActive: !this.isEmpty(),
             color: 'accent',
             action: () => this.toggleViewMode(),
@@ -178,8 +178,8 @@ export class CoverabilityGraphDrawDisplayComponent extends DisplayComponent {
     ]);
 
     /**
-     * Toolbar instructions for the reachability graph drawing display.
-     * Describes how to interact with the reachability graph:
+     * Toolbar instructions for the coverability graph drawing display.
+     * Describes how to interact with the coverability graph:
      * - Building the graph by firing transitions
      * - Moving nodes for organization
      * - Resetting states by double-clicking

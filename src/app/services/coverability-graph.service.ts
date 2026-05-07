@@ -86,7 +86,7 @@ export class CoverabilityGraphService {
         const initialX = 300;
         const initialY = 50;
         //neuen StateNode erzeugen
-        const initialId = 'RG1';
+        const initialId = 'CG1';
         this.currentSourceCgId = initialId;
 
         const initialStateNode = new CoverabilityStateNode(
@@ -96,8 +96,6 @@ export class CoverabilityGraphService {
             initialCoverabilityLabel,
             this._startMarkingCG,
         );
-        initialStateNode.isStartingState = true;
-        initialStateNode.isStartingState = true;
         initialStateNode.isStartingState = true;
 
         if (!this._modeService.isExamMode(Tab.COVERABILITY_GRAPH)) {

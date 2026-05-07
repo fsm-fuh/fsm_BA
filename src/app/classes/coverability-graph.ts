@@ -93,7 +93,7 @@ export class CoverabilityFiringEdge implements DisplayableEdge {
 }
 
 /**
- * The reachability graph of a Petri net.
+ * The coverability graph of a Petri net.
  */
 export class CoverabilityGraph implements DisplayableGraph {
     nodes: CoverabilityStateNode[] = [];
