@@ -223,7 +223,7 @@ export class CoverabilityGraphService {
 
                 //change target to new source for arcs
                 this.currentSourceCgId = currentCgId;
-                console.log(currentCoverabilityLabel);
+                console.log('current COV label' + currentCoverabilityLabel);
             };
 
             if (!this._modeService.isExamMode(Tab.COVERABILITY_GRAPH)) {
@@ -271,7 +271,7 @@ export class CoverabilityGraphService {
             this._notificationService.showInfo('TOASTER.HEADER.STATENODE_EXISTING', 'TOASTER.BODY.STATENODE_EXISTING');
 
             this.currentSourceCgId = currentCgId;
-            console.log(currentCoverabilityLabel);
+            console.log('current COV label' + currentCoverabilityLabel);
             return;
         }
 
@@ -284,7 +284,7 @@ export class CoverabilityGraphService {
             );
 
             this.currentSourceCgId = currentCgId;
-            console.log(currentCoverabilityLabel);
+            console.log('current COV label' + currentCoverabilityLabel);
             return;
         }
     }
@@ -296,10 +296,10 @@ export class CoverabilityGraphService {
      * @param node The clicked StateNode
      */
     switchPnStateToClickedState(node: CoverabilityStateNode) {
-        console.log('ChangeStateMethod started.');
-        console.log('StateNode ID' + node.id);
-        console.log('Label' + node.label);
-        console.log('Marking' + node.covMarking);
+        console.log('Cov ChangeStateMethod started.');
+        console.log('CovStateNode ID' + node.id);
+        console.log('CovStateNodeLabel' + node.label);
+        console.log('CovStateNodeMarking' + node.covMarking);
 
         if (!this._sourceNetService.getCurrentSourceNet()) {
             this._notificationService.showError('TOASTER.HEADER.READ_ERROR', 'TOASTER.BODY.LOAD_NET_FIRST');
@@ -310,7 +310,7 @@ export class CoverabilityGraphService {
                 return;
             }
 
-            console.log('Old PN nodes: ' + oldPetriNet.allNodes + ' ' + 'marking ' + oldPetriNet.currentMarking$);
+            console.log('Cov Old PN nodes: ' + oldPetriNet.allNodes + ' ' + 'marking ' + oldPetriNet.currentMarking$);
             oldPetriNet.marking = node.covMarking;
             //change state of net
             this.currentSourceCgId = node.id;
@@ -333,7 +333,7 @@ export class CoverabilityGraphService {
      */
     checkForInfinity(node: CoverabilityStateNode, graph?: CoverabilityGraph) {
         const targetGraph = graph ?? this._coverabilityGraph();
-        console.log('CheckForInfinity');
+        console.log('Cov CheckForInfinity');
         for (const cgStateNode of targetGraph.nodes) {
             cgStateNode.nodeVisitedStateForLimitCheck = false;
         }
@@ -350,28 +350,28 @@ export class CoverabilityGraphService {
      * Helper method for recursive check of method checkForInfinity
      */
     recursiveCheckForInfinity(node: CoverabilityStateNode, graph: CoverabilityGraph) {
-        console.log('Recursive CheckforInfinity');
+        console.log('Cov Recursive CheckforInfinity');
         node.nodeVisitedStateForLimitCheck = true;
         let areTokensGettingBigger = false;
         if (this.checkedStateNode) {
-            console.log('Rec CheckForInfinity - If this.CheckedStateNode');
+            console.log('Cov Rec CheckForInfinity - If this.CheckedStateNode');
             for (const checkPredecessor of node.predecessors) {
                 if (!checkPredecessor.nodeVisitedStateForLimitCheck) {
-                    console.log('Rec CheckForInfinity - !checkPredecessor.nodeVisitedStateForLimitCheck');
+                    console.log('Cov Rec CheckForInfinity - !checkPredecessor.nodeVisitedStateForLimitCheck');
                     areTokensGettingBigger = this.compareTwoMarkings(
                         this.checkedStateNode.covMarking,
                         checkPredecessor.covMarking,
                     );
-                    console.log('Are tokens getting bigger - ' + areTokensGettingBigger);
-                    console.log('this.checkedStateNode.tokenSum ' + this.checkedStateNode.tokenSum);
-                    console.log('checkPredecessor.tokenSum' + checkPredecessor.tokenSum);
+                    console.log('Cov Are tokens getting bigger - ' + areTokensGettingBigger);
+                    console.log('Cov this.checkedStateNode.tokenSum ' + this.checkedStateNode.tokenSum);
+                    console.log('Cov checkPredecessor.tokenSum' + checkPredecessor.tokenSum);
 
                     if (
                         this.checkedStateNode.tokenSum > checkPredecessor.tokenSum &&
                         areTokensGettingBigger &&
                         !graph.isUnlimited
                     ) {
-                        console.log('Unbeschränkt');
+                        console.log('Cov PN Unbeschränkt');
                         graph.isUnlimited = true;
                         checkPredecessor.isMorMStrich = true;
                         //TODO unbeschraenkteMarkierungM = direkterVorgaengerMarkierung;

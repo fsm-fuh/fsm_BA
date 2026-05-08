@@ -61,7 +61,7 @@ export class CoverabilityGraphDrawDisplayComponent extends DisplayComponent {
         return node.displayLabel.length * 8;
     }
 
-    onNodeMouseDown(event: MouseEvent, node: DisplayableNode) {
+    onCovStateNodeMouseDown(event: MouseEvent, node: DisplayableNode) {
         // Only start dragging for left mouse button
         if (event.button !== 0) {
             return;
