@@ -66,6 +66,7 @@ export class CoverabilityGraphService {
      *
      */
     initializeCoverabilityGraphFirstStateNode() {
+        console.log('initializeCoverability Graph method started');
         const currentNet = this._sourceNetService.getCurrentSourceNet();
         if (!currentNet) {
             this._coverabilityGraph.set(new CoverabilityGraph());
