@@ -12,7 +12,7 @@ export class CoverabilityStateNode implements DisplayableNode {
     _x: WritableSignal<number>;
     _y: WritableSignal<number>;
     label: string;
-    covMarking: Record<string, number>;
+    covMarking: Record<string, number | string>;
     nodeVisitedStateForAlgorithm: Visited = Visited.WHITE;
     nodeVisitedStateForLimitCheck = false;
     isStartingState = false;
@@ -21,6 +21,7 @@ export class CoverabilityStateNode implements DisplayableNode {
     isMorMStrich = false;
     tokenSum = 0;
     firingPath: string;
+    
     //TO-DO add stack for saving transitions for algorithm?
 
     get shape(): SHAPE {

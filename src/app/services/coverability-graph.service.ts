@@ -219,6 +219,7 @@ export class CoverabilityGraphService {
                         'TOASTER.HEADER.PETRI_NET_UNLIMITED',
                         'TOASTER.BODY.PETRI_NET_UNLIMITED',
                     );
+                    //TODO hier Omega setzen und anzeigen
                 }
 
                 //change target to new source for arcs
