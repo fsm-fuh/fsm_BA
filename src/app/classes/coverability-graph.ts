@@ -12,7 +12,7 @@ export class CoverabilityStateNode implements DisplayableNode {
     _x: WritableSignal<number>;
     _y: WritableSignal<number>;
     label: string;
-    covMarking: Record<string, number | string>;
+    covMarking: Record<string, number>;
     nodeVisitedStateForAlgorithm: Visited = Visited.WHITE;
     nodeVisitedStateForLimitCheck = false;
     isStartingState = false;
