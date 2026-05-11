@@ -376,12 +376,8 @@ export class CoverabilityGraphService {
                         graph.isUnlimited = true;
                         checkPredecessor.isMorMStrich = true;
                         this.checkedStateNode.isMorMStrich = true;
-
-                        //TODO Funktion ergänzen
-                        // this.checkedStateNode.omegaPositions
-
-
-
+                        //TODO ÜBERPRÜFEN
+                        this.setOmegaValues(this.checkedStateNode, checkPredecessor);
 
 
                         if (checkPredecessor.isStartingState) {
@@ -791,13 +787,44 @@ export class CoverabilityGraphService {
         }
     }
 
+
+//TODO  omega=omega when comparing to never check an omega cvalue twice
+// omega van never be changed back to not omega on the same path
+
+
     /**
      * sets Omega value at the position which increased, method is only triggered when criteria for "Unlimited PN" were met 
      * @param node coverabilityStateNode, which was detected when unlimitability of ReachGraph was detected (RG-->CovGraph)
      */
-    setOmegaValues (node:CoverabilityStateNode){
+    setOmegaValues (currentCovStateNode:CoverabilityStateNode, previousCovStateNode:CoverabilityStateNode){
+        const currentPlaceMarking = Object.values(currentCovStateNode.covMarking);
+        const previousPlaceMarking = Object.values(previousCovStateNode.covMarking);
+        for (let j = 0; j < Object.values(currentCovStateNode.covMarking).length; j++){
+            if(currentPlaceMarking[j] > previousPlaceMarking[j]){
+                currentCovStateNode.omegaPositions[j]=true;
+            }
+            this.setOmegaLabel(currentCovStateNode);
+
+        }
+    
 
 
+
+    }
+
+
+/**
+ * Method to update label of coverabilityStateNode
+ * Label will be completely changed, but number of tokens will stay the same
+ *
+ */
+    setOmegaLabel(node:CoverabilityStateNode){
+        for (let k = 0; k < Object.values(node.covMarking).length; k++){
+            if(node.omegaPositions[k] === true){
+        // const initialCoverabilityLabel: string = Object.values(this._startMarkingCG).join(' ');
+
+            }
+        }
 
     }
 
