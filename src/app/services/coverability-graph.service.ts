@@ -375,9 +375,15 @@ export class CoverabilityGraphService {
                         console.log('Cov PN Unbeschränkt');
                         graph.isUnlimited = true;
                         checkPredecessor.isMorMStrich = true;
-                        //TODO unbeschraenkteMarkierungM = direkterVorgaengerMarkierung;
                         this.checkedStateNode.isMorMStrich = true;
-                        //TODO unbeschraenkteMarkierungMStrich = egUnbeschraenktheitsPruefMarkierung;
+
+                        //TODO Funktion ergänzen
+                        // this.checkedStateNode.omegaPositions
+
+
+
+
+
                         if (checkPredecessor.isStartingState) {
                             graph.breakLoop = true;
                             return;
@@ -784,4 +790,20 @@ export class CoverabilityGraphService {
             );
         }
     }
+
+    /**
+     * sets Omega value at the position which increased, method is only triggered when criteria for "Unlimited PN" were met 
+     * @param node coverabilityStateNode, which was detected when unlimitability of ReachGraph was detected (RG-->CovGraph)
+     */
+    setOmegaValues (node:CoverabilityStateNode){
+
+
+
+    }
+
+
+
+
+
+
 }

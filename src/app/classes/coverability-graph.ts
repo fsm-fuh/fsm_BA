@@ -21,8 +21,9 @@ export class CoverabilityStateNode implements DisplayableNode {
     isMorMStrich = false;
     tokenSum = 0;
     firingPath: string;
-    
-    //TO-DO add stack for saving transitions for algorithm?
+    //Array, in which positions of omega values are marked with boolean, initially empty
+    omegaPositions: boolean[] =[]; 
+
 
     get shape(): SHAPE {
         return SHAPE.CIRCLE;
@@ -43,8 +44,10 @@ export class CoverabilityStateNode implements DisplayableNode {
         this.covMarking = marking;
         this.firingPath = firingPath;
 
-        //TODO anpassen für Omega-Werte
         this.calculateTokenSum(marking);
+        //initialize all Omega positions to false (no omega contained in covStateNode on creation)
+        this.initializeOmegaPositionsArray(marking);
+        console.log('omegaPositions' + this.omegaPositions);
     }
 
     get x(): number {
@@ -70,6 +73,21 @@ export class CoverabilityStateNode implements DisplayableNode {
             console.log('calculatedSum' + this.tokenSum);
         }
     }
+
+    /**
+     * Initializes values of OmegaPositions-Array to false
+     * Length is the same as marking length, positions of array equal positions of the marking (first place in record is also first in boolean array, later used in comparing function)
+     * @param marking marking of the state node
+     */
+    private initializeOmegaPositionsArray(marking: Record<string, number>){
+        console.log('initializeOmegaPositionsArray ' + this.id);
+        for (const positions of Object.entries(marking)) {
+            this.omegaPositions.push(false);
+        }
+
+
+    }
+
 }
 
 /**
