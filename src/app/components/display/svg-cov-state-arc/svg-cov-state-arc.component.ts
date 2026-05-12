@@ -5,10 +5,10 @@ import { GeometryUtil } from '../../../utils/geometry.util';
 import { computeBendPointsForArc } from '../../../services/arc-parallel-offset.util';
 import { VIEW_MODES, ViewMode } from '../display.constants';
 @Component({
-  selector: 'g[appSvgCovStateArc]',
-  imports: [],
-  templateUrl: './svg-cov-state-arc.component.html',
-  styleUrl: './svg-cov-state-arc.component.css',
+    selector: 'g[appSvgCovStateArc]',
+    imports: [],
+    templateUrl: './svg-cov-state-arc.component.html',
+    styleUrl: './svg-cov-state-arc.component.css',
 })
 export class SvgCovStateArcComponent {
     private readonly FALLBACK_LABEL_OFFSET_X = 10;
@@ -237,4 +237,3 @@ export class SvgCovStateArcComponent {
         };
     }
 }
-

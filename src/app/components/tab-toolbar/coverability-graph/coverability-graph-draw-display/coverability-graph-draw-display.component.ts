@@ -161,7 +161,7 @@ export class CoverabilityGraphDrawDisplayComponent extends DisplayComponent {
         },
         {
             icon: 'swap_horiz',
-                        //TODO ANPASSEN Tooltipps
+            //TODO ANPASSEN Tooltipps
 
             tooltip: 'COVERABILITY_GRAPH.TOGGLE_VIEW',
             isActive: !this.isEmpty(),

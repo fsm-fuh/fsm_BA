@@ -379,7 +379,6 @@ export class CoverabilityGraphService {
                         //TODO ÜBERPRÜFEN
                         this.setOmegaValues(this.checkedStateNode, checkPredecessor);
 
-
                         if (checkPredecessor.isStartingState) {
                             graph.breakLoop = true;
                             return;
@@ -787,53 +786,37 @@ export class CoverabilityGraphService {
         }
     }
 
-
-//TODO  omega=omega when comparing to never check an omega cvalue twice
-// omega van never be changed back to not omega on the same path
-
+    //TODO  omega=omega when comparing to never check an omega cvalue twice
+    // omega van never be changed back to not omega on the same path
 
     /**
-     * sets Omega value at the position which increased, method is only triggered when criteria for "Unlimited PN" were met 
+     * sets Omega value at the position which increased, method is only triggered when criteria for "Unlimited PN" were met
      * @param node coverabilityStateNode, which was detected when unlimitability of ReachGraph was detected (RG-->CovGraph)
      */
-    setOmegaValues (currentCovStateNode:CoverabilityStateNode, previousCovStateNode:CoverabilityStateNode){
+    setOmegaValues(currentCovStateNode: CoverabilityStateNode, previousCovStateNode: CoverabilityStateNode) {
         const currentPlaceMarking = Object.values(currentCovStateNode.covMarking);
         const previousPlaceMarking = Object.values(previousCovStateNode.covMarking);
-        for (let j = 0; j < Object.values(currentCovStateNode.covMarking).length; j++){
-            if(currentPlaceMarking[j] > previousPlaceMarking[j]){
-                currentCovStateNode.omegaPositions[j]=true;
+        for (let j = 0; j < Object.values(currentCovStateNode.covMarking).length; j++) {
+            if (currentPlaceMarking[j] > previousPlaceMarking[j]) {
+                currentCovStateNode.omegaPositions[j] = true;
             }
             this.setOmegaLabel(currentCovStateNode);
-
         }
-    
-
-
-
     }
 
-
-/**
- * Method to update label of coverabilityStateNode
- * Label will be completely changed, but number of tokens will stay the same
- *
- */
-    setOmegaLabel(node:CoverabilityStateNode){
-        let tempMarkingNumbers = Object.values(node.covMarking);
-        let tempMarkingStrings = tempMarkingNumbers.join().split(',');
-        for (let k = 0; k < Object.values(node.covMarking).length; k++){
-            if(node.omegaPositions[k] === true){
+    /**
+     * Method to update label of coverabilityStateNode
+     * Label will be completely changed, but number of tokens will stay the same
+     *
+     */
+    setOmegaLabel(node: CoverabilityStateNode) {
+        const tempMarkingNumbers = Object.values(node.covMarking);
+        const tempMarkingStrings = tempMarkingNumbers.join().split(',');
+        for (let k = 0; k < Object.values(node.covMarking).length; k++) {
+            if (node.omegaPositions[k] === true) {
                 tempMarkingStrings[k] = 'w';
-                
             }
         }
         node.label = tempMarkingStrings.join(' ');
-
     }
-
-
-
-
-
-
 }

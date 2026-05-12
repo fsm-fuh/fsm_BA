@@ -22,8 +22,7 @@ export class CoverabilityStateNode implements DisplayableNode {
     tokenSum = 0;
     firingPath: string;
     //Array, in which positions of omega values are marked with boolean, initially empty
-    omegaPositions: boolean[] =[]; 
-
+    omegaPositions: boolean[] = [];
 
     get shape(): SHAPE {
         return SHAPE.CIRCLE;
@@ -79,15 +78,12 @@ export class CoverabilityStateNode implements DisplayableNode {
      * Length is the same as marking length, positions of array equal positions of the marking (first place in record is also first in boolean array, later used in comparing function)
      * @param marking marking of the state node
      */
-    private initializeOmegaPositionsArray(marking: Record<string, number>){
+    private initializeOmegaPositionsArray(marking: Record<string, number>) {
         console.log('initializeOmegaPositionsArray ' + this.id);
         for (const positions of Object.entries(marking)) {
             this.omegaPositions.push(false);
         }
-
-
     }
-
 }
 
 /**

@@ -4,15 +4,13 @@ import { GeometryUtil } from '../../../utils/geometry.util';
 import { VIEW_MODES, ViewMode } from '../display.constants';
 import { CoverabilityStateNode } from 'src/app/classes/coverability-graph';
 
-
 @Component({
-  selector: 'g[appSvgCovStateNode]',
-  imports: [],
-  templateUrl: './svg-cov-state-node.component.html',
-  styleUrl: './svg-cov-state-node.component.css',
+    selector: 'g[appSvgCovStateNode]',
+    imports: [],
+    templateUrl: './svg-cov-state-node.component.html',
+    styleUrl: './svg-cov-state-node.component.css',
 })
 export class SvgCovStateNodeComponent {
-
     protected readonly VIEW_MODES = VIEW_MODES;
     readonly RADIUS = 7;
 
@@ -64,4 +62,3 @@ export class SvgCovStateNodeComponent {
         this.covStateNodeClick.emit(this.covStateNode());
     }
 }
-
