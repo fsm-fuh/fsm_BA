@@ -819,12 +819,15 @@ export class CoverabilityGraphService {
  *
  */
     setOmegaLabel(node:CoverabilityStateNode){
+        let tempMarkingNumbers = Object.values(node.covMarking);
+        let tempMarkingStrings = tempMarkingNumbers.join().split(',');
         for (let k = 0; k < Object.values(node.covMarking).length; k++){
             if(node.omegaPositions[k] === true){
-        // const initialCoverabilityLabel: string = Object.values(this._startMarkingCG).join(' ');
-
+                tempMarkingStrings[k] = 'w';
+                
             }
         }
+        node.label = tempMarkingStrings.join(' ');
 
     }
 
