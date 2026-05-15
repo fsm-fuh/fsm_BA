@@ -35,6 +35,7 @@ export class CoverabilityGraphService {
 
 
     private existingOmegaLabels:string[]=[];
+    private omegaLabelsExistInPetriNet:boolean=false;
 
 
     private currentSourceCgId = 'CG1';
@@ -152,7 +153,7 @@ export class CoverabilityGraphService {
         //prüfen, ob aktuelle Zielmarkierung bereits vorhanden
         for (const nodeElement of graph.nodes) {
             const existingNodeLabel: string = nodeElement.label;
-
+            if(!this.omegaLabelsExistInPetriNet){
             if (existingNodeLabel === currentCoverabilityLabel) {
                 markingExists = true;
                 currentCgId = nodeElement.id;
@@ -176,6 +177,10 @@ export class CoverabilityGraphService {
                     }
                 }
             }
+        }
+        //TODO weitermachen mit Methode für ifOmegaExiston pn = true
+
+
         }
 
         if (!markingExists && !connectionExists) {
@@ -826,5 +831,7 @@ export class CoverabilityGraphService {
             }
         }
         node.label = tempMarkingStrings.join(' ');
+        //save to array for comparison
+        this.existingOmegaLabels.push(node.label);
     }
 }
