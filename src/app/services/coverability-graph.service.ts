@@ -33,6 +33,10 @@ export class CoverabilityGraphService {
     private checkedStateNode: CoverabilityStateNode | undefined;
     readonly _dialog = inject(MatDialog);
 
+
+    private existingOmegaLabels:string[]=[];
+
+
     private currentSourceCgId = 'CG1';
 
     set startMarkingCG(marking: Record<string, number>) {
@@ -63,6 +67,7 @@ export class CoverabilityGraphService {
      * Method to initialize first CoverabilityStateNode of Coverability Graph
      * Extracts marking from coverability-graph-display
      * beim Initialisieren direkt den ersten Knoten anlegen
+     * dies not set Omega values, since first node cannot have Omega
      *
      */
     initializeCoverabilityGraphFirstStateNode() {
@@ -132,6 +137,9 @@ export class CoverabilityGraphService {
         const currentCoverabilityLabel: string = Object.entries(diagram.marking)
             .map(([, value]) => `${value}`)
             .join(' ');
+        //TODO hier noch omegas einblenden für marking / oder umgehen indem beim BVergleichen übersprungen wird wenn omega im boolean array
+        //boolean im diagram "ifOmegasExistInDiagram - oder wie handhaben?"
+
 
         const graph = this._coverabilityGraph();
         const nextNodeIndex = graph.nodes.length + 1;
