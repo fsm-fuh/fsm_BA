@@ -787,7 +787,7 @@ export class CoverabilityGraphService {
     }
 
     //TODO  omega=omega when comparing to never check an omega cvalue twice
-    // omega van never be changed back to not omega on the same path
+    // omega can never be changed back to not omega on the same path
 
     /**
      * sets Omega value at the position which increased, method is only triggered when criteria for "Unlimited PN" were met
