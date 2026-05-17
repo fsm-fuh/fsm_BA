@@ -179,7 +179,7 @@ export class CoverabilityGraphService {
         }
         //set label to label of last StateNode (which contains Omega Values)
         if (graph.omegaValuesExistInGraph) {
-            currentCoverabilityLabel = graph.nodes[NodeList.length - 1].label;
+            currentCoverabilityLabel = graph.nodes[NodeList.length-1].label;
 
             //prüfen, ob aktuelle Zielmarkierung bereits vorhanden
             for (const nodeElement of graph.nodes) {
