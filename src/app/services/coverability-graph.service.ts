@@ -133,7 +133,7 @@ export class CoverabilityGraphService {
         let markingExists = false;
         let connectionExists = false;
 
-        const currentCoverabilityLabel: string = Object.entries(diagram.marking)
+        let currentCoverabilityLabel: string = Object.entries(diagram.marking)
             .map(([, value]) => `${value}`)
             .join(' ');
         //TODO hier noch omegas einblenden für marking / oder umgehen indem beim BVergleichen übersprungen wird wenn omega im boolean array
@@ -176,7 +176,38 @@ export class CoverabilityGraphService {
                     }
                 }
             }
-            //TODO weitermachen mit Methode für ifOmegaExiston pn = true
+        }
+        //set label to label of last StateNode (which contains Omega Values)
+        if (graph.omegaValuesExistInGraph) {
+            currentCoverabilityLabel = graph.nodes[NodeList.length - 1].label;
+
+            //prüfen, ob aktuelle Zielmarkierung bereits vorhanden
+            for (const nodeElement of graph.nodes) {
+                const existingNodeLabel: string = nodeElement.label;
+                if (existingNodeLabel === currentCoverabilityLabel) {
+                    markingExists = true;
+                    currentCgId = nodeElement.id;
+                    compareCgTargetStateNode = nodeElement;
+
+                    // Vorhandensein der Verbindung prüfen, wenn Markierung bereits existiert;
+                    // so wird sichergestellt, dass eine Markierung, die von einer anderen Transiion
+                    // erzeugt wurde, ebenfalls verbunden bzw. eingefügt wird
+                    //displayLabel, source und target der Verbindungen vergleichen, um Gleichheit eindeutig zu prüfen
+                    for (const edgeElement of graph.edges) {
+                        const existingArcDisplayLabel: string = edgeElement.displayLabel;
+                        const existingArcSource: string = edgeElement.source;
+                        const existingArcTarget: string = edgeElement.target;
+
+                        if (
+                            existingArcDisplayLabel === label &&
+                            existingArcSource === this.currentSourceCgId &&
+                            existingArcTarget === currentCgId
+                        ) {
+                            connectionExists = true;
+                        }
+                    }
+                }
+            }
         }
 
         if (!markingExists && !connectionExists) {
