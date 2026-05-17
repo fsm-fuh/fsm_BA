@@ -33,10 +33,8 @@ export class CoverabilityGraphService {
     private checkedStateNode: CoverabilityStateNode | undefined;
     readonly _dialog = inject(MatDialog);
 
-
-    private existingOmegaLabels:string[]=[];
-    private omegaLabelsExistInPetriNet:boolean=false;
-
+    private existingOmegaLabels: string[] = [];
+    // private omegaLabelsExistInPetriNet:boolean=false;
 
     private currentSourceCgId = 'CG1';
 
@@ -141,7 +139,6 @@ export class CoverabilityGraphService {
         //TODO hier noch omegas einblenden für marking / oder umgehen indem beim BVergleichen übersprungen wird wenn omega im boolean array
         //boolean im diagram "ifOmegasExistInDiagram - oder wie handhaben?"
 
-
         const graph = this._coverabilityGraph();
         const nextNodeIndex = graph.nodes.length + 1;
         let currentCgId = 'CG' + nextNodeIndex;
@@ -150,37 +147,36 @@ export class CoverabilityGraphService {
         let compareCgSourceStateNode: CoverabilityStateNode;
         let compareCgTargetStateNode: CoverabilityStateNode;
 
-        //prüfen, ob aktuelle Zielmarkierung bereits vorhanden
-        for (const nodeElement of graph.nodes) {
-            const existingNodeLabel: string = nodeElement.label;
-            if(!this.omegaLabelsExistInPetriNet){
-            if (existingNodeLabel === currentCoverabilityLabel) {
-                markingExists = true;
-                currentCgId = nodeElement.id;
-                compareCgTargetStateNode = nodeElement;
+        //DIFFERENT WAYS STARTING HERE IF OMEGA VALUES EXIST / COMPARING OF VALUES CHANGES
+        if (!graph.omegaValuesExistInGraph) {
+            //prüfen, ob aktuelle Zielmarkierung bereits vorhanden
+            for (const nodeElement of graph.nodes) {
+                const existingNodeLabel: string = nodeElement.label;
+                if (existingNodeLabel === currentCoverabilityLabel) {
+                    markingExists = true;
+                    currentCgId = nodeElement.id;
+                    compareCgTargetStateNode = nodeElement;
 
-                // Vorhandensein der Verbindung prüfen, wenn Markierung bereits existiert;
-                // so wird sichergestellt, dass eine Markierung, die von einer anderen Transiion
-                // erzeugt wurde, ebenfalls verbunden bzw. eingefügt wird
-                //displayLabel, source und target der Verbindungen vergleichen, um Gleichheit eindeutig zu prüfen
-                for (const edgeElement of graph.edges) {
-                    const existingArcDisplayLabel: string = edgeElement.displayLabel;
-                    const existingArcSource: string = edgeElement.source;
-                    const existingArcTarget: string = edgeElement.target;
+                    // Vorhandensein der Verbindung prüfen, wenn Markierung bereits existiert;
+                    // so wird sichergestellt, dass eine Markierung, die von einer anderen Transiion
+                    // erzeugt wurde, ebenfalls verbunden bzw. eingefügt wird
+                    //displayLabel, source und target der Verbindungen vergleichen, um Gleichheit eindeutig zu prüfen
+                    for (const edgeElement of graph.edges) {
+                        const existingArcDisplayLabel: string = edgeElement.displayLabel;
+                        const existingArcSource: string = edgeElement.source;
+                        const existingArcTarget: string = edgeElement.target;
 
-                    if (
-                        existingArcDisplayLabel === label &&
-                        existingArcSource === this.currentSourceCgId &&
-                        existingArcTarget === currentCgId
-                    ) {
-                        connectionExists = true;
+                        if (
+                            existingArcDisplayLabel === label &&
+                            existingArcSource === this.currentSourceCgId &&
+                            existingArcTarget === currentCgId
+                        ) {
+                            connectionExists = true;
+                        }
                     }
                 }
             }
-        }
-        //TODO weitermachen mit Methode für ifOmegaExiston pn = true
-
-
+            //TODO weitermachen mit Methode für ifOmegaExiston pn = true
         }
 
         if (!markingExists && !connectionExists) {
@@ -391,6 +387,7 @@ export class CoverabilityGraphService {
                         this.checkedStateNode.isMorMStrich = true;
                         //TODO ÜBERPRÜFEN
                         this.setOmegaValues(this.checkedStateNode, checkPredecessor);
+                        graph.omegaValuesExistInGraph = true;
 
                         if (checkPredecessor.isStartingState) {
                             graph.breakLoop = true;

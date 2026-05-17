@@ -115,6 +115,7 @@ export class CoverabilityGraph implements DisplayableGraph {
     edges: CoverabilityFiringEdge[] = [];
     isUnlimited = false;
     breakLoop = false;
+    omegaValuesExistInGraph: boolean = false;
 
     getNodes(): DisplayableNode[] {
         return this.nodes;
