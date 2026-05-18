@@ -140,8 +140,6 @@ export class CoverabilityGraphService {
         let currentCoverabilityLabel: string = Object.entries(diagram.marking)
             .map(([, value]) => `${value}`)
             .join(' ');
-        //TODO hier noch omegas einblenden für marking / oder umgehen indem beim BVergleichen übersprungen wird wenn omega im boolean array
-        //String abfragen aus dem array petriNetOmegaPlaces des CovGraph - wenn String enthalten, dann was anderes machen, schon beim Erzeugen bzw. Abrufen des Marking
         //add omega at correct positions of label
         const tempCovLabelMarkingNumbers = Object.values(diagram.marking);
         const tempCovLabelMarkingStrings = tempCovLabelMarkingNumbers.join().split(',');
@@ -189,39 +187,7 @@ export class CoverabilityGraphService {
                 }
             }
         }
-        // }
-        // //set label to label of last StateNode (which contains Omega Values)
-        // if (graph.omegaValuesExistInGraph) {
-        //     currentCoverabilityLabel = graph.nodes[NodeList.length-1].label;
-
-        //     //prüfen, ob aktuelle Zielmarkierung bereits vorhanden
-        //     for (const nodeElement of graph.nodes) {
-        //         const existingNodeLabel: string = nodeElement.label;
-        //         if (existingNodeLabel === currentCoverabilityLabel) {
-        //             markingExists = true;
-        //             currentCgId = nodeElement.id;
-        //             compareCgTargetStateNode = nodeElement;
-
-        //             // Vorhandensein der Verbindung prüfen, wenn Markierung bereits existiert;
-        //             // so wird sichergestellt, dass eine Markierung, die von einer anderen Transiion
-        //             // erzeugt wurde, ebenfalls verbunden bzw. eingefügt wird
-        //             //displayLabel, source und target der Verbindungen vergleichen, um Gleichheit eindeutig zu prüfen
-        //             for (const edgeElement of graph.edges) {
-        //                 const existingArcDisplayLabel: string = edgeElement.displayLabel;
-        //                 const existingArcSource: string = edgeElement.source;
-        //                 const existingArcTarget: string = edgeElement.target;
-
-        //                 if (
-        //                     existingArcDisplayLabel === label &&
-        //                     existingArcSource === this.currentSourceCgId &&
-        //                     existingArcTarget === currentCgId
-        //                 ) {
-        //                     connectionExists = true;
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
+        
 
         if (!markingExists && !connectionExists) {
             // neuer Knoten und neue Kante
@@ -272,7 +238,6 @@ export class CoverabilityGraphService {
                         'TOASTER.HEADER.PETRI_NET_UNLIMITED',
                         'TOASTER.BODY.PETRI_NET_UNLIMITED',
                     );
-                    //TODO hier Omega setzen und anzeigen
                 }
 
                 //change target to new source for arcs
@@ -457,13 +422,12 @@ export class CoverabilityGraphService {
      * @param currentlyVisitedMarking
      * @param previouslyVisitedMarking
      */
-    //TODO anpassen für Omega-Erkennung
     compareTwoMarkings(
         currentlyVisitedMarking: Record<string, number>,
         previouslyVisitedMarking: Record<string, number>,
     ): boolean {
         let currentMarkingHigher = true;
-
+        
         const currentPlaceMarking = Object.values(currentlyVisitedMarking);
         const previousPlaceMarking = Object.values(previouslyVisitedMarking);
 
@@ -473,14 +437,15 @@ export class CoverabilityGraphService {
 
         return currentMarkingHigher;
     }
-
+    
     /**Compares User input of type marking with Marking of the next StateNode
      * created from firing a transition.
      * Used in Exam Mode to determine if user can define marking correctly.
      * @param userInputMarking Marking inputted by user with dialog. Target: Should contain the "next" marking after firing.
      * @param nextStateNode StateNode after firing, only saved in model before this method, visualized after successful comparison.
      * @returns boolean comparison value, handled by calling method
-     */
+    */
+    //TODO anpassen für Omega-Erkennung
     compareUserInputWithTargetState(
         userInputMarking: Record<string, number>,
         nextStateNode: CoverabilityStateNode,
@@ -567,7 +532,7 @@ export class CoverabilityGraphService {
      * Follows Algorithm 2.2.4 (Calculation of the Reachability Graph).
      * Stops if the graph becomes too large or unlimited.
      *
-     * @returns The calculated Reachability Graph.
+     * @returns The calculated Coverability Graph.
      */
 
     //TODO ANPASSEN DER METHODE
@@ -610,9 +575,12 @@ export class CoverabilityGraphService {
 
                 this.processEdge(graph, m, m_prime, transition, counters);
 
+
+                //TODO vermutlich hier ausblenden? durch Omega sollte ja kein Fehler passieren können
                 if (graph.isUnlimited) break;
             }
-
+            
+            //TODO vermutlich hier ausblenden? durch Omega sollte ja kein Fehler passieren können
             if (graph.isUnlimited) {
                 break;
             }
@@ -632,6 +600,7 @@ export class CoverabilityGraphService {
         const startMarking = diagram.startMarking;
         const places = diagram.places;
         const startLabel = places.map((p) => startMarking[p.id] ?? 0).join(' ');
+        //TODO Marking schon hier miot Omegas? eher später
 
         const startNode = new CoverabilityStateNode('CG1', 300, 50, startLabel, startMarking);
         startNode.isStartingState = true;
@@ -699,6 +668,7 @@ export class CoverabilityGraphService {
         counters: { nodeId: number },
     ): CoverabilityStateNode {
         const nextLabel = places.map((p) => nextMarking[p.id] ?? 0).join(' ');
+        //TODO hier ebenfalls anpassen
         let m_prime = nodeByLabel.get(nextLabel);
 
         if (!m_prime) {

@@ -24,6 +24,8 @@ export class CoverabilityStateNode implements DisplayableNode {
     //Array, in which positions of omega values are marked with boolean, initially empty
     omegaPositions: boolean[] = [];
 
+    //TODO add additional marking as string, string, which is always updated when marking cheanges (on each new stateNode)
+
     get shape(): SHAPE {
         return SHAPE.CIRCLE;
     }
