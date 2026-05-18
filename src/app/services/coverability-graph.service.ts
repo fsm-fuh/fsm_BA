@@ -143,7 +143,15 @@ export class CoverabilityGraphService {
             .join(' ');
         //TODO hier noch omegas einblenden für marking / oder umgehen indem beim BVergleichen übersprungen wird wenn omega im boolean array
         //String abfragen aus dem array petriNetOmegaPlaces des CovGraph - wenn String enthalten, dann was anderes machen, schon beim Erzeugen bzw. Abrufen des Marking
-
+        //add omega at correct positions of label
+        const tempCovLabelMarkingNumbers = Object.values(diagram.marking);
+        const tempCovLabelMarkingStrings = tempCovLabelMarkingNumbers.join().split(',');
+        for (let j = 0; j < Object.values(diagram.marking).length; j++) {
+             if (this.netOmegaPositions[j] === true) {
+                tempCovLabelMarkingStrings[j] = 'w';
+            }
+        }
+        currentCoverabilityLabel = tempCovLabelMarkingStrings.join(' ');
 
         const graph = this._coverabilityGraph();
         const nextNodeIndex = graph.nodes.length + 1;
@@ -153,7 +161,7 @@ export class CoverabilityGraphService {
         let compareCgSourceStateNode: CoverabilityStateNode;
         let compareCgTargetStateNode: CoverabilityStateNode;
 
-        //DIFFERENT WAYS STARTING HERE IF OMEGA VALUES EXIST / COMPARING OF VALUES CHANGES
+        // probably unnecessary ???DIFFERENT WAYS STARTING HERE IF OMEGA VALUES EXIST / COMPARING OF VALUES CHANGES???
         // if (!graph.omegaValuesExistInGraph) {
             //prüfen, ob aktuelle Zielmarkierung bereits vorhanden
             for (const nodeElement of graph.nodes) {
