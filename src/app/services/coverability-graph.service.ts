@@ -32,9 +32,10 @@ export class CoverabilityGraphService {
     private _showingCompleteGraph = signal(false);
     private checkedStateNode: CoverabilityStateNode | undefined;
     readonly _dialog = inject(MatDialog);
-
+    
     private existingOmegaLabels: string[] = [];
     // private omegaLabelsExistInPetriNet:boolean=false;
+    private netOmegaPositions:boolean[]=[];
 
     private currentSourceCgId = 'CG1';
 
@@ -103,6 +104,10 @@ export class CoverabilityGraphService {
         );
         initialStateNode.isStartingState = true;
 
+        //Omega-Array des Service initialisieren
+        this.initializeNetOmegaPositions(this._startMarkingCG);
+        
+
         if (!this._modeService.isExamMode(Tab.COVERABILITY_GRAPH)) {
             //AUTOMATISCH StateNode erzeugen
             const newGraph = new CoverabilityGraph();
@@ -137,7 +142,8 @@ export class CoverabilityGraphService {
             .map(([, value]) => `${value}`)
             .join(' ');
         //TODO hier noch omegas einblenden für marking / oder umgehen indem beim BVergleichen übersprungen wird wenn omega im boolean array
-        //boolean im diagram "ifOmegasExistInDiagram - oder wie handhaben?"
+        //String abfragen aus dem array petriNetOmegaPlaces des CovGraph - wenn String enthalten, dann was anderes machen, schon beim Erzeugen bzw. Abrufen des Marking
+
 
         const graph = this._coverabilityGraph();
         const nextNodeIndex = graph.nodes.length + 1;
@@ -148,7 +154,7 @@ export class CoverabilityGraphService {
         let compareCgTargetStateNode: CoverabilityStateNode;
 
         //DIFFERENT WAYS STARTING HERE IF OMEGA VALUES EXIST / COMPARING OF VALUES CHANGES
-        if (!graph.omegaValuesExistInGraph) {
+        // if (!graph.omegaValuesExistInGraph) {
             //prüfen, ob aktuelle Zielmarkierung bereits vorhanden
             for (const nodeElement of graph.nodes) {
                 const existingNodeLabel: string = nodeElement.label;
@@ -176,39 +182,39 @@ export class CoverabilityGraphService {
                     }
                 }
             }
-        }
-        //set label to label of last StateNode (which contains Omega Values)
-        if (graph.omegaValuesExistInGraph) {
-            currentCoverabilityLabel = graph.nodes[NodeList.length-1].label;
+        // }         
+        // //set label to label of last StateNode (which contains Omega Values)
+        // if (graph.omegaValuesExistInGraph) {
+        //     currentCoverabilityLabel = graph.nodes[NodeList.length-1].label;
 
-            //prüfen, ob aktuelle Zielmarkierung bereits vorhanden
-            for (const nodeElement of graph.nodes) {
-                const existingNodeLabel: string = nodeElement.label;
-                if (existingNodeLabel === currentCoverabilityLabel) {
-                    markingExists = true;
-                    currentCgId = nodeElement.id;
-                    compareCgTargetStateNode = nodeElement;
+        //     //prüfen, ob aktuelle Zielmarkierung bereits vorhanden
+        //     for (const nodeElement of graph.nodes) {
+        //         const existingNodeLabel: string = nodeElement.label;
+        //         if (existingNodeLabel === currentCoverabilityLabel) {
+        //             markingExists = true;
+        //             currentCgId = nodeElement.id;
+        //             compareCgTargetStateNode = nodeElement;
 
-                    // Vorhandensein der Verbindung prüfen, wenn Markierung bereits existiert;
-                    // so wird sichergestellt, dass eine Markierung, die von einer anderen Transiion
-                    // erzeugt wurde, ebenfalls verbunden bzw. eingefügt wird
-                    //displayLabel, source und target der Verbindungen vergleichen, um Gleichheit eindeutig zu prüfen
-                    for (const edgeElement of graph.edges) {
-                        const existingArcDisplayLabel: string = edgeElement.displayLabel;
-                        const existingArcSource: string = edgeElement.source;
-                        const existingArcTarget: string = edgeElement.target;
+        //             // Vorhandensein der Verbindung prüfen, wenn Markierung bereits existiert;
+        //             // so wird sichergestellt, dass eine Markierung, die von einer anderen Transiion
+        //             // erzeugt wurde, ebenfalls verbunden bzw. eingefügt wird
+        //             //displayLabel, source und target der Verbindungen vergleichen, um Gleichheit eindeutig zu prüfen
+        //             for (const edgeElement of graph.edges) {
+        //                 const existingArcDisplayLabel: string = edgeElement.displayLabel;
+        //                 const existingArcSource: string = edgeElement.source;
+        //                 const existingArcTarget: string = edgeElement.target;
 
-                        if (
-                            existingArcDisplayLabel === label &&
-                            existingArcSource === this.currentSourceCgId &&
-                            existingArcTarget === currentCgId
-                        ) {
-                            connectionExists = true;
-                        }
-                    }
-                }
-            }
-        }
+        //                 if (
+        //                     existingArcDisplayLabel === label &&
+        //                     existingArcSource === this.currentSourceCgId &&
+        //                     existingArcTarget === currentCgId
+        //                 ) {
+        //                     connectionExists = true;
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
 
         if (!markingExists && !connectionExists) {
             // neuer Knoten und neue Kante
@@ -840,6 +846,7 @@ export class CoverabilityGraphService {
         for (let j = 0; j < Object.values(currentCovStateNode.covMarking).length; j++) {
             if (currentPlaceMarking[j] > previousPlaceMarking[j]) {
                 currentCovStateNode.omegaPositions[j] = true;
+                this.netOmegaPositions[j]=true;
             }
             this.setOmegaLabel(currentCovStateNode);
         }
@@ -861,5 +868,12 @@ export class CoverabilityGraphService {
         node.label = tempMarkingStrings.join(' ');
         //save to array for comparison
         this.existingOmegaLabels.push(node.label);
+    }
+    
+    initializeNetOmegaPositions(marking: Record<string, number>) {
+        console.log('initialize Net OmegaPositionsArray ' );
+        for (const positions of Object.entries(marking)) {
+            this.netOmegaPositions.push(false);
+        }
     }
 }
