@@ -440,18 +440,18 @@ export class CoverabilityGraphService {
     /**Compares User input of type marking with Marking of the next StateNode
      * created from firing a transition.
      * Used in Exam Mode to determine if user can define marking correctly.
-     * @param userInputMarking Marking inputted by user with dialog. Target: Should contain the "next" marking after firing.
+     * @param userInputMarkingAsString Marking inputted by user with dialog. Target: Should contain the "next" marking after firing. Strring type so that omega can be handled.
      * @param nextStateNode StateNode after firing, only saved in model before this method, visualized after successful comparison.
      * @returns boolean comparison value, handled by calling method
      */
     //TODO anpassen für Omega-Erkennung
     compareUserInputWithTargetState(
-        userInputMarking: Record<string, number>,
+        userInputMarkingAsString: Record<string, string>,
         nextStateNode: CoverabilityStateNode,
     ): boolean {
         let comparison = true;
-        const userMarking = Object.values(userInputMarking);
-        const actualTargetMarking = Object.values(nextStateNode.covMarking);
+        const userMarking = Object.values(userInputMarkingAsString);
+        const actualTargetMarking = Object.values(nextStateNode.covMarkingAsStringRecord);
 
         for (let i = 0; i < userMarking.length; i++) {
             if (actualTargetMarking[i] != userMarking[i]) {
@@ -500,8 +500,8 @@ export class CoverabilityGraphService {
                 message: 'CGMARKING_DIALOG.MESSAGE_DEFAULT',
             },
         });
-
-        markingDialogRef.afterClosed().subscribe((result: Record<string, number> | undefined) => {
+//record changed to string
+        markingDialogRef.afterClosed().subscribe((result: Record<string, string> | undefined) => {
             if (result) {
                 const isUserMarkingCorrect = this.compareUserInputWithTargetState(result, node);
                 if (isUserMarkingCorrect) {
