@@ -24,7 +24,11 @@ export class CoverabilityStateNode implements DisplayableNode {
     //Array, in which positions of omega values are marked with boolean, initially empty
     omegaPositions: boolean[] = [];
 
-    //TODO add additional marking as string, string, which is always updated when marking cheanges (on each new stateNode)
+    //TODO add additional marking as string, string, which is always updated when marking changes (on each new stateNode)
+    covMarkingAsStringRecord:Record<string,string> ={};
+
+
+
 
     get shape(): SHAPE {
         return SHAPE.CIRCLE;
@@ -48,6 +52,7 @@ export class CoverabilityStateNode implements DisplayableNode {
         this.calculateTokenSum(marking);
         //initialize all Omega positions to false (no omega contained in covStateNode on creation)
         this.initializeOmegaPositionsArray(marking);
+        this.convertMarkingToStringMarking(marking);
         console.log('omegaPositions' + this.omegaPositions);
     }
 
@@ -86,6 +91,14 @@ export class CoverabilityStateNode implements DisplayableNode {
             this.omegaPositions.push(false);
         }
     }
+
+    private convertMarkingToStringMarking(marking: Record<string, number>){
+        Object.entries(marking).forEach(([key, value])=>this.covMarkingAsStringRecord[key]=this.covMarkingAsStringRecord[value.toString()]);
+        console.log('covMarkingAsStringRecord ' + this.covMarkingAsStringRecord)
+    }
+
+
+
 }
 
 /**
