@@ -187,7 +187,6 @@ export class CoverabilityGraphService {
                 }
             }
         }
-        
 
         if (!markingExists && !connectionExists) {
             // neuer Knoten und neue Kante
@@ -427,7 +426,7 @@ export class CoverabilityGraphService {
         previouslyVisitedMarking: Record<string, number>,
     ): boolean {
         let currentMarkingHigher = true;
-        
+
         const currentPlaceMarking = Object.values(currentlyVisitedMarking);
         const previousPlaceMarking = Object.values(previouslyVisitedMarking);
 
@@ -437,14 +436,14 @@ export class CoverabilityGraphService {
 
         return currentMarkingHigher;
     }
-    
+
     /**Compares User input of type marking with Marking of the next StateNode
      * created from firing a transition.
      * Used in Exam Mode to determine if user can define marking correctly.
      * @param userInputMarking Marking inputted by user with dialog. Target: Should contain the "next" marking after firing.
      * @param nextStateNode StateNode after firing, only saved in model before this method, visualized after successful comparison.
      * @returns boolean comparison value, handled by calling method
-    */
+     */
     //TODO anpassen für Omega-Erkennung
     compareUserInputWithTargetState(
         userInputMarking: Record<string, number>,
@@ -575,11 +574,10 @@ export class CoverabilityGraphService {
 
                 this.processEdge(graph, m, m_prime, transition, counters);
 
-
                 //TODO vermutlich hier ausblenden? durch Omega sollte ja kein Fehler passieren können
                 if (graph.isUnlimited) break;
             }
-            
+
             //TODO vermutlich hier ausblenden? durch Omega sollte ja kein Fehler passieren können
             if (graph.isUnlimited) {
                 break;

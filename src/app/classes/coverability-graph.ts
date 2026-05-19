@@ -25,10 +25,7 @@ export class CoverabilityStateNode implements DisplayableNode {
     omegaPositions: boolean[] = [];
 
     //TODO add additional marking as string, string, which is always updated when marking changes (on each new stateNode)
-    covMarkingAsStringRecord:Record<string,string> ={};
-
-
-
+    covMarkingAsStringRecord: Record<string, string> = {};
 
     get shape(): SHAPE {
         return SHAPE.CIRCLE;
@@ -92,13 +89,12 @@ export class CoverabilityStateNode implements DisplayableNode {
         }
     }
 
-    private convertMarkingToStringMarking(marking: Record<string, number>){
-        Object.entries(marking).forEach(([key, value])=>this.covMarkingAsStringRecord[key]=this.covMarkingAsStringRecord[value.toString()]);
-        console.log('covMarkingAsStringRecord ' + this.covMarkingAsStringRecord)
+    private convertMarkingToStringMarking(marking: Record<string, number>) {
+        Object.entries(marking).forEach(
+            ([key, value]) => (this.covMarkingAsStringRecord[key] = this.covMarkingAsStringRecord[value.toString()]),
+        );
+        console.log('covMarkingAsStringRecord ' + this.covMarkingAsStringRecord);
     }
-
-
-
 }
 
 /**
