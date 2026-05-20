@@ -14,8 +14,8 @@ import { ToasterNotificationService } from '../../../../services/toaster-notific
 
 export interface ConfirmCoverabilityUserMarkingDialogData {
     title: string;
-    userInputMarking: Record<string, number>;
-    expectedCorrectMarking: Record<string, number>;
+    userInputMarking: Record<string, string>;
+    expectedCorrectMarking: Record<string, string>;
     // tab: Tab;
     message: string;
 }
@@ -46,11 +46,11 @@ export class CgMarkingDialogComponent {
     data = inject<ConfirmCoverabilityUserMarkingDialogData>(MAT_DIALOG_DATA);
     private _dialogRef = inject(MatDialogRef<CgMarkingDialogComponent>);
 
-    protected currentDialogMarking: Record<string, number> = this.data.userInputMarking;
-    private correctDialogMarking: Record<string, number> = this.data.expectedCorrectMarking;
+    protected currentDialogMarking: Record<string, string> = this.data.userInputMarking;
+    private correctDialogMarking: Record<string, string> = this.data.expectedCorrectMarking;
 
     incrementMarking(placeId: string): void {
-        this.currentDialogMarking[placeId] = (this.currentDialogMarking[placeId] || 0) + 1;
+        this.currentDialogMarking[placeId] = (this.currentDialogMarking[placeId] || '0') + 1;
     }
 
     decrementMarking(placeId: string): void {

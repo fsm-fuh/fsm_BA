@@ -248,7 +248,7 @@ export class CoverabilityGraphService {
                 proceed();
             } else if (this._modeService.isExamMode(Tab.COVERABILITY_GRAPH)) {
                 //nur im Hintergrund vergleichen, User gibt NodeLabel, also Marking, selbst ein und bekommt Feedback
-                this.getCorrectUserMarking(currentStateNode, proceed, previousNode?.covMarking);
+                this.getCorrectUserMarking(currentStateNode, proceed, previousNode?.covMarkingAsStringRecord);
             }
             return;
         }
@@ -475,10 +475,10 @@ export class CoverabilityGraphService {
     getCorrectUserMarking(
         node: CoverabilityStateNode,
         onCorrect: () => void,
-        startMarking?: Record<string, number>,
+        startMarking?: Record<string, string>,
     ): void {
-        const correctMarking: Record<string, number> = node.covMarking;
-        const userInputtedMarking: Record<string, number> = {};
+        const correctMarking: Record<string, string> = node.covMarkingAsStringRecord;
+        const userInputtedMarking: Record<string, string> = {};
 
         // Initialize user input marking
         if (startMarking) {
