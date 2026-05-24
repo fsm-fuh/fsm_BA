@@ -483,12 +483,12 @@ export class CoverabilityGraphService {
         // Initialize user input marking
         if (startMarking) {
             for (const key of Object.keys(correctMarking)) {
-                userInputtedMarking[key] = startMarking[key] ?? 0;
+                userInputtedMarking[key] = startMarking[key] ?? "0";
             }
         } else {
             // Initialize with 0s for user input
             for (const key of Object.keys(correctMarking)) {
-                userInputtedMarking[key] = 0;
+                userInputtedMarking[key] = "0";
             }
         }
 

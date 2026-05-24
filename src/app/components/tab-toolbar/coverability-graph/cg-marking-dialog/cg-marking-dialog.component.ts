@@ -54,9 +54,9 @@ export class CgMarkingDialogComponent {
     }
 
     decrementMarking(placeId: string): void {
-        if ((this.currentDialogMarking[placeId] || 0) > 0) {
-            this.currentDialogMarking[placeId] = (this.currentDialogMarking[placeId] || 0) - 1;
-        }
+        // if ((this.currentDialogMarking[placeId] || "0")  > "0") {
+        //     this.currentDialogMarking[placeId] = (this.currentDialogMarking[placeId] || "0") - 1;
+        // }
     }
 
     keep() {

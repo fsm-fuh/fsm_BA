@@ -6,16 +6,18 @@
             <div class="marking-entry">
                 <span>{{ item.key }}: {{ item.value }}</span>
                 <div class="button-container">
-                    <button mat-icon-button (click)="incrementMarking(item.key)" class="marking-button">
-                        <mat-icon>add</mat-icon>
-                    </button>
-                    <button
+                    <!-- <mat-label>Marking</mat-label> -->
+                    <input matInput>
+                    <!-- <button mat-icon-button (click)="incrementMarking(item.key)" class="marking-button">
+                        <mat-icon>add</mat-icon> -->
+                    <!-- </button> -->
+                    <!-- <button
                         mat-icon-button
                         (click)="decrementMarking(item.key)"
                         class="marking-button"
                         [disabled]="item.value <= 0">
                         <mat-icon>remove</mat-icon>
-                    </button>
+                    </button> -->
                 </div>
             </div>
         }
