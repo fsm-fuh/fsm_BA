@@ -91,9 +91,12 @@ export class CoverabilityStateNode implements DisplayableNode {
 
     private convertMarkingToStringMarking(marking: Record<string, number>) {
         Object.entries(marking).forEach(
-            ([key, value]) => (this.covMarkingAsStringRecord[key] = this.covMarkingAsStringRecord[value.toString()]),
+            ([key, value]) => (this.covMarkingAsStringRecord[key] = key,
+                 
+                this.covMarkingAsStringRecord[value] = value.toString(),
+            console.log('covMarkingAsStringRecord key  '+ this.covMarkingAsStringRecord[key] + '  covMarkingAsStringRecord value '+ this.covMarkingAsStringRecord [value])),
         );
-        console.log('covMarkingAsStringRecord ' + this.covMarkingAsStringRecord);
+        // console.log('covMarkingAsStringRecord ' + this.covMarkingAsStringRecord);
     }
 }
 
