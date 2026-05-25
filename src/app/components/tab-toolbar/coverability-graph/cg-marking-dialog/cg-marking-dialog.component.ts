@@ -50,7 +50,7 @@ export class CgMarkingDialogComponent {
     private correctDialogMarking: Record<string, string> = this.data.expectedCorrectMarking;
 
     incrementMarking(placeId: string): void {
-        this.currentDialogMarking[placeId] = (this.currentDialogMarking[placeId] || '0') + 1;
+        // this.currentDialogMarking[placeId] = (this.currentDialogMarking[placeId] || '0') + 1;
     }
 
     decrementMarking(placeId: string): void {
