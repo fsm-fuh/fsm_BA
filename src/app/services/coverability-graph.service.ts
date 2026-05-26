@@ -480,15 +480,22 @@ export class CoverabilityGraphService {
         const correctMarking: Record<string, string> = node.covMarkingAsStringRecord;
         const userInputtedMarking: Record<string, string> = {};
 
+//TODO iurgendwie swird startMarking immer ausgegeben
+        
         // Initialize user input marking
         if (startMarking) {
+            for (const key of Object.keys(startMarking)) {
+                console.log('initial startMarking  key  '+ startMarking[key]);
+            }
             for (const key of Object.keys(correctMarking)) {
                 userInputtedMarking[key] = startMarking[key] ?? "0";
+                console.log('ifStartMarking userInputtedMarking key  '+ userInputtedMarking[key]);
             }
         } else {
             // Initialize with 0s for user input
             for (const key of Object.keys(correctMarking)) {
                 userInputtedMarking[key] = "0";
+                console.log('userInputtedMarking key  '+ userInputtedMarking[key]);
             }
         }
 

@@ -5,9 +5,9 @@
         @for (item of currentDialogMarking | keyvalue; track item.key) {
             <div class="marking-entry">
                 <span>{{ item.key }}: {{ item.value }}</span>
-                <div class="button-container">
+                <!-- <div class="button-container"> -->
                     <!-- <mat-label>Marking</mat-label> -->
-                    <input matInput item.value>
+                    <input type="text" matInput>
                     <!-- <button mat-icon-button (click)="incrementMarking(item.key)" class="marking-button">
                         <mat-icon>add</mat-icon> -->
                     <!-- </button> -->
@@ -18,7 +18,7 @@
                         [disabled]="item.value <= 0">
                         <mat-icon>remove</mat-icon>
                     </button> -->
-                </div>
+                <!-- </div> -->
             </div>
         }
     </div>
