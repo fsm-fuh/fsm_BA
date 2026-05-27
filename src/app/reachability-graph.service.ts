@@ -456,6 +456,7 @@ export class ReachabilityGraphService {
         if (startMarking) {
             for (const key of Object.keys(correctMarking)) {
                 userInputtedMarking[key] = startMarking[key] ?? 0;
+                
             }
         } else {
             // Initialize with 0s for user input

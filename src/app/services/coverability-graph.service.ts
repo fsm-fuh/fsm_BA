@@ -87,6 +87,9 @@ export class CoverabilityGraphService {
 
         //Current marking auslesen
         this._startMarkingCG = currentNet.startMarking || {};
+                  for (const key of Object.keys(this._startMarkingCG)) {
+                console.log('_startMarkingCG  key  '+ this._startMarkingCG[key]);
+            }
         const initialCoverabilityLabel: string = Object.values(this._startMarkingCG).join(' ');
         //x und y Startwert konstant festlegen
         const initialX = 300;
@@ -103,7 +106,10 @@ export class CoverabilityGraphService {
             this._startMarkingCG,
         );
         initialStateNode.isStartingState = true;
-
+        //   for (const key of Object.keys(initialStateNode.covMarkingAsStringRecord)) {
+        //         console.log('initialStateNode covMarkingASStringRecord key  '+ initialStateNode.covMarkingAsStringRecord[key]);
+        //     }
+//TODO AUCH SCHON FALSCH
         //Omega-Array des Service initialisieren
         this.initializeNetOmegaPositions(this._startMarkingCG);
 
@@ -195,6 +201,14 @@ export class CoverabilityGraphService {
 
             //neuen StateNode erzeugen
             const previousNode = graph.nodes.find((node) => node.id === this.currentSourceCgId);
+
+
+            //TODO HIER SCHON FEHLER IN DEN KEYS
+   for (const key of Object.keys(previousNode!.covMarkingAsStringRecord)) {
+                console.log('gpreviousNode covMarkingASStringRecord key  '+ previousNode!.covMarkingAsStringRecord[key]);
+            }
+
+
             const firingPath = previousNode && previousNode.firingPath ? previousNode.firingPath + ' ' + label : label;
             const currentStateNode = new CoverabilityStateNode(
                 currentCgId,
@@ -477,16 +491,16 @@ export class CoverabilityGraphService {
         onCorrect: () => void,
         startMarking?: Record<string, string>,
     ): void {
+        // HIER FEHLER IN ERZEUGEN!!!
         const correctMarking: Record<string, string> = node.covMarkingAsStringRecord;
         const userInputtedMarking: Record<string, string> = {};
 
 //TODO iurgendwie swird startMarking immer ausgegeben
-        
+        for (const key of Object.keys(correctMarking)) {
+                console.log('getCorrUserMarking correctmarking key  '+ correctMarking[key]);
+            }
         // Initialize user input marking
         if (startMarking) {
-            for (const key of Object.keys(startMarking)) {
-                console.log('initial startMarking  key  '+ startMarking[key]);
-            }
             for (const key of Object.keys(correctMarking)) {
                 userInputtedMarking[key] = startMarking[key] ?? "0";
                 console.log('ifStartMarking userInputtedMarking key  '+ userInputtedMarking[key]);
