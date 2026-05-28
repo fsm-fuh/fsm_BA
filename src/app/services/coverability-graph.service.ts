@@ -87,9 +87,9 @@ export class CoverabilityGraphService {
 
         //Current marking auslesen
         this._startMarkingCG = currentNet.startMarking || {};
-                  for (const key of Object.keys(this._startMarkingCG)) {
-                console.log('_startMarkingCG  key  '+ this._startMarkingCG[key]);
-            }
+            //       for (const key of Object.keys(this._startMarkingCG)) {
+            //     console.log('_startMarkingCG  key  '+ this._startMarkingCG[key]);
+            // }
         const initialCoverabilityLabel: string = Object.values(this._startMarkingCG).join(' ');
         //x und y Startwert konstant festlegen
         const initialX = 300;
@@ -204,9 +204,9 @@ export class CoverabilityGraphService {
 
 
             //TODO HIER SCHON FEHLER IN DEN KEYS
-   for (const key of Object.keys(previousNode!.covMarkingAsStringRecord)) {
-                console.log('gpreviousNode covMarkingASStringRecord key  '+ previousNode!.covMarkingAsStringRecord[key]);
-            }
+//    for (const key of Object.keys(previousNode!.covMarkingAsStringRecord)) {
+//                 console.log('gpreviousNode covMarkingASStringRecord key  '+ previousNode!.covMarkingAsStringRecord[key]);
+//             }
 
 
             const firingPath = previousNode && previousNode.firingPath ? previousNode.firingPath + ' ' + label : label;
@@ -218,6 +218,10 @@ export class CoverabilityGraphService {
                 { ...diagram.marking } as Record<string, number>,
                 firingPath,
             );
+                           Object.entries(currentStateNode.covMarkingAsStringRecord).forEach(
+            ([key, value]) => (
+            console.log('currentStateNode.covMarkingAsStringRecord key  '+ currentStateNode.covMarkingAsStringRecord[key] + '  currentStateNode.covMarkingAsStringRecord value '+ currentStateNode.covMarkingAsStringRecord [value])),
+        );
 
             const currentFiringEdge = new CoverabilityFiringEdge(
                 currentCgEdgeId,
@@ -492,26 +496,46 @@ export class CoverabilityGraphService {
         startMarking?: Record<string, string>,
     ): void {
         // HIER FEHLER IN ERZEUGEN!!!
-        const correctMarking: Record<string, string> = node.covMarkingAsStringRecord;
+        const correctMarking: Record<string, string> = {};
+               Object.entries(node.covMarkingAsStringRecord).forEach(
+            ([key, value]) => (correctMarking[key] = key,
+                correctMarking[value] =value,
+            console.log('correctMarking key  '+ correctMarking[key] + '  correctMarking value '+ correctMarking [value])),
+        );
         const userInputtedMarking: Record<string, string> = {};
 
 //TODO iurgendwie swird startMarking immer ausgegeben
-        for (const key of Object.keys(correctMarking)) {
-                console.log('getCorrUserMarking correctmarking key  '+ correctMarking[key]);
-            }
+        // for (const key of Object.keys(correctMarking)) {
+        //         console.log('getCorrUserMarking correctmarking key  '+ correctMarking[key]);
+        //     }
         // Initialize user input marking
-        if (startMarking) {
-            for (const key of Object.keys(correctMarking)) {
-                userInputtedMarking[key] = startMarking[key] ?? "0";
-                console.log('ifStartMarking userInputtedMarking key  '+ userInputtedMarking[key]);
-            }
-        } else {
+//         if (startMarking) {
+
+// Object.entries(correctMarking).forEach(
+//             ([key, value]) => (userInputtedMarking[key] = startMarking[key] ?? '0',
+//             console.log('ifStartMarking userInputtedMarking key  '+ userInputtedMarking[key])
+//         ));
+
+
+
+
+//             // for (const key of Object.keys(correctMarking)) {
+//             //     userInputtedMarking[key] = startMarking[key] ?? "0";
+//             //     console.log('ifStartMarking userInputtedMarking key  '+ userInputtedMarking[key]);
+//             // }
+//         } else {
             // Initialize with 0s for user input
-            for (const key of Object.keys(correctMarking)) {
-                userInputtedMarking[key] = "0";
-                console.log('userInputtedMarking key  '+ userInputtedMarking[key]);
-            }
-        }
+            Object.entries(correctMarking).forEach(
+            ([key, value]) => (userInputtedMarking[key] = '0',
+                console.log('userInputtedMarking key  '+ userInputtedMarking[key])
+            ));
+                
+                
+            //     for (const key of Object.keys(correctMarking)) {
+            //     userInputtedMarking[key] = "0";
+            //     console.log('userInputtedMarking key  '+ userInputtedMarking[key]);
+            // }
+        // }
 
         const markingDialogRef = this._dialog.open(CgMarkingDialogComponent, {
             data: {
