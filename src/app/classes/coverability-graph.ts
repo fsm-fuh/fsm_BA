@@ -89,6 +89,8 @@ export class CoverabilityStateNode implements DisplayableNode {
         }
     }
 
+
+    //TODO HIER TYP ÄNDERN, ggf. neu definieren als Objekt, das number oder string enthalten kann?
     private convertMarkingToStringMarking(marking: Record<string, number>) {
         Object.entries(marking).forEach(
             ([key, value]) => (this.covMarkingAsStringRecord[key] = key,
@@ -97,6 +99,11 @@ export class CoverabilityStateNode implements DisplayableNode {
             console.log('covMarkingAsStringRecord key  '+ this.covMarkingAsStringRecord[key] + '  covMarkingAsStringRecord value '+ this.covMarkingAsStringRecord [value])),
         );
         // console.log('covMarkingAsStringRecord ' + this.covMarkingAsStringRecord);
+Object.entries(this.covMarkingAsStringRecord).forEach(
+            ([key, value]) => (
+            console.log('covMarkingAsStringRecord key AFTER INIT  '+ this.covMarkingAsStringRecord[key] + '  covMarkingAsStringRecord value AFTER INIT '+ this.covMarkingAsStringRecord [value])),
+        );
+
     }
 }
 
