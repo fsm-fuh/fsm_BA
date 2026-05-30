@@ -1,5 +1,5 @@
 import { inject, Injectable, signal, Signal, WritableSignal } from '@angular/core';
-import { CoverabilityFiringEdge, CoverabilityGraph, CoverabilityStateNode } from '../classes/coverability-graph';
+import { CoverabilityFiringEdge, CoverabilityGraph, CoverabilityStateNode, CovMarkingStringSaver } from '../classes/coverability-graph';
 import { ModeService } from './mode.service';
 import { SourcePetriNetService } from './source-petri-net.service';
 import { Diagram } from '../classes/diagram/diagram';
@@ -8,7 +8,6 @@ import { DiagramPlace } from '../classes/diagram/diagram-place';
 import { ToasterNotificationService } from './toaster-notification.service';
 import { Tab } from '../classes/tabs';
 import { PanningService } from './panning.service';
-import { RgMarkingDialogComponent } from '../components/tab-toolbar/reachability-graph/rg-marking-dialog/rg-marking-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastList } from '../classes/toast';
 import { SpringEmbedderService } from './spring-embedder.service';
@@ -109,7 +108,7 @@ export class CoverabilityGraphService {
         //   for (const key of Object.keys(initialStateNode.covMarkingAsStringRecord)) {
         //         console.log('initialStateNode covMarkingASStringRecord key  '+ initialStateNode.covMarkingAsStringRecord[key]);
         //     }
-        //TODO AUCH SCHON FALSCH
+        
         //Omega-Array des Service initialisieren
         this.initializeNetOmegaPositions(this._startMarkingCG);
 
@@ -268,7 +267,7 @@ export class CoverabilityGraphService {
                 proceed();
             } else if (this._modeService.isExamMode(Tab.COVERABILITY_GRAPH)) {
                 //nur im Hintergrund vergleichen, User gibt NodeLabel, also Marking, selbst ein und bekommt Feedback
-                // this.getCorrectUserMarking(currentStateNode, proceed, previousNode?.covMarkingAsStringRecord);
+                this.getCorrectUserMarking(currentStateNode, proceed, previousNode?.covMarkingAsStringRecord);
             }
             return;
         }
@@ -441,6 +440,9 @@ export class CoverabilityGraphService {
      * @param currentlyVisitedMarking
      * @param previouslyVisitedMarking
      */
+
+    //TODO ggf. noch auf Omega anpassen
+
     compareTwoMarkings(
         currentlyVisitedMarking: Record<string, number>,
         previouslyVisitedMarking: Record<string, number>,
@@ -495,51 +497,29 @@ export class CoverabilityGraphService {
     getCorrectUserMarking(
         node: CoverabilityStateNode,
         onCorrect: () => void,
-        startMarking?: Record<string, string>,
+        startMarking?: CovMarkingStringSaver[],
     ): void {
-        // HIER FEHLER IN ERZEUGEN!!!
-        const correctMarking: Record<string, string> = {};
-        // Object.entries(node.covMarkingAsStringRecord).forEach(
-        //     ([key, value]) => (
-        //         (correctMarking[key] = key),
-        //         (correctMarking[value] = value),
-        //         console.log(
-        //             'correctMarking key  ' + correctMarking[key] + '  correctMarking value ' + correctMarking[value],
-        //         )
-        //     ),
-        // );
-        const userInputtedMarking: Record<string, string> = {};
+        const correctMarking: CovMarkingStringSaver[]=node.covMarkingAsStringRecord;
+        
+        const userInputtedMarking: CovMarkingStringSaver[]=[];
 
-        //TODO iurgendwie swird startMarking immer ausgegeben
-        // for (const key of Object.keys(correctMarking)) {
-        //         console.log('getCorrUserMarking correctmarking key  '+ correctMarking[key]);
-        //     }
         // Initialize user input marking
-        //         if (startMarking) {
+        if (startMarking) {
+            for (let k = 0; k < correctMarking.length; k++) {
+                //temporary StringsSaver with correct place IDs and empty strings as values
+                let tempCovMarkingStringSaver: CovMarkingStringSaver = new CovMarkingStringSaver(startMarking[k].markingKeyString ?? '0', '');
+                userInputtedMarking[k] = tempCovMarkingStringSaver;
+                
+            }
 
-        // Object.entries(correctMarking).forEach(
-        //             ([key, value]) => (userInputtedMarking[key] = startMarking[key] ?? '0',
-        //             console.log('ifStartMarking userInputtedMarking key  '+ userInputtedMarking[key])
-        //         ));
-
-        //             // for (const key of Object.keys(correctMarking)) {
-        //             //     userInputtedMarking[key] = startMarking[key] ?? "0";
-        //             //     console.log('ifStartMarking userInputtedMarking key  '+ userInputtedMarking[key]);
-        //             // }
-        //         } else {
-        // Initialize with 0s for user input
-        Object.entries(correctMarking).forEach(
-            ([key, value]) => (
-                (userInputtedMarking[key] = '0'),
-                console.log('userInputtedMarking key  ' + userInputtedMarking[key])
-            ),
-        );
-
-        //     for (const key of Object.keys(correctMarking)) {
-        //     userInputtedMarking[key] = "0";
-        //     console.log('userInputtedMarking key  '+ userInputtedMarking[key]);
-        // }
-        // }
+        } else {
+            // Initialize with 0s for user input
+            for (let l = 0; l < correctMarking.length; l++) {
+                let tempCovMarkingStringSaver2: CovMarkingStringSaver = new CovMarkingStringSaver('0', '');
+                userInputtedMarking[l] = tempCovMarkingStringSaver2;
+           
+            }
+        }
 
         const markingDialogRef = this._dialog.open(CgMarkingDialogComponent, {
             data: {
@@ -549,7 +529,7 @@ export class CoverabilityGraphService {
                 message: 'CGMARKING_DIALOG.MESSAGE_DEFAULT',
             },
         });
-        //record changed to string
+        //TODO record changed to string --> change to CovMarkingStringSaver[]
         markingDialogRef.afterClosed().subscribe((result: Record<string, string> | undefined) => {
             if (result) {
                 const isUserMarkingCorrect = this.compareUserInputWithTargetState(result, node);

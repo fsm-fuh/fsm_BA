@@ -15,6 +15,7 @@ export class CovMarkingStringSaver {
         this.markingKeyString = markingKeyString;
         this.markingValueString = markingValueString;
     }
+    
 }
 /**
  * A node representing a state in the coverability graph.
@@ -130,7 +131,6 @@ export class CoverabilityStateNode implements DisplayableNode {
                 )
             ),
         );
-        // console.log('covMarkingAsStringRecord ' + this.covMarkingAsStringRecord);
     }
 }
 

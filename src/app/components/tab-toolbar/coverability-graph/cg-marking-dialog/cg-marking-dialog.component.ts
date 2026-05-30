@@ -11,11 +11,12 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { FormsModule } from '@angular/forms';
 import { KeyValuePipe } from '@angular/common';
 import { ToasterNotificationService } from '../../../../services/toaster-notification.service';
+import { CovMarkingStringSaver } from 'src/app/classes/coverability-graph';
 
 export interface ConfirmCoverabilityUserMarkingDialogData {
     title: string;
-    userInputMarking: Record<string, string>;
-    expectedCorrectMarking: Record<string, string>;
+    userInputMarking: CovMarkingStringSaver;
+    expectedCorrectMarking: CovMarkingStringSaver;
     // tab: Tab;
     message: string;
 }
@@ -46,8 +47,8 @@ export class CgMarkingDialogComponent {
     data = inject<ConfirmCoverabilityUserMarkingDialogData>(MAT_DIALOG_DATA);
     private _dialogRef = inject(MatDialogRef<CgMarkingDialogComponent>);
 
-    protected currentDialogMarking: Record<string, string> = this.data.userInputMarking;
-    private correctDialogMarking: Record<string, string> = this.data.expectedCorrectMarking;
+    protected currentDialogMarking: CovMarkingStringSaver = this.data.userInputMarking;
+    private correctDialogMarking: CovMarkingStringSaver = this.data.expectedCorrectMarking;
 
     incrementMarking(placeId: string): void {
         // this.currentDialogMarking[placeId] = (this.currentDialogMarking[placeId] || '0') + 1;
@@ -61,12 +62,14 @@ export class CgMarkingDialogComponent {
 
     keep() {
         let isCorrect = true;
-        for (const [key, value] of Object.entries(this.correctDialogMarking)) {
-            if (this.currentDialogMarking[key] !== value) {
-                isCorrect = false;
-                break;
-            }
-        }
+//TODO anopassen auf CovMarkingStringSaver
+
+        // for (const [key, value] of Object.entries(this.correctDialogMarking)) {
+        //     if (this.currentDialogMarking[key] !== value) {
+        //         isCorrect = false;
+        //         break;
+        //     }
+        // }
 
         if (isCorrect) {
             this._dialogRef.close(this.currentDialogMarking);
