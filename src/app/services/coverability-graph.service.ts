@@ -87,9 +87,9 @@ export class CoverabilityGraphService {
 
         //Current marking auslesen
         this._startMarkingCG = currentNet.startMarking || {};
-            //       for (const key of Object.keys(this._startMarkingCG)) {
-            //     console.log('_startMarkingCG  key  '+ this._startMarkingCG[key]);
-            // }
+        //       for (const key of Object.keys(this._startMarkingCG)) {
+        //     console.log('_startMarkingCG  key  '+ this._startMarkingCG[key]);
+        // }
         const initialCoverabilityLabel: string = Object.values(this._startMarkingCG).join(' ');
         //x und y Startwert konstant festlegen
         const initialX = 300;
@@ -109,7 +109,7 @@ export class CoverabilityGraphService {
         //   for (const key of Object.keys(initialStateNode.covMarkingAsStringRecord)) {
         //         console.log('initialStateNode covMarkingASStringRecord key  '+ initialStateNode.covMarkingAsStringRecord[key]);
         //     }
-//TODO AUCH SCHON FALSCH
+        //TODO AUCH SCHON FALSCH
         //Omega-Array des Service initialisieren
         this.initializeNetOmegaPositions(this._startMarkingCG);
 
@@ -202,12 +202,10 @@ export class CoverabilityGraphService {
             //neuen StateNode erzeugen
             const previousNode = graph.nodes.find((node) => node.id === this.currentSourceCgId);
 
-
             //TODO HIER SCHON FEHLER IN DEN KEYS
-//    for (const key of Object.keys(previousNode!.covMarkingAsStringRecord)) {
-//                 console.log('gpreviousNode covMarkingASStringRecord key  '+ previousNode!.covMarkingAsStringRecord[key]);
-//             }
-
+            //    for (const key of Object.keys(previousNode!.covMarkingAsStringRecord)) {
+            //                 console.log('gpreviousNode covMarkingASStringRecord key  '+ previousNode!.covMarkingAsStringRecord[key]);
+            //             }
 
             const firingPath = previousNode && previousNode.firingPath ? previousNode.firingPath + ' ' + label : label;
             const currentStateNode = new CoverabilityStateNode(
@@ -218,10 +216,14 @@ export class CoverabilityGraphService {
                 { ...diagram.marking } as Record<string, number>,
                 firingPath,
             );
-                           Object.entries(currentStateNode.covMarkingAsStringRecord).forEach(
-            ([key, value]) => (
-            console.log('currentStateNode.covMarkingAsStringRecord key  '+ currentStateNode.covMarkingAsStringRecord[key] + '  currentStateNode.covMarkingAsStringRecord value '+ currentStateNode.covMarkingAsStringRecord [value])),
-        );
+            Object.entries(currentStateNode.covMarkingAsStringRecord).forEach(([key, value]) =>
+                console.log(
+                    'currentStateNode.covMarkingAsStringRecord key  ' +
+                        currentStateNode.covMarkingAsStringRecord[key] +
+                        '  currentStateNode.covMarkingAsStringRecord value ' +
+                        currentStateNode.covMarkingAsStringRecord[value],
+                ),
+            );
 
             const currentFiringEdge = new CoverabilityFiringEdge(
                 currentCgEdgeId,
@@ -497,44 +499,46 @@ export class CoverabilityGraphService {
     ): void {
         // HIER FEHLER IN ERZEUGEN!!!
         const correctMarking: Record<string, string> = {};
-               Object.entries(node.covMarkingAsStringRecord).forEach(
-            ([key, value]) => (correctMarking[key] = key,
-                correctMarking[value] =value,
-            console.log('correctMarking key  '+ correctMarking[key] + '  correctMarking value '+ correctMarking [value])),
+        Object.entries(node.covMarkingAsStringRecord).forEach(
+            ([key, value]) => (
+                (correctMarking[key] = key),
+                (correctMarking[value] = value),
+                console.log(
+                    'correctMarking key  ' + correctMarking[key] + '  correctMarking value ' + correctMarking[value],
+                )
+            ),
         );
         const userInputtedMarking: Record<string, string> = {};
 
-//TODO iurgendwie swird startMarking immer ausgegeben
+        //TODO iurgendwie swird startMarking immer ausgegeben
         // for (const key of Object.keys(correctMarking)) {
         //         console.log('getCorrUserMarking correctmarking key  '+ correctMarking[key]);
         //     }
         // Initialize user input marking
-//         if (startMarking) {
+        //         if (startMarking) {
 
-// Object.entries(correctMarking).forEach(
-//             ([key, value]) => (userInputtedMarking[key] = startMarking[key] ?? '0',
-//             console.log('ifStartMarking userInputtedMarking key  '+ userInputtedMarking[key])
-//         ));
+        // Object.entries(correctMarking).forEach(
+        //             ([key, value]) => (userInputtedMarking[key] = startMarking[key] ?? '0',
+        //             console.log('ifStartMarking userInputtedMarking key  '+ userInputtedMarking[key])
+        //         ));
 
+        //             // for (const key of Object.keys(correctMarking)) {
+        //             //     userInputtedMarking[key] = startMarking[key] ?? "0";
+        //             //     console.log('ifStartMarking userInputtedMarking key  '+ userInputtedMarking[key]);
+        //             // }
+        //         } else {
+        // Initialize with 0s for user input
+        Object.entries(correctMarking).forEach(
+            ([key, value]) => (
+                (userInputtedMarking[key] = '0'),
+                console.log('userInputtedMarking key  ' + userInputtedMarking[key])
+            ),
+        );
 
-
-
-//             // for (const key of Object.keys(correctMarking)) {
-//             //     userInputtedMarking[key] = startMarking[key] ?? "0";
-//             //     console.log('ifStartMarking userInputtedMarking key  '+ userInputtedMarking[key]);
-//             // }
-//         } else {
-            // Initialize with 0s for user input
-            Object.entries(correctMarking).forEach(
-            ([key, value]) => (userInputtedMarking[key] = '0',
-                console.log('userInputtedMarking key  '+ userInputtedMarking[key])
-            ));
-                
-                
-            //     for (const key of Object.keys(correctMarking)) {
-            //     userInputtedMarking[key] = "0";
-            //     console.log('userInputtedMarking key  '+ userInputtedMarking[key]);
-            // }
+        //     for (const key of Object.keys(correctMarking)) {
+        //     userInputtedMarking[key] = "0";
+        //     console.log('userInputtedMarking key  '+ userInputtedMarking[key]);
+        // }
         // }
 
         const markingDialogRef = this._dialog.open(CgMarkingDialogComponent, {
@@ -545,7 +549,7 @@ export class CoverabilityGraphService {
                 message: 'CGMARKING_DIALOG.MESSAGE_DEFAULT',
             },
         });
-//record changed to string
+        //record changed to string
         markingDialogRef.afterClosed().subscribe((result: Record<string, string> | undefined) => {
             if (result) {
                 const isUserMarkingCorrect = this.compareUserInputWithTargetState(result, node);

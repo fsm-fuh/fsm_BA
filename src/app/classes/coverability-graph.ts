@@ -5,6 +5,18 @@ import { signal, Signal, WritableSignal } from '@angular/core';
 import { Visited } from './visited';
 
 /**
+ * custom type for representing marking in CovGraph as a string (to ensure type safety with changed record type for MatDialog)
+ */
+export class CovMarkingStringSaver {
+    markingKeyString: string;
+    markingValueString: string;
+
+    constructor(markingKeyString: string, markingValueString: string) {
+        this.markingKeyString = markingKeyString;
+        this.markingValueString = markingValueString;
+    }
+}
+/**
  * A node representing a state in the coverability graph.
  */
 export class CoverabilityStateNode implements DisplayableNode {
@@ -25,7 +37,8 @@ export class CoverabilityStateNode implements DisplayableNode {
     omegaPositions: boolean[] = [];
 
     //TODO add additional marking as string, string, which is always updated when marking changes (on each new stateNode)
-    covMarkingAsStringRecord: Record<string, string> = {};
+    // covMarkingAsStringRecord: Record<string, string> = {};
+    covMarkingAsStringRecord: CovMarkingStringSaver[] = [];
 
     get shape(): SHAPE {
         return SHAPE.CIRCLE;
@@ -49,6 +62,7 @@ export class CoverabilityStateNode implements DisplayableNode {
         this.calculateTokenSum(marking);
         //initialize all Omega positions to false (no omega contained in covStateNode on creation)
         this.initializeOmegaPositionsArray(marking);
+
         this.convertMarkingToStringMarking(marking);
         console.log('omegaPositions' + this.omegaPositions);
     }
@@ -89,21 +103,34 @@ export class CoverabilityStateNode implements DisplayableNode {
         }
     }
 
-
     //TODO HIER TYP ÄNDERN, ggf. neu definieren als Objekt, das number oder string enthalten kann?
     private convertMarkingToStringMarking(marking: Record<string, number>) {
+        let tempKey: string = '';
+        let tempValue: string = '';
+        let tempStringSaver: CovMarkingStringSaver;
         Object.entries(marking).forEach(
-            ([key, value]) => (this.covMarkingAsStringRecord[key] = key,
-                 
-                this.covMarkingAsStringRecord[value] = value.toString(),
-            console.log('covMarkingAsStringRecord key  '+ this.covMarkingAsStringRecord[key] + '  covMarkingAsStringRecord value '+ this.covMarkingAsStringRecord [value])),
+            ([key, value]) => (
+                (tempKey = key),
+                (tempValue = value.toString()),
+                (tempStringSaver = new CovMarkingStringSaver(tempKey, tempValue)),
+                this.covMarkingAsStringRecord.push(tempStringSaver),
+                console.log(
+                    'covMarkingAsStringRecord tempKey  ' +
+                        tempKey +
+                        '  covMarkingAsStringRecord tempValue ' +
+                        tempValue,
+                )
+            ),
         );
         // console.log('covMarkingAsStringRecord ' + this.covMarkingAsStringRecord);
-Object.entries(this.covMarkingAsStringRecord).forEach(
-            ([key, value]) => (
-            console.log('covMarkingAsStringRecord key AFTER INIT  '+ this.covMarkingAsStringRecord[key] + '  covMarkingAsStringRecord value AFTER INIT '+ this.covMarkingAsStringRecord [value])),
-        );
-
+        for (const stringRecord of this.covMarkingAsStringRecord) {
+            console.log(
+                'covMarkingAsStringRecord place AFTER INIT  ' +
+                    stringRecord.markingKeyString +
+                    '  covMarkingAsStringRecord value AFTER INIT ' +
+                    stringRecord.markingValueString,
+            );
+        }
     }
 }
 
