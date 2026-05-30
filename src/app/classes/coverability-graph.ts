@@ -62,9 +62,17 @@ export class CoverabilityStateNode implements DisplayableNode {
         this.calculateTokenSum(marking);
         //initialize all Omega positions to false (no omega contained in covStateNode on creation)
         this.initializeOmegaPositionsArray(marking);
-
+        
         this.convertMarkingToStringMarking(marking);
         console.log('omegaPositions' + this.omegaPositions);
+        for (const stringRecord of this.covMarkingAsStringRecord) {
+            console.log(
+                'covMarkingAsStringRecord place AFTER INIT  ' +
+                    stringRecord.markingKeyString +
+                    '  covMarkingAsStringRecord value AFTER INIT ' +
+                    stringRecord.markingValueString,
+            );
+        }
     }
 
     get x(): number {
@@ -123,14 +131,6 @@ export class CoverabilityStateNode implements DisplayableNode {
             ),
         );
         // console.log('covMarkingAsStringRecord ' + this.covMarkingAsStringRecord);
-        for (const stringRecord of this.covMarkingAsStringRecord) {
-            console.log(
-                'covMarkingAsStringRecord place AFTER INIT  ' +
-                    stringRecord.markingKeyString +
-                    '  covMarkingAsStringRecord value AFTER INIT ' +
-                    stringRecord.markingValueString,
-            );
-        }
     }
 }
 

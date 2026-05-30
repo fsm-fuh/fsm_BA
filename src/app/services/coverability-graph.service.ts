@@ -216,14 +216,14 @@ export class CoverabilityGraphService {
                 { ...diagram.marking } as Record<string, number>,
                 firingPath,
             );
-            Object.entries(currentStateNode.covMarkingAsStringRecord).forEach(([key, value]) =>
-                console.log(
-                    'currentStateNode.covMarkingAsStringRecord key  ' +
-                        currentStateNode.covMarkingAsStringRecord[key] +
-                        '  currentStateNode.covMarkingAsStringRecord value ' +
-                        currentStateNode.covMarkingAsStringRecord[value],
-                ),
-            );
+            // Object.entries(currentStateNode.covMarkingAsStringRecord).forEach(([key, value]) =>
+            //     console.log(
+            //         'currentStateNode.covMarkingAsStringRecord key  ' +
+            //             currentStateNode.covMarkingAsStringRecord[key] +
+            //             '  currentStateNode.covMarkingAsStringRecord value ' +
+            //             currentStateNode.covMarkingAsStringRecord[value],
+            //     ),
+            // );
 
             const currentFiringEdge = new CoverabilityFiringEdge(
                 currentCgEdgeId,
@@ -268,7 +268,7 @@ export class CoverabilityGraphService {
                 proceed();
             } else if (this._modeService.isExamMode(Tab.COVERABILITY_GRAPH)) {
                 //nur im Hintergrund vergleichen, User gibt NodeLabel, also Marking, selbst ein und bekommt Feedback
-                this.getCorrectUserMarking(currentStateNode, proceed, previousNode?.covMarkingAsStringRecord);
+                // this.getCorrectUserMarking(currentStateNode, proceed, previousNode?.covMarkingAsStringRecord);
             }
             return;
         }
@@ -474,9 +474,9 @@ export class CoverabilityGraphService {
         const actualTargetMarking = Object.values(nextStateNode.covMarkingAsStringRecord);
 
         for (let i = 0; i < userMarking.length; i++) {
-            if (actualTargetMarking[i] != userMarking[i]) {
-                comparison = false;
-            }
+            // if (actualTargetMarking[i] != userMarking[i]) {
+            //     comparison = false;
+            // }
         }
         return comparison;
     }
@@ -499,15 +499,15 @@ export class CoverabilityGraphService {
     ): void {
         // HIER FEHLER IN ERZEUGEN!!!
         const correctMarking: Record<string, string> = {};
-        Object.entries(node.covMarkingAsStringRecord).forEach(
-            ([key, value]) => (
-                (correctMarking[key] = key),
-                (correctMarking[value] = value),
-                console.log(
-                    'correctMarking key  ' + correctMarking[key] + '  correctMarking value ' + correctMarking[value],
-                )
-            ),
-        );
+        // Object.entries(node.covMarkingAsStringRecord).forEach(
+        //     ([key, value]) => (
+        //         (correctMarking[key] = key),
+        //         (correctMarking[value] = value),
+        //         console.log(
+        //             'correctMarking key  ' + correctMarking[key] + '  correctMarking value ' + correctMarking[value],
+        //         )
+        //     ),
+        // );
         const userInputtedMarking: Record<string, string> = {};
 
         //TODO iurgendwie swird startMarking immer ausgegeben
