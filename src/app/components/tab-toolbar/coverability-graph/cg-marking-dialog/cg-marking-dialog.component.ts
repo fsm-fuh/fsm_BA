@@ -15,8 +15,8 @@ import { CovMarkingStringSaver } from 'src/app/classes/coverability-graph';
 
 export interface ConfirmCoverabilityUserMarkingDialogData {
     title: string;
-    userInputMarking: CovMarkingStringSaver;
-    expectedCorrectMarking: CovMarkingStringSaver;
+    userInputMarking: CovMarkingStringSaver[];
+    expectedCorrectMarking: CovMarkingStringSaver[];
     // tab: Tab;
     message: string;
 }
@@ -35,7 +35,7 @@ export interface ConfirmCoverabilityUserMarkingDialogData {
         // MatIcon,
         MatSliderModule,
         MatExpansionModule,
-        KeyValuePipe,
+        // KeyValuePipe,
     ],
     templateUrl: './cg-marking-dialog.component.html',
     styleUrl: './cg-marking-dialog.component.css',
@@ -47,8 +47,8 @@ export class CgMarkingDialogComponent {
     data = inject<ConfirmCoverabilityUserMarkingDialogData>(MAT_DIALOG_DATA);
     private _dialogRef = inject(MatDialogRef<CgMarkingDialogComponent>);
 
-    protected currentDialogMarking: CovMarkingStringSaver = this.data.userInputMarking;
-    private correctDialogMarking: CovMarkingStringSaver = this.data.expectedCorrectMarking;
+    protected currentDialogMarking: CovMarkingStringSaver[] = this.data.userInputMarking;
+    private correctDialogMarking: CovMarkingStringSaver[] = this.data.expectedCorrectMarking;
 
     incrementMarking(placeId: string): void {
         // this.currentDialogMarking[placeId] = (this.currentDialogMarking[placeId] || '0') + 1;
