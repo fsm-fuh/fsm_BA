@@ -12,6 +12,7 @@ import { FormsModule } from '@angular/forms';
 import { KeyValuePipe } from '@angular/common';
 import { ToasterNotificationService } from '../../../../services/toaster-notification.service';
 import { CovMarkingStringSaver } from 'src/app/classes/coverability-graph';
+import { log } from 'node:console';
 
 export interface ConfirmCoverabilityUserMarkingDialogData {
     title: string;
@@ -41,7 +42,6 @@ export interface ConfirmCoverabilityUserMarkingDialogData {
     styleUrl: './cg-marking-dialog.component.css',
 })
 export class CgMarkingDialogComponent {
-    //TODO anpassen für Omega-Erkennun
 
     private _notificationService = inject(ToasterNotificationService);
     data = inject<ConfirmCoverabilityUserMarkingDialogData>(MAT_DIALOG_DATA);
@@ -49,27 +49,28 @@ export class CgMarkingDialogComponent {
 
     protected currentDialogMarking: CovMarkingStringSaver[] = this.data.userInputMarking;
     private correctDialogMarking: CovMarkingStringSaver[] = this.data.expectedCorrectMarking;
+    inputtedMarkingValueString:string='';
 
-    incrementMarking(placeId: string): void {
-        // this.currentDialogMarking[placeId] = (this.currentDialogMarking[placeId] || '0') + 1;
-    }
+    // incrementMarking(placeId: string): void {
+    //     // this.currentDialogMarking[placeId] = (this.currentDialogMarking[placeId] || '0') + 1;
+    // }
 
-    decrementMarking(placeId: string): void {
-        // if ((this.currentDialogMarking[placeId] || "0")  > "0") {
-        //     this.currentDialogMarking[placeId] = (this.currentDialogMarking[placeId] || "0") - 1;
-        // }
-    }
+    // decrementMarking(placeId: string): void {
+    //     // if ((this.currentDialogMarking[placeId] || "0")  > "0") {
+    //     //     this.currentDialogMarking[placeId] = (this.currentDialogMarking[placeId] || "0") - 1;
+    //     // }
+    // }
 
     keep() {
         let isCorrect = true;
-//TODO anopassen auf CovMarkingStringSaver
 
-        // for (const [key, value] of Object.entries(this.correctDialogMarking)) {
-        //     if (this.currentDialogMarking[key] !== value) {
-        //         isCorrect = false;
-        //         break;
-        //     }
-        // }
+        for (let i = 0; i < this.correctDialogMarking.length; i++) {
+            console.log('currentMarkingValueString' + this.inputtedMarkingValueString)
+            if (this.currentDialogMarking[i].markingValueString !== this.correctDialogMarking[i].markingValueString) {
+                isCorrect=false;
+                break;                
+            }            
+        }
 
         if (isCorrect) {
             this._dialogRef.close(this.currentDialogMarking);
