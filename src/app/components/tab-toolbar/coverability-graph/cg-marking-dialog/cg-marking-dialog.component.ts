@@ -41,7 +41,7 @@ export interface ConfirmCoverabilityUserMarkingDialogData {
     styleUrl: './cg-marking-dialog.component.css',
 })
 export class CgMarkingDialogComponent {
-    //TODO anpassen für Omega-Erkennung
+    //TODO anpassen für Omega-Erkennun
 
     private _notificationService = inject(ToasterNotificationService);
     data = inject<ConfirmCoverabilityUserMarkingDialogData>(MAT_DIALOG_DATA);
