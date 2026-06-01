@@ -500,7 +500,6 @@ export class CoverabilityGraphService {
      * @param startMarking Optional marking to pre-fill the dialog with. If not provided, defaults to 0s.
      */
 
-    //TODO anpassen für Omega-Erkennung
     getCorrectUserMarking(
         node: CoverabilityStateNode,
         onCorrect: () => void,
@@ -536,7 +535,6 @@ export class CoverabilityGraphService {
                 message: 'CGMARKING_DIALOG.MESSAGE_DEFAULT',
             },
         });
-        //TODO record changed to string --> change to CovMarkingStringSaver[]
         markingDialogRef.afterClosed().subscribe((result: CovMarkingStringSaver[] | undefined) => {
             if (result) {
                 const isUserMarkingCorrect = this.compareUserInputWithTargetState(result, node);
@@ -857,6 +855,8 @@ export class CoverabilityGraphService {
         for (let j = 0; j < Object.values(currentCovStateNode.covMarking).length; j++) {
             if (currentPlaceMarking[j] > previousPlaceMarking[j]) {
                 currentCovStateNode.omegaPositions[j] = true;
+                //TODO Testen, oib marking so korrekt auf w geändert
+                currentCovStateNode.covMarkingAsStringRecord[j].markingValueString = 'w';
                 this.netOmegaPositions[j] = true;
             }
             //TODO update model and  StringSaver of node

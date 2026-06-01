@@ -37,7 +37,6 @@ export class CoverabilityStateNode implements DisplayableNode {
     omegaPositions: boolean[] = [];
 
     //TODO add additional marking as string, string, which is always updated when marking changes (on each new stateNode)
-    // covMarkingAsStringRecord: Record<string, string> = {};
     covMarkingAsStringRecord: CovMarkingStringSaver[] = [];
 
     get shape(): SHAPE {
