@@ -42,14 +42,13 @@ export interface ConfirmCoverabilityUserMarkingDialogData {
     styleUrl: './cg-marking-dialog.component.css',
 })
 export class CgMarkingDialogComponent {
-
     private _notificationService = inject(ToasterNotificationService);
     data = inject<ConfirmCoverabilityUserMarkingDialogData>(MAT_DIALOG_DATA);
     private _dialogRef = inject(MatDialogRef<CgMarkingDialogComponent>);
 
     protected currentDialogMarking: CovMarkingStringSaver[] = this.data.userInputMarking;
     private correctDialogMarking: CovMarkingStringSaver[] = this.data.expectedCorrectMarking;
-    inputtedMarkingValueString:string='';
+    inputtedMarkingValueString: string = '';
 
     // incrementMarking(placeId: string): void {
     //     // this.currentDialogMarking[placeId] = (this.currentDialogMarking[placeId] || '0') + 1;
@@ -65,12 +64,16 @@ export class CgMarkingDialogComponent {
         let isCorrect = true;
 
         for (let i = 0; i < this.correctDialogMarking.length; i++) {
-            console.log('keep function currentMarkingKeyString  ' + this.currentDialogMarking[i].markingKeyString);
-            console.log('keep function currentMarkingValueString  ' + this.currentDialogMarking[i].markingValueString);
+            console.log(
+                'keep function currentMarkingKeyString  ' +
+                    this.currentDialogMarking[i].markingKeyString +
+                    '  keep function currentMarkingValueString  ' +
+                    this.currentDialogMarking[i].markingValueString,
+            );
             if (this.currentDialogMarking[i].markingValueString !== this.correctDialogMarking[i].markingValueString) {
-                isCorrect=false;
-                break;                
-            }            
+                isCorrect = false;
+                break;
+            }
         }
 
         if (isCorrect) {

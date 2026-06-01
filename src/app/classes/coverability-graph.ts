@@ -15,7 +15,6 @@ export class CovMarkingStringSaver {
         this.markingKeyString = markingKeyString;
         this.markingValueString = markingValueString;
     }
-    
 }
 /**
  * A node representing a state in the coverability graph.
@@ -63,7 +62,7 @@ export class CoverabilityStateNode implements DisplayableNode {
         this.calculateTokenSum(marking);
         //initialize all Omega positions to false (no omega contained in covStateNode on creation)
         this.initializeOmegaPositionsArray(marking);
-        
+
         this.convertMarkingToStringMarking(marking);
         console.log('omegaPositions' + this.omegaPositions);
         for (const stringRecord of this.covMarkingAsStringRecord) {

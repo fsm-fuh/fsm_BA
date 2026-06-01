@@ -1,5 +1,10 @@
 import { inject, Injectable, signal, Signal, WritableSignal } from '@angular/core';
-import { CoverabilityFiringEdge, CoverabilityGraph, CoverabilityStateNode, CovMarkingStringSaver } from '../classes/coverability-graph';
+import {
+    CoverabilityFiringEdge,
+    CoverabilityGraph,
+    CoverabilityStateNode,
+    CovMarkingStringSaver,
+} from '../classes/coverability-graph';
 import { ModeService } from './mode.service';
 import { SourcePetriNetService } from './source-petri-net.service';
 import { Diagram } from '../classes/diagram/diagram';
@@ -108,7 +113,7 @@ export class CoverabilityGraphService {
         //   for (const key of Object.keys(initialStateNode.covMarkingAsStringRecord)) {
         //         console.log('initialStateNode covMarkingASStringRecord key  '+ initialStateNode.covMarkingAsStringRecord[key]);
         //     }
-        
+
         //Omega-Array des Service initialisieren
         this.initializeNetOmegaPositions(this._startMarkingCG);
 
@@ -499,25 +504,25 @@ export class CoverabilityGraphService {
         onCorrect: () => void,
         startMarking?: CovMarkingStringSaver[],
     ): void {
-        const correctMarking: CovMarkingStringSaver[]=node.covMarkingAsStringRecord;
-        
-        const userInputtedMarking: CovMarkingStringSaver[]=[];
+        const correctMarking: CovMarkingStringSaver[] = node.covMarkingAsStringRecord;
+
+        const userInputtedMarking: CovMarkingStringSaver[] = [];
 
         // Initialize user input marking
         if (startMarking) {
             for (let k = 0; k < correctMarking.length; k++) {
                 //temporary StringsSaver with correct place IDs and empty strings as values
-                let tempCovMarkingStringSaver: CovMarkingStringSaver = new CovMarkingStringSaver(startMarking[k].markingKeyString ?? '0', '');
+                let tempCovMarkingStringSaver: CovMarkingStringSaver = new CovMarkingStringSaver(
+                    startMarking[k].markingKeyString ?? '0',
+                    '',
+                );
                 userInputtedMarking[k] = tempCovMarkingStringSaver;
-                
             }
-
         } else {
             // Initialize with 0s for user input
             for (let l = 0; l < correctMarking.length; l++) {
                 let tempCovMarkingStringSaver2: CovMarkingStringSaver = new CovMarkingStringSaver('0', '');
                 userInputtedMarking[l] = tempCovMarkingStringSaver2;
-           
             }
         }
 
