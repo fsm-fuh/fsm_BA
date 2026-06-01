@@ -48,7 +48,6 @@ export class CgMarkingDialogComponent {
 
     protected currentDialogMarking: CovMarkingStringSaver[] = this.data.userInputMarking;
     private correctDialogMarking: CovMarkingStringSaver[] = this.data.expectedCorrectMarking;
-    inputtedMarkingValueString: string = '';
 
     // incrementMarking(placeId: string): void {
     //     // this.currentDialogMarking[placeId] = (this.currentDialogMarking[placeId] || '0') + 1;
