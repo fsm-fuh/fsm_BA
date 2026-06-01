@@ -65,7 +65,8 @@ export class CgMarkingDialogComponent {
         let isCorrect = true;
 
         for (let i = 0; i < this.correctDialogMarking.length; i++) {
-            console.log('currentMarkingValueString' + this.inputtedMarkingValueString)
+            console.log('keep function currentMarkingKeyString  ' + this.currentDialogMarking[i].markingKeyString);
+            console.log('keep function currentMarkingValueString  ' + this.currentDialogMarking[i].markingValueString);
             if (this.currentDialogMarking[i].markingValueString !== this.correctDialogMarking[i].markingValueString) {
                 isCorrect=false;
                 break;                
