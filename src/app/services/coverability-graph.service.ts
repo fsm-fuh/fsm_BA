@@ -471,7 +471,6 @@ export class CoverabilityGraphService {
      * @param nextStateNode StateNode after firing, only saved in model before this method, visualized after successful comparison.
      * @returns boolean comparison value, handled by calling method
      */
-    //TODO anpassen für Omega-Erkennung
     compareUserInputWithTargetState(
         userInputMarkingAsStringSaver: CovMarkingStringSaver[],
         nextStateNode: CoverabilityStateNode,
@@ -481,7 +480,10 @@ export class CoverabilityGraphService {
         const actualTargetMarking = Object.values(nextStateNode.covMarkingAsStringRecord);
 
         for (let i = 0; i < userMarking.length; i++) {
-            if (actualTargetMarking[i].markingKeyString != userMarking[i].markingKeyString || actualTargetMarking[i].markingValueString != userMarking[i].markingValueString) {
+            if (
+                actualTargetMarking[i].markingKeyString != userMarking[i].markingKeyString ||
+                actualTargetMarking[i].markingValueString != userMarking[i].markingValueString
+            ) {
                 comparison = false;
             }
         }
