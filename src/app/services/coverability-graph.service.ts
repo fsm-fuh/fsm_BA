@@ -507,7 +507,7 @@ export class CoverabilityGraphService {
     ): void {
         const correctMarking: CovMarkingStringSaver[] = node.covMarkingAsStringRecord;
 
-        const userInputtedMarking: CovMarkingStringSaver[] = [];
+        let userInputtedMarking: CovMarkingStringSaver[] = [];
 
         // Initialize user input marking
         if (startMarking) {
@@ -856,8 +856,16 @@ export class CoverabilityGraphService {
             if (currentPlaceMarking[j] > previousPlaceMarking[j]) {
                 currentCovStateNode.omegaPositions[j] = true;
                 //TODO Testen, oib marking so korrekt auf w geändert
-                currentCovStateNode.covMarkingAsStringRecord[j].markingValueString = 'w';
                 this.netOmegaPositions[j] = true;
+
+                //TODO das passiert zu spät, erst nach Dialog
+                currentCovStateNode.covMarkingAsStringRecord[j].markingValueString = 'w';
+                console.log(
+                    'TEST currentCovStateNode.covMarkingAsStringRecord[j].markingKeyString   ' +
+                        currentCovStateNode.covMarkingAsStringRecord[j].markingKeyString +
+                        '   value   ' +
+                        currentCovStateNode.covMarkingAsStringRecord[j].markingValueString,
+                );
             }
             //TODO update model and  StringSaver of node
             this.setOmegaLabel(currentCovStateNode);
