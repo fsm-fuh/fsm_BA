@@ -206,7 +206,7 @@ export class CoverabilityGraphService {
             //neuen StateNode erzeugen
             const previousNode = graph.nodes.find((node) => node.id === this.currentSourceCgId);
 
-                        const firingPath = previousNode && previousNode.firingPath ? previousNode.firingPath + ' ' + label : label;
+            const firingPath = previousNode && previousNode.firingPath ? previousNode.firingPath + ' ' + label : label;
             const currentStateNode = new CoverabilityStateNode(
                 currentCgId,
                 currentX,
@@ -224,22 +224,20 @@ export class CoverabilityGraphService {
                 firingPath,
             );
 
-                //             //TODO prüfen check for infinity after addition of each new StateNode
-                // this.checkForInfinity(currentStateNode);
+            //             //TODO prüfen check for infinity after addition of each new StateNode
+            // this.checkForInfinity(currentStateNode);
 
-                                //add predecessors and successors to StateNodes
-                for (const graphNodeElement of graph.nodes) {
-                    compareCgSourceStateNode = graphNodeElement;
+            //add predecessors and successors to StateNodes
+            for (const graphNodeElement of graph.nodes) {
+                compareCgSourceStateNode = graphNodeElement;
 
-                    if (compareCgSourceStateNode.id === this.currentSourceCgId) {
-                        currentStateNode.predecessors.push(compareCgSourceStateNode);
-                        compareCgSourceStateNode.successors.push(currentStateNode);
-                    }
+                if (compareCgSourceStateNode.id === this.currentSourceCgId) {
+                    currentStateNode.predecessors.push(compareCgSourceStateNode);
+                    compareCgSourceStateNode.successors.push(currentStateNode);
                 }
-                //check for infinity after addition of each new StateNode
-                this.checkForInfinity(currentStateNode);
-
-                
+            }
+            //check for infinity after addition of each new StateNode
+            this.checkForInfinity(currentStateNode);
 
             const proceed = () => {
                 this._coverabilityGraph.update((graph) => {
