@@ -91,9 +91,6 @@ export class CoverabilityGraphService {
 
         //Current marking auslesen
         this._startMarkingCG = currentNet.startMarking || {};
-        //       for (const key of Object.keys(this._startMarkingCG)) {
-        //     console.log('_startMarkingCG  key  '+ this._startMarkingCG[key]);
-        // }
         const initialCoverabilityLabel: string = Object.values(this._startMarkingCG).join(' ');
         //x und y Startwert konstant festlegen
         const initialX = 300;
@@ -110,9 +107,6 @@ export class CoverabilityGraphService {
             this._startMarkingCG,
         );
         initialStateNode.isStartingState = true;
-        //   for (const key of Object.keys(initialStateNode.covMarkingAsStringRecord)) {
-        //         console.log('initialStateNode covMarkingASStringRecord key  '+ initialStateNode.covMarkingAsStringRecord[key]);
-        //     }
 
         //Omega-Array des Service initialisieren
         this.initializeNetOmegaPositions(this._startMarkingCG);
@@ -223,9 +217,6 @@ export class CoverabilityGraphService {
                 label,
                 firingPath,
             );
-
-            //             //TODO prüfen check for infinity after addition of each new StateNode
-            // this.checkForInfinity(currentStateNode);
 
             //add predecessors and successors to StateNodes
             for (const graphNodeElement of graph.nodes) {
@@ -339,6 +330,7 @@ export class CoverabilityGraphService {
      * Uses the "saved" Marking of the coverability graph model where each StateNode saves it's corresponding marking.
      * @param node The clicked StateNode
      */
+    //TODO überarbeiten für Omega
     switchPnStateToClickedState(node: CoverabilityStateNode) {
         console.log('Cov ChangeStateMethod started.');
         console.log('CovStateNode ID' + node.id);
@@ -571,7 +563,7 @@ export class CoverabilityGraphService {
      */
 
     //TODO ANPASSEN DER METHODE
-    calculateCompleteCoverabilityGraphOldMethod(): CoverabilityGraph {
+    calculateCompleteCoverabilityGraph(): CoverabilityGraph {
         const diagram = this._sourceNetService.getCurrentSourceNet();
         if (!diagram) {
             return new CoverabilityGraph();
@@ -585,6 +577,7 @@ export class CoverabilityGraphService {
             this.initializeCoverabilityGraphCalculation(diagram);
 
         while (Q.length > 0) {
+            //TODO anpassen, damit funktioniert
             if (this.shouldStopCovGraphCalculation(graph)) {
                 break;
             }
@@ -611,13 +604,13 @@ export class CoverabilityGraphService {
                 this.processEdge(graph, m, m_prime, transition, counters);
 
                 //TODO vermutlich hier ausblenden? durch Omega sollte ja kein Fehler passieren können
-                if (graph.isUnlimited) break;
+                // if (graph.isUnlimited) break;
             }
 
             //TODO vermutlich hier ausblenden? durch Omega sollte ja kein Fehler passieren können
-            if (graph.isUnlimited) {
-                break;
-            }
+            // if (graph.isUnlimited) {
+            //     break;
+            // }
 
             // M <- M U {m}
             processedNodeIds.add(m.id);
@@ -764,7 +757,7 @@ export class CoverabilityGraphService {
      * Uses ToasterNotificationService to inform the user.
      */
     checkCoverabilityGraphCompleteness(): void {
-        this._completeCoverabilityGraph.set(this.calculateCompleteCoverabilityGraphOldMethod());
+        this._completeCoverabilityGraph.set(this.calculateCompleteCoverabilityGraph());
         const completeGraph = this._completeCoverabilityGraph();
 
         if (completeGraph.isUnlimited) {
@@ -835,7 +828,7 @@ export class CoverabilityGraphService {
      * Generates the complete Coverability Graph for the current source Petri net.
      */
     generateCoverabilityGraphOldMethod() {
-        const graph = this.calculateCompleteCoverabilityGraphOldMethod();
+        const graph = this.calculateCompleteCoverabilityGraph();
         if (graph.isUnlimited) {
             this._notificationService.showInfo(
                 'TOASTER.HEADER.PETRI_NET_UNLIMITED',

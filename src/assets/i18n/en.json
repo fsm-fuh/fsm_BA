@@ -165,8 +165,8 @@
         "NOT_PRESENT": "not present",
         "NOT_ACTIVATED": "not activated"
     },
-    "HEADER_SUBTITLE": "Fachpraktikum Programmiersysteme WiSe25/26 by",
-    "HEADER_SUBTITLE_NAMES": "Marie G., Alexander K., Ben L. & Florian M.",
+    "HEADER_SUBTITLE": "Bachelor Thesis, SoSe26 by",
+    "HEADER_SUBTITLE_NAMES": "Florian M.",
     "TOASTER": {
         "HEADER": {
             "SAVE_IMPOSSIBLE": "Save impossible",
