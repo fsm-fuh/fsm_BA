@@ -206,12 +206,7 @@ export class CoverabilityGraphService {
             //neuen StateNode erzeugen
             const previousNode = graph.nodes.find((node) => node.id === this.currentSourceCgId);
 
-            //TODO HIER SCHON FEHLER IN DEN KEYS
-            //    for (const key of Object.keys(previousNode!.covMarkingAsStringRecord)) {
-            //                 console.log('gpreviousNode covMarkingASStringRecord key  '+ previousNode!.covMarkingAsStringRecord[key]);
-            //             }
-
-            const firingPath = previousNode && previousNode.firingPath ? previousNode.firingPath + ' ' + label : label;
+                        const firingPath = previousNode && previousNode.firingPath ? previousNode.firingPath + ' ' + label : label;
             const currentStateNode = new CoverabilityStateNode(
                 currentCgId,
                 currentX,
@@ -220,14 +215,6 @@ export class CoverabilityGraphService {
                 { ...diagram.marking } as Record<string, number>,
                 firingPath,
             );
-            // Object.entries(currentStateNode.covMarkingAsStringRecord).forEach(([key, value]) =>
-            //     console.log(
-            //         'currentStateNode.covMarkingAsStringRecord key  ' +
-            //             currentStateNode.covMarkingAsStringRecord[key] +
-            //             '  currentStateNode.covMarkingAsStringRecord value ' +
-            //             currentStateNode.covMarkingAsStringRecord[value],
-            //     ),
-            // );
 
             const currentFiringEdge = new CoverabilityFiringEdge(
                 currentCgEdgeId,
@@ -237,15 +224,10 @@ export class CoverabilityGraphService {
                 firingPath,
             );
 
-            const proceed = () => {
-                this._coverabilityGraph.update((graph) => {
-                    const newGraph = new CoverabilityGraph();
-                    newGraph.nodes = [...graph.nodes, currentStateNode];
-                    newGraph.edges = [...graph.edges, currentFiringEdge];
-                    return newGraph;
-                });
+                //             //TODO prüfen check for infinity after addition of each new StateNode
+                // this.checkForInfinity(currentStateNode);
 
-                //add predecessors and successors to StateNodes
+                                //add predecessors and successors to StateNodes
                 for (const graphNodeElement of graph.nodes) {
                     compareCgSourceStateNode = graphNodeElement;
 
@@ -256,6 +238,28 @@ export class CoverabilityGraphService {
                 }
                 //check for infinity after addition of each new StateNode
                 this.checkForInfinity(currentStateNode);
+
+                
+
+            const proceed = () => {
+                this._coverabilityGraph.update((graph) => {
+                    const newGraph = new CoverabilityGraph();
+                    newGraph.nodes = [...graph.nodes, currentStateNode];
+                    newGraph.edges = [...graph.edges, currentFiringEdge];
+                    return newGraph;
+                });
+
+                // //add predecessors and successors to StateNodes
+                // for (const graphNodeElement of graph.nodes) {
+                //     compareCgSourceStateNode = graphNodeElement;
+
+                //     if (compareCgSourceStateNode.id === this.currentSourceCgId) {
+                //         currentStateNode.predecessors.push(compareCgSourceStateNode);
+                //         compareCgSourceStateNode.successors.push(currentStateNode);
+                //     }
+                // }
+                // //check for infinity after addition of each new StateNode
+                // this.checkForInfinity(currentStateNode);
                 if (this._coverabilityGraph().isUnlimited) {
                     this._notificationService.showInfo(
                         'TOASTER.HEADER.PETRI_NET_UNLIMITED',
