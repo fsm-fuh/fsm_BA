@@ -45,7 +45,7 @@ export class CoverabilityGraphDrawDisplayComponent extends DisplayComponent {
         effect(() => {
             const isExamSignal = this._modeService.getIsExamModeSignal(Tab.COVERABILITY_GRAPH);
             if (isExamSignal && isExamSignal()) {
-                this.viewMode.set(VIEW_MODES.SIMPLE);
+                this.viewMode.set(VIEW_MODES.DESCRIPTIVE);
             }
         });
     }

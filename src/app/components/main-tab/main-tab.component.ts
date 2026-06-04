@@ -57,7 +57,7 @@ export class MainTabComponent implements OnInit {
         Tab.COVERABILITY_GRAPH,
     ];
 
-    selectedIndex = Tab.DRAW; // Select which tab to show by default
+    selectedIndex = Tab.COVERABILITY_GRAPH; // Select which tab to show by default
 
     ngOnInit(): void {
         this._tabStateService.switchTo(this._tabs[this.selectedIndex]);
