@@ -660,10 +660,12 @@ export class CoverabilityGraphService {
         });
     }
 
+
+    //TODO ganze Nodes verwenden? dann ber mit numbers kalkulieren und erst danach StringRecord?
     private computeNextMarking(
-        currentMarking: Record<string, number>,
+        currentMarking: Record <string,number>,
         transition: DiagramTransition,
-    ): Record<string, number> {
+    ): CovMarkingStringSaver[] {
         const nextMarking = { ...currentMarking };
         transition.getInputFlow().forEach((flow) => {
             const currentTokens = nextMarking[flow.place.id] ?? 0;
@@ -674,6 +676,19 @@ export class CoverabilityGraphService {
         });
         //TODO HIer auf Omega umbauen und Omegalabel einfügen, auch für Vergleich ob existiert?
         //viel aus händischen Methoden verwenden, danne erst return
+
+                //add omega at correct positions of label
+        const tempCovLabelMarkingNumbers = Object.values(diagram.marking);
+        const tempCovLabelMarkingStrings = tempCovLabelMarkingNumbers.join().split(',');
+        for (let j = 0; j < Object.values(diagram.marking).length; j++) {
+            if (this.netOmegaPositions[j] === true) {
+                tempCovLabelMarkingStrings[j] = 'w';
+            }
+        }
+        currentCoverabilityLabel = tempCovLabelMarkingStrings.join(' ');
+
+
+
         return nextMarking;
     }
 
