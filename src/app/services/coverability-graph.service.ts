@@ -672,6 +672,8 @@ export class CoverabilityGraphService {
         transition.getOutputFlow().forEach((flow) => {
             nextMarking[flow.place.id] = (nextMarking[flow.place.id] || 0) + flow.weight;
         });
+        //TODO HIer auf Omega umbauen und Omegalabel einfügen, auch für Vergleich ob existiert?
+        //viel aus händischen Methoden verwenden, danne erst return
         return nextMarking;
     }
 
