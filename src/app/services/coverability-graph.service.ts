@@ -40,8 +40,11 @@ export class CoverabilityGraphService {
     private existingOmegaLabels: string[] = [];
     // private omegaLabelsExistInPetriNet:boolean=false;
     private netOmegaPositions: boolean[] = [];
+    private autoCompleteTempLabel: string ='';
 
     private currentSourceCgId = 'CG1';
+
+
 
     set startMarkingCG(marking: Record<string, number>) {
         this._startMarkingCG = marking;
@@ -578,9 +581,9 @@ export class CoverabilityGraphService {
 
         while (Q.length > 0) {
             //TODO anpassen, damit funktioniert
-            if (this.shouldStopCovGraphCalculation(graph)) {
-                break;
-            }
+            // if (this.shouldStopCovGraphCalculation(graph)) {
+            //     break;
+            // }
 
             const m = Q.shift()!;
 
@@ -594,6 +597,8 @@ export class CoverabilityGraphService {
             //FOR EACH t ∈ T DO && IF m --[t]--> m' THEN
             for (const transition of enabledTransitions) {
                 const nextMarking = this.computeNextMarking(m.covMarking, transition);
+                const nextStateNodeLabelWithOmega = this.autoCompleteTempLabel;
+                
                 const m_prime = this.getOrCreateNextNode(graph, nodeByLabel, diagram.places, nextMarking, counters);
 
                 // Q <- Q U {m'}
@@ -665,7 +670,7 @@ export class CoverabilityGraphService {
     private computeNextMarking(
         currentMarking: Record <string,number>,
         transition: DiagramTransition,
-    ): CovMarkingStringSaver[] {
+    ):  Record <string,number>{
         const nextMarking = { ...currentMarking };
         transition.getInputFlow().forEach((flow) => {
             const currentTokens = nextMarking[flow.place.id] ?? 0;
@@ -678,17 +683,15 @@ export class CoverabilityGraphService {
         //viel aus händischen Methoden verwenden, danne erst return
 
                 //add omega at correct positions of label
-        const tempCovLabelMarkingNumbers = Object.values(diagram.marking);
+        const tempCovLabelMarkingNumbers = Object.values(nextMarking);
         const tempCovLabelMarkingStrings = tempCovLabelMarkingNumbers.join().split(',');
-        for (let j = 0; j < Object.values(diagram.marking).length; j++) {
+        for (let j = 0; j < Object.values(nextMarking).length; j++) {
             if (this.netOmegaPositions[j] === true) {
                 tempCovLabelMarkingStrings[j] = 'w';
             }
         }
-        currentCoverabilityLabel = tempCovLabelMarkingStrings.join(' ');
 
-
-
+        this.autoCompleteTempLabel = tempCovLabelMarkingStrings.join(' ');
         return nextMarking;
     }
 
@@ -711,7 +714,9 @@ export class CoverabilityGraphService {
         nextMarking: Record<string, number>,
         counters: { nodeId: number },
     ): CoverabilityStateNode {
-        const nextLabel = places.map((p) => nextMarking[p.id] ?? 0).join(' ');
+        // const nextLabel = places.map((p) => nextMarking[p.id] ?? 0).join(' ');
+        const nextLabel = this.autoCompleteTempLabel;
+
         //TODO hier ebenfalls anpassen
         let m_prime = nodeByLabel.get(nextLabel);
 
