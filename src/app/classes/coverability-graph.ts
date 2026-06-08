@@ -36,7 +36,7 @@ export class CoverabilityStateNode implements DisplayableNode {
     //Array, in which positions of omega values are marked with boolean, initially empty
     omegaPositions: boolean[] = [];
 
-    //TODO add additional marking as string, string, which is always updated when marking changes (on each new stateNode)
+    //additional marking as string, string, which is always updated when marking changes (on each new stateNode)
     covMarkingAsStringRecord: CovMarkingStringSaver[] = [];
 
     get shape(): SHAPE {
@@ -110,7 +110,6 @@ export class CoverabilityStateNode implements DisplayableNode {
         }
     }
 
-    //TODO HIER TYP ÄNDERN, ggf. neu definieren als Objekt, das number oder string enthalten kann?
     private convertMarkingToStringMarking(marking: Record<string, number>) {
         let tempKey: string = '';
         let tempValue: string = '';

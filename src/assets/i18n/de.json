@@ -67,11 +67,12 @@
     },
     "CGMARKING_DIALOG": {
         "TITLE": "Markierung eingeben",
-        "MESSAGE_DEFAULT": "Bitte geben Sie die korrekte Markierung des Petrinetzes nach dem Schalten ein.",
+        "MESSAGE_DEFAULT": "Bitte geben Sie die korrekte Markierung des Petrinetzes nach dem Schalten ein. Für Omega bitte den Kleinbuchstaben w eingeben.",
         "AUTOFILL": "Loesungsvorschlag",
         "USERVALUE": "Bestaetigen",
         "KEEP": "Behalten",
-        "DISCARD": "Verwerfen"
+        "DISCARD": "Verwerfen",
+        "DESCRIPTION": "Für Omega bitte den Kleinbuchstaben w eingeben."
     },
     "SWITCH_TO_LEARNING_MODE": "Wechsel zu Lernmodus",
     "SWITCH_TO_EXAM_MODE": "Wechsel zu Prüfungsmodus",

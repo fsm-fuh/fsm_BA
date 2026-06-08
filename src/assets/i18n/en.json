@@ -67,11 +67,12 @@
     },
     "CGMARKING_DIALOG": {
         "TITLE": "Input Marking",
-        "MESSAGE_DEFAULT": "Please input the correct marking of the Petri Net after firing.",
+        "MESSAGE_DEFAULT": "Please input the correct marking of the Petri Net after firing. For Omega please input small letter w.",
         "AUTOFILL": "Give Solution",
         "USERVALUE": "Input Value",
         "KEEP": "Keep",
-        "DISCARD": "Discard"
+        "DISCARD": "Discard",
+        "DESCRIPTION": "For Omega please input small letter w."
     },
     "SWITCH_TO_LEARNING_MODE": "Switch to Learning Mode",
     "SWITCH_TO_EXAM_MODE": "Switch to Exam Mode",

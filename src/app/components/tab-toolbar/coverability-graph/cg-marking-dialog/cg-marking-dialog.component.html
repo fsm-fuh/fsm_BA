@@ -5,20 +5,8 @@
         @for (item of currentDialogMarking; track item.markingKeyString) {
             <div class="marking-entry">
                 <span>{{ item.markingKeyString }}: {{ item.markingValueString }}</span>
-                <!-- <div class="button-container"> -->
-                <!-- <mat-label>Marking</mat-label> -->
+
                 <input type="text" matInput [(ngModel)]="item.markingValueString" />
-                <!-- <button mat-icon-button (click)="incrementMarking(item.key)" class="marking-button">
-                        <mat-icon>add</mat-icon> -->
-                <!-- </button> -->
-                <!-- <button
-                        mat-icon-button
-                        (click)="decrementMarking(item.key)"
-                        class="marking-button"
-                        [disabled]="item.value <= 0">
-                        <mat-icon>remove</mat-icon>
-                    </button> -->
-                <!-- </div> -->
             </div>
         }
     </div>
