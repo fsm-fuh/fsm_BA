@@ -163,8 +163,6 @@ export class CoverabilityGraphService {
         let compareCgSourceStateNode: CoverabilityStateNode;
         let compareCgTargetStateNode: CoverabilityStateNode;
 
-        // probably unnecessary ???DIFFERENT WAYS STARTING HERE IF OMEGA VALUES EXIST / COMPARING OF VALUES CHANGES???
-        // if (!graph.omegaValuesExistInGraph) {
         //prüfen, ob aktuelle Zielmarkierung bereits vorhanden
         for (const nodeElement of graph.nodes) {
             const existingNodeLabel: string = nodeElement.label;
@@ -239,17 +237,6 @@ export class CoverabilityGraphService {
                     return newGraph;
                 });
 
-                // //add predecessors and successors to StateNodes
-                // for (const graphNodeElement of graph.nodes) {
-                //     compareCgSourceStateNode = graphNodeElement;
-
-                //     if (compareCgSourceStateNode.id === this.currentSourceCgId) {
-                //         currentStateNode.predecessors.push(compareCgSourceStateNode);
-                //         compareCgSourceStateNode.successors.push(currentStateNode);
-                //     }
-                // }
-                // //check for infinity after addition of each new StateNode
-                // this.checkForInfinity(currentStateNode);
                 if (this._coverabilityGraph().isUnlimited) {
                     this._notificationService.showInfo(
                         'TOASTER.HEADER.PETRI_NET_UNLIMITED',
@@ -445,9 +432,6 @@ export class CoverabilityGraphService {
      * @param currentlyVisitedMarking
      * @param previouslyVisitedMarking
      */
-
-    //TODO ggf. noch auf Omega anpassen
-
     compareTwoMarkings(
         currentlyVisitedMarking: Record<string, number>,
         previouslyVisitedMarking: Record<string, number>,
@@ -512,7 +496,7 @@ export class CoverabilityGraphService {
         // Initialize user input marking
         if (startMarking) {
             for (let k = 0; k < correctMarking.length; k++) {
-                //temporary StringsSaver with correct place IDs and empty strings as values
+                //temporary StringSaver with correct place IDs and empty strings as values
                 let tempCovMarkingStringSaver: CovMarkingStringSaver = new CovMarkingStringSaver(
                     startMarking[k].markingKeyString ?? '0',
                     '',
@@ -568,7 +552,6 @@ export class CoverabilityGraphService {
      * @returns The calculated Coverability Graph.
      */
 
-    //TODO ANPASSEN DER METHODE
     calculateCompleteCoverabilityGraph(): CoverabilityGraph {
         const diagram = this._sourceNetService.getCurrentSourceNet();
         if (!diagram) {
@@ -635,7 +618,7 @@ export class CoverabilityGraphService {
         const startMarking = diagram.startMarking;
         const places = diagram.places;
         const startLabel = places.map((p) => startMarking[p.id] ?? 0).join(' ');
-        //TODO Marking schon hier miot Omegas? eher später
+        //TODO Marking schon hier mit Omegas? eher später
 
         const startNode = new CoverabilityStateNode('CG1', 300, 50, startLabel, startMarking);
         startNode.isStartingState = true;
@@ -668,7 +651,6 @@ export class CoverabilityGraphService {
         });
     }
 
-    //TODO ganze Nodes verwenden? dann ber mit numbers kalkulieren und erst danach StringRecord?
     private computeNextMarking(
         currentMarking: Record<string, number>,
         transition: DiagramTransition,
@@ -681,8 +663,6 @@ export class CoverabilityGraphService {
         transition.getOutputFlow().forEach((flow) => {
             nextMarking[flow.place.id] = (nextMarking[flow.place.id] || 0) + flow.weight;
         });
-        //TODO HIer auf Omega umbauen und Omegalabel einfügen, auch für Vergleich ob existiert?
-        //viel aus händischen Methoden verwenden, danne erst return
 
         //add omega at correct positions of label
         const tempCovLabelMarkingNumbers = Object.values(nextMarking);
@@ -861,7 +841,6 @@ export class CoverabilityGraphService {
         }
     }
 
-    //TODO  omega=omega when comparing to never check an omega cvalue twice
     // omega can never be changed back to not omega on the same path
 
     /**
