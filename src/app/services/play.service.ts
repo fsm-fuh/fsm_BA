@@ -228,6 +228,7 @@ export class PlayService {
         return (
             (this._tabStateService.currentTab() === Tab.PLAY ||
                 this._tabStateService.currentTab() === Tab.REACHABILITY_GRAPH ||
+                this._tabStateService.currentTab() === Tab.COVERABILITY_GRAPH ||
                 this._tabStateService.currentTab() === Tab.PROCESS_NET) &&
             node.isActivated()
         );
