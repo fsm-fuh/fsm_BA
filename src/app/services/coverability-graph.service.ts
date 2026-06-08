@@ -764,13 +764,13 @@ export class CoverabilityGraphService {
         this._completeCoverabilityGraph.set(this.calculateCompleteCoverabilityGraph());
         const completeGraph = this._completeCoverabilityGraph();
 
-        if (completeGraph.isUnlimited) {
-            this._notificationService.showInfo(
-                'TOASTER.HEADER.PETRI_NET_UNLIMITED',
-                'TOASTER.BODY.PETRI_NET_UNLIMITED',
-            );
-            return;
-        }
+        // if (completeGraph.isUnlimited) {
+        //     this._notificationService.showInfo(
+        //         'TOASTER.HEADER.PETRI_NET_UNLIMITED',
+        //         'TOASTER.BODY.PETRI_NET_UNLIMITED',
+        //     );
+        //     return;
+        // }
 
         const userGraph = this._coverabilityGraph();
         const missingReachableEdges: {
