@@ -270,6 +270,8 @@ export class CoverabilityGraphService {
                 //nur im Hintergrund vergleichen, User gibt NodeLabel, also Marking, selbst ein und bekommt Feedback
                 this.getCorrectUserMarking(currentStateNode, proceed, previousNode?.covMarkingAsStringRecord);
             }
+                    this._springEmbeddingService.calculateLayout(graph).catch(console.error);
+
             return;
         }
 
@@ -293,6 +295,9 @@ export class CoverabilityGraphService {
                 newGraph.edges = [...graph.edges, currentFiringEdge];
                 return newGraph;
             });
+
+            this._springEmbeddingService.calculateLayout(graph).catch(console.error);
+
             // }
 
             //add predecessors and successors to StateNodes
