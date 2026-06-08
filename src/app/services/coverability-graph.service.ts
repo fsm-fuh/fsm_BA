@@ -40,11 +40,9 @@ export class CoverabilityGraphService {
     private existingOmegaLabels: string[] = [];
     // private omegaLabelsExistInPetriNet:boolean=false;
     private netOmegaPositions: boolean[] = [];
-    private autoCompleteTempLabel: string ='';
+    private autoCompleteTempLabel: string = '';
 
     private currentSourceCgId = 'CG1';
-
-
 
     set startMarkingCG(marking: Record<string, number>) {
         this._startMarkingCG = marking;
@@ -270,7 +268,7 @@ export class CoverabilityGraphService {
                 //nur im Hintergrund vergleichen, User gibt NodeLabel, also Marking, selbst ein und bekommt Feedback
                 this.getCorrectUserMarking(currentStateNode, proceed, previousNode?.covMarkingAsStringRecord);
             }
-                    this._springEmbeddingService.calculateLayout(graph).catch(console.error);
+            this._springEmbeddingService.calculateLayout(graph).catch(console.error);
 
             return;
         }
@@ -603,7 +601,7 @@ export class CoverabilityGraphService {
             for (const transition of enabledTransitions) {
                 const nextMarking = this.computeNextMarking(m.covMarking, transition);
                 const nextStateNodeLabelWithOmega = this.autoCompleteTempLabel;
-                
+
                 const m_prime = this.getOrCreateNextNode(graph, nodeByLabel, diagram.places, nextMarking, counters);
 
                 // Q <- Q U {m'}
@@ -670,12 +668,11 @@ export class CoverabilityGraphService {
         });
     }
 
-
     //TODO ganze Nodes verwenden? dann ber mit numbers kalkulieren und erst danach StringRecord?
     private computeNextMarking(
-        currentMarking: Record <string,number>,
+        currentMarking: Record<string, number>,
         transition: DiagramTransition,
-    ):  Record <string,number>{
+    ): Record<string, number> {
         const nextMarking = { ...currentMarking };
         transition.getInputFlow().forEach((flow) => {
             const currentTokens = nextMarking[flow.place.id] ?? 0;
@@ -687,7 +684,7 @@ export class CoverabilityGraphService {
         //TODO HIer auf Omega umbauen und Omegalabel einfügen, auch für Vergleich ob existiert?
         //viel aus händischen Methoden verwenden, danne erst return
 
-                //add omega at correct positions of label
+        //add omega at correct positions of label
         const tempCovLabelMarkingNumbers = Object.values(nextMarking);
         const tempCovLabelMarkingStrings = tempCovLabelMarkingNumbers.join().split(',');
         for (let j = 0; j < Object.values(nextMarking).length; j++) {
@@ -914,7 +911,7 @@ export class CoverabilityGraphService {
 
     initializeNetOmegaPositions(marking: Record<string, number>) {
         console.log('initialize Net OmegaPositionsArray ');
-        this.netOmegaPositions=[];
+        this.netOmegaPositions = [];
         for (const positions of Object.entries(marking)) {
             this.netOmegaPositions.push(false);
         }
