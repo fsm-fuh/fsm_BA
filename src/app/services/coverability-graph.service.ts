@@ -41,6 +41,7 @@ export class CoverabilityGraphService {
     // private omegaLabelsExistInPetriNet:boolean=false;
     private netOmegaPositions: boolean[] = [];
     private autoCompleteTempLabel: string = '';
+    private userMarkingComparisonArray: string[] = [];
 
     private currentSourceCgId = 'CG1';
 
@@ -460,6 +461,8 @@ export class CoverabilityGraphService {
         nextStateNode: CoverabilityStateNode,
     ): boolean {
         let comparison = true;
+        //reinitialize comparison array
+        this.userMarkingComparisonArray = [];
         const userMarking = Object.values(userInputMarkingAsStringSaver);
         const actualTargetMarking = Object.values(nextStateNode.covMarkingAsStringRecord);
 
@@ -469,6 +472,7 @@ export class CoverabilityGraphService {
                 actualTargetMarking[i].markingValueString != userMarking[i].markingValueString
             ) {
                 comparison = false;
+                this.userMarkingComparisonArray.push(actualTargetMarking[i].markingKeyString);
             }
         }
         return comparison;
@@ -529,9 +533,17 @@ export class CoverabilityGraphService {
                     );
                     onCorrect();
                 } else {
+                    const list: ToastList[]= this.userMarkingComparisonArray.slice().map((item) => {
+                return {
+                    message: `${item}`,
+                };
+            });;
+
+                    
                     this._notificationService.showError(
                         'TOASTER.HEADER.MARKING_INPUT_WRONG',
                         'TOASTER.BODY.MARKING_INPUT_WRONG',
+                        { list },
                     );
                 }
             } else {
