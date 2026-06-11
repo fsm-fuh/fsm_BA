@@ -533,7 +533,7 @@ export class CoverabilityGraphService {
                     );
                     onCorrect();
                 } else {
-                    const list: ToastList[]= this.userMarkingComparisonArray.slice().map((item) => {
+                    const list: ToastList[]= this.userMarkingComparisonArray.map((item) => {
                 return {
                     message: `${item}`,
                 };
