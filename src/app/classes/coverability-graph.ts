@@ -111,8 +111,8 @@ export class CoverabilityStateNode implements DisplayableNode {
     }
 
     private convertMarkingToStringMarking(marking: Record<string, number>) {
-        let tempKey: string = '';
-        let tempValue: string = '';
+        let tempKey = '';
+        let tempValue = '';
         let tempStringSaver: CovMarkingStringSaver;
         Object.entries(marking).forEach(
             ([key, value]) => (
@@ -160,7 +160,7 @@ export class CoverabilityGraph implements DisplayableGraph {
     edges: CoverabilityFiringEdge[] = [];
     isUnlimited = false;
     breakLoop = false;
-    omegaValuesExistInGraph: boolean = false;
+    omegaValuesExistInGraph = false;
 
     getNodes(): DisplayableNode[] {
         return this.nodes;

@@ -42,8 +42,8 @@ export class CoverabilityGraphService {
     // private omegaLabelsExistInPetriNet:boolean=false;
     private netOmegaPositions: boolean[] = [];
     private autoNetOmegaPositions: boolean[] = [];
-    private autoCompleteTempLabel: string = '';
-    private oldLabelOfFirstOmegaNode: string = '';
+    private autoCompleteTempLabel = '';
+    private oldLabelOfFirstOmegaNode = '';
     private userMarkingComparisonArray: string[] = [];
 
     private currentSourceCgId = 'CG1';
@@ -572,13 +572,13 @@ export class CoverabilityGraphService {
     ): void {
         const correctMarking: CovMarkingStringSaver[] = node.covMarkingAsStringRecord;
 
-        let userInputtedMarking: CovMarkingStringSaver[] = [];
+        const userInputtedMarking: CovMarkingStringSaver[] = [];
 
         // Initialize user input marking
         if (startMarking) {
             for (let k = 0; k < correctMarking.length; k++) {
                 //temporary StringSaver with correct place IDs and empty strings as values
-                let tempCovMarkingStringSaver: CovMarkingStringSaver = new CovMarkingStringSaver(
+                const tempCovMarkingStringSaver: CovMarkingStringSaver = new CovMarkingStringSaver(
                     startMarking[k].markingKeyString ?? '0',
                     '',
                 );
@@ -587,7 +587,7 @@ export class CoverabilityGraphService {
         } else {
             // Initialize with 0s for user input
             for (let l = 0; l < correctMarking.length; l++) {
-                let tempCovMarkingStringSaver2: CovMarkingStringSaver = new CovMarkingStringSaver('0', '');
+                const tempCovMarkingStringSaver2: CovMarkingStringSaver = new CovMarkingStringSaver('0', '');
                 userInputtedMarking[l] = tempCovMarkingStringSaver2;
             }
         }
@@ -1042,7 +1042,7 @@ export class CoverabilityGraphService {
     }
 
     getLabelStringByNodeValue(map: Map<string, CoverabilityStateNode>, searchValue: string): string | undefined {
-        for (let [key, value] of map.entries()) {
+        for (const [key, value] of map.entries()) {
             if (value.label === searchValue) {
                 return key;
             }
