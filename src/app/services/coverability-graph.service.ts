@@ -618,7 +618,7 @@ export class CoverabilityGraphService {
 
                     // for (const element of userInputWrongPlacesList) {
                     //     console.log('userInpputWQrongPlacesList element ' + element.message)
-                        
+
                     // }
 
                     this._notificationService.showError(

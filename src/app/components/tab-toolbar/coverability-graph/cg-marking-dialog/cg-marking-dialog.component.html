@@ -15,5 +15,7 @@
 <mat-dialog-actions align="end">
     <button mat-button color="warn" (click)="discard()">{{ 'CGMARKING_DIALOG.AUTOFILL' | translate }}</button>
     <button mat-flat-button color="primary" (click)="keep()">{{ 'CGMARKING_DIALOG.USERVALUE' | translate }}</button>
-    <button mat-raised-button color="accent" [disabled]="hintButtonDisabled" (click)="hint()">{{ 'CGMARKING_DIALOG.HINT' | translate }}</button>
+    <button mat-raised-button color="accent" [disabled]="hintButtonDisabled" (click)="hint()">
+        {{ 'CGMARKING_DIALOG.HINT' | translate }}
+    </button>
 </mat-dialog-actions>

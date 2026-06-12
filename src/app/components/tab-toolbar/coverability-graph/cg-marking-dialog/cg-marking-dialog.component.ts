@@ -51,7 +51,7 @@ export class CgMarkingDialogComponent {
     private correctDialogMarking: CovMarkingStringSaver[] = this.data.expectedCorrectMarking;
 
     private dialogUserMarkingComparisonArray: string[] = [];
-    hintButtonDisabled =true;
+    hintButtonDisabled = true;
 
     // incrementMarking(placeId: string): void {
     //     // this.currentDialogMarking[placeId] = (this.currentDialogMarking[placeId] || '0') + 1;
@@ -65,7 +65,7 @@ export class CgMarkingDialogComponent {
 
     keep() {
         let isCorrect = true;
-        this.dialogUserMarkingComparisonArray=[];
+        this.dialogUserMarkingComparisonArray = [];
 
         for (let i = 0; i < this.correctDialogMarking.length; i++) {
             // console.log(
@@ -76,7 +76,7 @@ export class CgMarkingDialogComponent {
             // );
             if (this.currentDialogMarking[i].markingValueString !== this.correctDialogMarking[i].markingValueString) {
                 isCorrect = false;
-                this.dialogUserMarkingComparisonArray.push(this.currentDialogMarking[i].markingKeyString)
+                this.dialogUserMarkingComparisonArray.push(this.currentDialogMarking[i].markingKeyString);
                 // break;
             }
         }
@@ -84,7 +84,7 @@ export class CgMarkingDialogComponent {
         if (isCorrect) {
             this._dialogRef.close(this.currentDialogMarking);
         } else {
-            this.hintButtonDisabled=false;
+            this.hintButtonDisabled = false;
             this._notificationService.showError(
                 //TODO Toaster anpassen für Omega?
                 'TOASTER.HEADER.MARKING_INPUT_WRONG',
@@ -93,31 +93,23 @@ export class CgMarkingDialogComponent {
         }
     }
 
-
-    hint(){        
-        
+    hint() {
         const userInputWrongPlacesList: ToastList[] = this.dialogUserMarkingComparisonArray.map((item) => {
             return {
                 message: `${item}`,
             };
         });
-        
+
         for (const element of userInputWrongPlacesList) {
-            console.log('userInputWrongPlacesList element ' + element.message)
-            
+            console.log('userInputWrongPlacesList element ' + element.message);
         }
-        
+
         this._notificationService.showError(
             'TOASTER.HEADER.MARKING_INPUT_WRONG_HINT',
             'TOASTER.BODY.MARKING_INPUT_WRONG_HINT',
             { list: userInputWrongPlacesList },
         );
     }
-    
-
-
-
-
 
     discard() {
         this._dialogRef.close(this.correctDialogMarking);
