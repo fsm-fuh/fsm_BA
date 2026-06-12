@@ -38,10 +38,10 @@ export class CoverabilityGraphService {
     readonly _dialog = inject(MatDialog);
 
     private existingOmegaLabels: string[] = [];
-    private existingAutoGraphOmegaLabels: string[]=[];
+    private existingAutoGraphOmegaLabels: string[] = [];
     // private omegaLabelsExistInPetriNet:boolean=false;
     private netOmegaPositions: boolean[] = [];
-    private autoNetOmegaPositions:boolean[]=[];
+    private autoNetOmegaPositions: boolean[] = [];
     private autoCompleteTempLabel: string = '';
     private oldLabelOfFirstOmegaNode: string = '';
     private userMarkingComparisonArray: string[] = [];
@@ -379,7 +379,7 @@ export class CoverabilityGraphService {
         this.recursiveCheckForInfinity(node, targetGraph);
     }
 
-        /**
+    /**
      * Method to check for infinity of Coverability Graph.
      * Triggered after each firing of a transition in the Petri Net.
      * Goes backward from newly added StateNode and checks if there is a Combination of StateNodes which has indefinite growth
@@ -453,7 +453,7 @@ export class CoverabilityGraphService {
         }
     }
 
-        /**
+    /**
      * Helper method for recursive check of method checkForInfinity
      */
     recursiveCheckForAutoGraphInfinity(node: CoverabilityStateNode, graph: CoverabilityGraph) {
@@ -502,10 +502,6 @@ export class CoverabilityGraphService {
             }
         }
     }
-
-
-
-
 
     /**
      * Compares Marking of StateNode with Marking of previous StateNode to check for "real growth".
@@ -969,7 +965,7 @@ export class CoverabilityGraphService {
         }
     }
 
-/**
+    /**
      * sets Omega value at the position which increased, method is only triggered when criteria for "Unlimited PN" were met
      * @param node coverabilityStateNode, which was detected when unlimitability of ReachGraph was detected (RG-->CovGraph)
      */
@@ -996,7 +992,6 @@ export class CoverabilityGraphService {
         }
     }
 
-
     /**
      * Method to update label of coverabilityStateNode
      * Label will be completely changed, but number of tokens will stay the same
@@ -1015,7 +1010,7 @@ export class CoverabilityGraphService {
         this.existingOmegaLabels.push(node.label);
     }
 
-        /**
+    /**
      * Method to update label of coverabilityStateNode
      * Label will be completely changed, but number of tokens will stay the same
      *
