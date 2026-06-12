@@ -38,8 +38,10 @@ export class CoverabilityGraphService {
     readonly _dialog = inject(MatDialog);
 
     private existingOmegaLabels: string[] = [];
+    private existingAutoGraphOmegaLabels: string[]=[];
     // private omegaLabelsExistInPetriNet:boolean=false;
     private netOmegaPositions: boolean[] = [];
+    private autoNetOmegaPositions:boolean[]=[];
     private autoCompleteTempLabel: string = '';
     private oldLabelOfFirstOmegaNode: string = '';
     private userMarkingComparisonArray: string[] = [];
@@ -377,6 +379,30 @@ export class CoverabilityGraphService {
         this.recursiveCheckForInfinity(node, targetGraph);
     }
 
+        /**
+     * Method to check for infinity of Coverability Graph.
+     * Triggered after each firing of a transition in the Petri Net.
+     * Goes backward from newly added StateNode and checks if there is a Combination of StateNodes which has indefinite growth
+     * Uses recursive method as well as comparison method for markings
+     * checkForInfinity initializes the recursion
+     * @param node The current StateNode
+     * @param graph The current graph, distinguishes between user-generated and auto-generated Coverablitiy Graph
+     */
+    checkForAutoGraphInfinity(node: CoverabilityStateNode, graph?: CoverabilityGraph) {
+        const targetGraph = graph ?? this._coverabilityGraph();
+        console.log('Cov CheckForInfinity');
+        for (const cgStateNode of targetGraph.nodes) {
+            cgStateNode.nodeVisitedStateForLimitCheck = false;
+        }
+
+        for (const cgEdge of targetGraph.edges) {
+            cgEdge.isPartOfUnlimitedPath = false;
+        }
+
+        this.checkedStateNode = node;
+        this.recursiveCheckForAutoGraphInfinity(node, targetGraph);
+    }
+
     /**
      * Helper method for recursive check of method checkForInfinity
      */
@@ -426,6 +452,60 @@ export class CoverabilityGraphService {
             }
         }
     }
+
+        /**
+     * Helper method for recursive check of method checkForInfinity
+     */
+    recursiveCheckForAutoGraphInfinity(node: CoverabilityStateNode, graph: CoverabilityGraph) {
+        console.log('Cov Recursive CheckforInfinity');
+        node.nodeVisitedStateForLimitCheck = true;
+        let areTokensGettingBigger = false;
+        if (this.checkedStateNode) {
+            console.log('Cov Rec CheckForInfinity - If this.CheckedStateNode');
+            for (const checkPredecessor of node.predecessors) {
+                if (!checkPredecessor.nodeVisitedStateForLimitCheck) {
+                    console.log('Cov Rec CheckForInfinity - !checkPredecessor.nodeVisitedStateForLimitCheck');
+                    areTokensGettingBigger = this.compareTwoMarkings(
+                        this.checkedStateNode.covMarking,
+                        checkPredecessor.covMarking,
+                    );
+                    console.log('Cov Are tokens getting bigger - ' + areTokensGettingBigger);
+                    console.log('Cov this.checkedStateNode.tokenSum ' + this.checkedStateNode.tokenSum);
+                    console.log('Cov checkPredecessor.tokenSum' + checkPredecessor.tokenSum);
+
+                    if (
+                        this.checkedStateNode.tokenSum > checkPredecessor.tokenSum &&
+                        areTokensGettingBigger &&
+                        !graph.isUnlimited
+                    ) {
+                        console.log('Cov PN Unbeschränkt');
+                        graph.isUnlimited = true;
+                        checkPredecessor.isMorMStrich = true;
+                        this.checkedStateNode.isMorMStrich = true;
+                        //TODO ÜBERPRÜFEN
+                        this.setAutoGraphOmegaValues(this.checkedStateNode, checkPredecessor);
+                        graph.omegaValuesExistInGraph = true;
+
+                        if (checkPredecessor.isStartingState) {
+                            graph.breakLoop = true;
+                            return;
+                        }
+                        return;
+                    } else {
+                        if (checkPredecessor.isStartingState) {
+                            this._coverabilityGraph().breakLoop = true;
+                            return;
+                        }
+                        this.recursiveCheckForAutoGraphInfinity(checkPredecessor, graph);
+                    }
+                }
+            }
+        }
+    }
+
+
+
+
 
     /**
      * Compares Marking of StateNode with Marking of previous StateNode to check for "real growth".
@@ -687,7 +767,7 @@ export class CoverabilityGraphService {
         const tempCovLabelMarkingNumbers = Object.values(nextMarking);
         const tempCovLabelMarkingStrings = tempCovLabelMarkingNumbers.join().split(',');
         for (let j = 0; j < Object.values(nextMarking).length; j++) {
-            if (this.netOmegaPositions[j] === true) {
+            if (this.autoNetOmegaPositions[j] === true) {
                 tempCovLabelMarkingStrings[j] = 'w';
             }
         }
@@ -755,7 +835,7 @@ export class CoverabilityGraphService {
             target.predecessors.push(source);
             source.successors.push(target);
 
-            this.checkForInfinity(target, graph);
+            this.checkForAutoGraphInfinity(target, graph);
         }
     }
 
@@ -889,6 +969,34 @@ export class CoverabilityGraphService {
         }
     }
 
+/**
+     * sets Omega value at the position which increased, method is only triggered when criteria for "Unlimited PN" were met
+     * @param node coverabilityStateNode, which was detected when unlimitability of ReachGraph was detected (RG-->CovGraph)
+     */
+    setAutoGraphOmegaValues(currentCovStateNode: CoverabilityStateNode, previousCovStateNode: CoverabilityStateNode) {
+        const currentPlaceMarking = Object.values(currentCovStateNode.covMarking);
+        const previousPlaceMarking = Object.values(previousCovStateNode.covMarking);
+        for (let j = 0; j < Object.values(currentCovStateNode.covMarking).length; j++) {
+            if (currentPlaceMarking[j] > previousPlaceMarking[j]) {
+                currentCovStateNode.omegaPositions[j] = true;
+                //TODO Testen, oib marking so korrekt auf w geändert
+                this.autoNetOmegaPositions[j] = true;
+
+                //TODO das passiert zu spät, erst nach Dialog
+                currentCovStateNode.covMarkingAsStringRecord[j].markingValueString = 'w';
+                console.log(
+                    'TEST currentCovStateNode.covMarkingAsStringRecord[j].markingKeyString   ' +
+                        currentCovStateNode.covMarkingAsStringRecord[j].markingKeyString +
+                        '   value   ' +
+                        currentCovStateNode.covMarkingAsStringRecord[j].markingValueString,
+                );
+            }
+            //TODO update model and  StringSaver of node
+            this.setAutoGraphOmegaLabel(currentCovStateNode);
+        }
+    }
+
+
     /**
      * Method to update label of coverabilityStateNode
      * Label will be completely changed, but number of tokens will stay the same
@@ -905,6 +1013,24 @@ export class CoverabilityGraphService {
         node.label = tempMarkingStrings.join(' ');
         //save to array for comparison
         this.existingOmegaLabels.push(node.label);
+    }
+
+        /**
+     * Method to update label of coverabilityStateNode
+     * Label will be completely changed, but number of tokens will stay the same
+     *
+     */
+    setAutoGraphOmegaLabel(node: CoverabilityStateNode) {
+        const tempMarkingNumbers = Object.values(node.covMarking);
+        const tempMarkingStrings = tempMarkingNumbers.join().split(',');
+        for (let k = 0; k < Object.values(node.covMarking).length; k++) {
+            if (node.omegaPositions[k] === true) {
+                tempMarkingStrings[k] = 'w';
+            }
+        }
+        node.label = tempMarkingStrings.join(' ');
+        //save to array for comparison
+        this.existingAutoGraphOmegaLabels.push(node.label);
     }
 
     initializeNetOmegaPositions(marking: Record<string, number>) {
