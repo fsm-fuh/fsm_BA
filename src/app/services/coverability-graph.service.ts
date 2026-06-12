@@ -41,6 +41,7 @@ export class CoverabilityGraphService {
     // private omegaLabelsExistInPetriNet:boolean=false;
     private netOmegaPositions: boolean[] = [];
     private autoCompleteTempLabel: string = '';
+    private oldLabelOfFirstOmegaNode: string = '';
     private userMarkingComparisonArray: string[] = [];
 
     private currentSourceCgId = 'CG1';
@@ -585,6 +586,7 @@ export class CoverabilityGraphService {
 
             const m = Q.shift()!;
 
+            //TODO check compared id to avoid creating same stateNode multiple times
             // Q <- Q \ M is implicitly handled here by skipping if already processed
             if (processedNodeIds.has(m.id)) {
                 continue;
@@ -595,7 +597,7 @@ export class CoverabilityGraphService {
             //FOR EACH t ∈ T DO && IF m --[t]--> m' THEN
             for (const transition of enabledTransitions) {
                 const nextMarking = this.computeNextMarking(m.covMarking, transition);
-                const nextStateNodeLabelWithOmega = this.autoCompleteTempLabel;
+                // const nextStateNodeLabelWithOmega = this.autoCompleteTempLabel;
 
                 const m_prime = this.getOrCreateNextNode(graph, nodeByLabel, diagram.places, nextMarking, counters);
 
@@ -605,6 +607,13 @@ export class CoverabilityGraphService {
                 }
 
                 this.processEdge(graph, m, m_prime, transition, counters);
+
+                //hier nochmal überprüfen, um erstes OmegaLabel zu ersetzen, da sonst erster OmegaNode 2mal erzeugt wiurd, da Infinity erst am Ende geprüft
+                if (m_prime.label !== this.oldLabelOfFirstOmegaNode) {          
+                    
+                    nodeByLabel.delete(this.oldLabelOfFirstOmegaNode);
+                    nodeByLabel.set(m_prime.label, m_prime);
+                }
 
                 //TODO vermutlich hier ausblenden? durch Omega sollte ja kein Fehler passieren können
                 // if (graph.isUnlimited) break;
@@ -708,10 +717,9 @@ export class CoverabilityGraphService {
         nextMarking: Record<string, number>,
         counters: { nodeId: number },
     ): CoverabilityStateNode {
-        // const nextLabel = places.map((p) => nextMarking[p.id] ?? 0).join(' ');
+        this.oldLabelOfFirstOmegaNode = places.map((p) => nextMarking[p.id] ?? 0).join(' ');
         const nextLabel = this.autoCompleteTempLabel;
 
-        //TODO hier ebenfalls anpassen
         let m_prime = nodeByLabel.get(nextLabel);
 
         if (!m_prime) {
@@ -721,6 +729,7 @@ export class CoverabilityGraphService {
             graph.nodes.push(m_prime);
             nodeByLabel.set(nextLabel, m_prime);
         }
+        // nodeByLabel.set(nextLabel, m_prime);
         return m_prime;
     }
 
@@ -907,4 +916,15 @@ export class CoverabilityGraphService {
             this.netOmegaPositions.push(false);
         }
     }
+
+ getLabelStringByNodeValue(map:Map <string,CoverabilityStateNode>, searchValue:string) : string | undefined{
+  for (let [key, value] of map.entries()) {
+    if (value.label === searchValue){
+      return key;
+    }
+
+  }
+  return;
+}
+
 }
