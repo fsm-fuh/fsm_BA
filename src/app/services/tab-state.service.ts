@@ -18,6 +18,7 @@ export class TabStateService {
         [Tab.PLAY, undefined],
         [Tab.REACHABILITY_GRAPH, undefined],
         [Tab.PROCESS_NET, undefined],
+        [Tab.COVERABILITY_GRAPH, undefined],
     ]);
 
     switchTo(newTab: Tab) {

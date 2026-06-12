@@ -34,6 +34,13 @@
             </ng-template>
             <app-process-net></app-process-net>
         </mat-tab>
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon class="tab-icon">timeline</mat-icon>
+                {{ 'TAB_COVERABILITY' | translate }}
+            </ng-template>
+            <app-coverability-graph></app-coverability-graph>
+        </mat-tab>
     </mat-tab-group>
     <div class="action-sidebar">
         <app-upload></app-upload>

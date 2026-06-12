@@ -19,6 +19,7 @@ import { LanguageButtonComponent } from '../language-button/language-button.comp
 import { ExampleMenuComponent } from '../example-menu/example-menu.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { TupleInputButtonComponent } from '../tab-toolbar/tuple-input-button/tuple-input-button.component';
+import { CoverabilityGraphComponent } from '../tab-toolbar/coverability-graph/coverability-graph.component';
 
 @Component({
     selector: 'app-main-tab',
@@ -29,6 +30,7 @@ import { TupleInputButtonComponent } from '../tab-toolbar/tuple-input-button/tup
         DrawComponent,
         PlayComponent,
         ReachabilityGraphComponent,
+        CoverabilityGraphComponent,
         ProcessNetComponent,
         SaveComponent,
         UploadComponent,
@@ -47,9 +49,15 @@ export class MainTabComponent implements OnInit {
     private _tabStateService: TabStateService = inject(TabStateService);
     private _sourcePetriNetService: SourcePetriNetService = inject(SourcePetriNetService);
     private _displayService: DisplayService = inject(DisplayService);
-    private readonly _tabs: Tab[] = [Tab.DRAW, Tab.PLAY, Tab.REACHABILITY_GRAPH, Tab.PROCESS_NET];
+    private readonly _tabs: Tab[] = [
+        Tab.DRAW,
+        Tab.PLAY,
+        Tab.REACHABILITY_GRAPH,
+        Tab.PROCESS_NET,
+        Tab.COVERABILITY_GRAPH,
+    ];
 
-    selectedIndex = Tab.DRAW; // Select which tab to show by default
+    selectedIndex = Tab.COVERABILITY_GRAPH; // Select which tab to show by default
 
     ngOnInit(): void {
         this._tabStateService.switchTo(this._tabs[this.selectedIndex]);

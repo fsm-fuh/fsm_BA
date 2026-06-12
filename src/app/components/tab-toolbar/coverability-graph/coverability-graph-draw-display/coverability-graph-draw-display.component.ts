@@ -1,0 +1,239 @@
+import { Component, computed, effect, inject, signal } from '@angular/core';
+import { SvgStateNodeComponent } from '../../../display/svg-state-node/svg-state-node.component';
+import { SvgStateArcComponent } from '../../../display/svg-state-arc/svg-state-arc.component';
+import { PanningService } from 'src/app/services/panning.service';
+import { DisplayComponent } from 'src/app/components/display/display.component';
+import { GRAPH_IDS, VIEW_MODES, ViewMode } from '../../../display/display.constants';
+import {
+    DrawToolbarAction,
+    DrawToolbarComponent,
+    DrawToolbarInstruction,
+} from '../../../draw-toolbar/draw-toolbar.component';
+import { DisplayableNode } from '../../../../classes/displayable-graph.interface';
+import { StateNode } from '../../../../classes/reachability-graph.model';
+import { ModeService } from '../../../../services/mode.service';
+import { Tab } from '../../../../classes/tabs';
+import { TranslateModule } from '@ngx-translate/core';
+import { CoverabilityGraphService } from 'src/app/services/coverability-graph.service';
+import { CoverabilityStateNode } from 'src/app/classes/coverability-graph';
+import { SvgCovStateNodeComponent } from 'src/app/components/display/svg-cov-state-node/svg-cov-state-node.component';
+import { SvgCovStateArcComponent } from 'src/app/components/display/svg-cov-state-arc/svg-cov-state-arc.component';
+
+@Component({
+    selector: 'app-coverability-graph-draw-display',
+    standalone: true,
+    imports: [SvgCovStateNodeComponent, SvgCovStateArcComponent, DrawToolbarComponent, TranslateModule],
+    providers: [PanningService],
+    templateUrl: './coverability-graph-draw-display.component.html',
+    styleUrl: './coverability-graph-draw-display.component.css',
+})
+export class CoverabilityGraphDrawDisplayComponent extends DisplayComponent {
+    protected override graphId = GRAPH_IDS.COVERABILITY;
+    readonly userCoverabilityGraphDiagram = this._coverabilityGraphService.coverabilityGraphSignal;
+    readonly completeCoverabilityGraphDiagram = this._coverabilityGraphService.completeCoverabilityGraph;
+    readonly showCompleteGraph = this._coverabilityGraphService.showingCompleteCoverabilityGraph;
+    readonly displayDiagram = computed(() =>
+        this.showCompleteGraph() ? this.completeCoverabilityGraphDiagram() : this.userCoverabilityGraphDiagram(),
+    );
+    readonly isEmpty = computed(() => this.userCoverabilityGraphDiagram().nodes.length === 0);
+    readonly viewMode = signal<ViewMode>(VIEW_MODES.DESCRIPTIVE);
+    readonly _modeService = inject(ModeService);
+    readonly _drawPanningService = inject(PanningService);
+
+    constructor() {
+        super();
+        effect(() => {
+            const isExamSignal = this._modeService.getIsExamModeSignal(Tab.COVERABILITY_GRAPH);
+            if (isExamSignal && isExamSignal()) {
+                this.viewMode.set(VIEW_MODES.DESCRIPTIVE);
+            }
+        });
+    }
+
+    private draggedNode: DisplayableNode | null = null;
+    private dragOffset = { x: 0, y: 0 };
+    private isDraggingNode = false;
+
+    calculateWidth(node: CoverabilityStateNode) {
+        if (this.viewMode() === VIEW_MODES.SIMPLE) {
+            return 40;
+        }
+        return node.displayLabel.length * 8;
+    }
+
+    onCovStateNodeMouseDown(event: MouseEvent, node: DisplayableNode) {
+        // Only start dragging for left mouse button
+        if (event.button !== 0) {
+            return;
+        }
+
+        // Stop the event from reaching other handlers
+        event.stopImmediatePropagation();
+        event.preventDefault();
+
+        this.isDraggingNode = true;
+        this.draggedNode = node;
+
+        const svgPoint = this.getSvgCoordinates(event);
+        if (svgPoint) {
+            this.dragOffset.x = svgPoint.x - node.x;
+            this.dragOffset.y = svgPoint.y - node.y;
+        }
+    }
+
+    override startPan(event: MouseEvent): void {
+        if (this.isDraggingNode) return;
+        super.startPan(event);
+    }
+
+    override pan(event: MouseEvent): void {
+        if (this.isDraggingNode) {
+            // Handle node dragging
+            if (!this.draggedNode) return;
+
+            const svgPoint = this.getSvgCoordinates(event);
+            if (svgPoint) {
+                const newX = svgPoint.x - this.dragOffset.x;
+                const newY = svgPoint.y - this.dragOffset.y;
+
+                // Update node position using signals
+                this.draggedNode.x = newX;
+                this.draggedNode.y = newY;
+            }
+            return;
+        }
+        super.pan(event);
+    }
+
+    override endPan(): void {
+        if (this.isDraggingNode) {
+            // End node dragging
+            this.draggedNode = null;
+            this.isDraggingNode = false;
+            return;
+        }
+        super.endPan();
+    }
+
+    /**
+     * Converts mouse event client coordinates to SVG coordinates,
+     * taking into account the viewBox transformation.
+     * @param event The mouse event
+     */
+    private getSvgCoordinates(event: MouseEvent): { x: number; y: number } | null {
+        const svg = this.drawingArea?.nativeElement;
+        if (!svg) return null;
+
+        const clientRect = svg.getBoundingClientRect();
+        const viewBox = this.viewBoxObj();
+
+        // Calculate position relative to SVG element (0-1 range)
+        const relX = (event.clientX - clientRect.left) / clientRect.width;
+        const relY = (event.clientY - clientRect.top) / clientRect.height;
+
+        // Map to viewBox coordinates
+        const x = viewBox.minX + relX * viewBox.width;
+        const y = viewBox.minY + relY * viewBox.height;
+
+        return { x, y };
+    }
+
+    /**
+     * Toolbar actions for the coverability graph drawing display.
+     * Add or modify actions as needed.
+     * @protected
+     */
+    protected readonly toolbarActions = computed<DrawToolbarAction[]>(() => [
+        {
+            icon: 'delete',
+            tooltip: 'PROCESS_NET.BUTTON_CLEAR_DRAWING',
+            color: 'warn',
+            isActive: !this.isEmpty(),
+            action: () => this.clearDrawing(),
+        },
+        {
+            icon: 'checklist',
+            //TODO ANPASSEN Tooltipps
+            tooltip: 'COVERABILITY_GRAPH.BUTTON_VALIDATE_NET',
+            isActive: !this.isEmpty() && !this.showCompleteGraph(),
+            color: 'primary',
+            action: () => this.onValidate(),
+        },
+        {
+            icon: 'swap_horiz',
+            //TODO ANPASSEN Tooltipps
+
+            tooltip: 'COVERABILITY_GRAPH.TOGGLE_VIEW',
+            isActive: !this.isEmpty(),
+            color: 'accent',
+            action: () => this.toggleViewMode(),
+        },
+        {
+            icon: this.generateIcon(),
+            tooltip: this.generateTooltip(),
+            isActive: this._sourcePetriNetService.getCurrentSourceNet() !== null,
+            color: 'primary',
+            action: () => this.onGenerate(),
+        },
+    ]);
+
+    /**
+     * Toolbar instructions for the coverability graph drawing display.
+     * Describes how to interact with the coverability graph:
+     * - Building the graph by firing transitions
+     * - Moving nodes for organization
+     * - Resetting states by double-clicking
+     * TODO: add more instructions as needed.
+     * @protected
+     */
+    protected readonly toolbarInstructions = computed<DrawToolbarInstruction[]>(() => [
+        { label: 'COVERABILITY_GRAPH.ACTION_BUILD', text: 'COVERABILITY_GRAPH.INSTRUCTION_BUILD' },
+        { label: 'COVERABILITY_GRAPH.ACTION_MOVE', text: 'COVERABILITY_GRAPH.INSTRUCTION_MOVE' },
+        { label: 'COVERABILITY_GRAPH.ACTION_RESET', text: 'COVERABILITY_GRAPH.INSTRUCTION_RESET' },
+        { label: 'COVERABILITY_GRAPH.ACTION_VALIDATE', text: 'COVERABILITY_GRAPH.INSTRUCTION_VALIDATE' },
+        { label: 'COVERABILITY_GRAPH.ACTION_TOGGLEVIEW', text: 'COVERABILITY_GRAPH.INSTRUCTION_TOGGLEVIEW' },
+        {
+            label: 'COVERABILITY_GRAPH.ACTION_SHOWCOMPLETEGRAPH',
+            text: 'COVERABILITY_GRAPH.INSTRUCTION_SHOWCOMPLETEGRAPH',
+        },
+        {
+            label: 'COVERABILITY_GRAPH.ACTION_HIDECOMPLETEGRAPH',
+            text: 'COVERABILITY_GRAPH.INSTRUCTION_HIDECOMPLETEGRAPH',
+        },
+    ]);
+
+    private clearDrawing() {
+        this._coverabilityGraphService.clear();
+    }
+
+    private onGenerate() {
+        this._coverabilityGraphService.setShowingCompleteCoverabilityGraph(!this.showCompleteGraph());
+        if (this.showCompleteGraph()) {
+            //TODO ändern auf neue Methode
+            this._coverabilityGraphService.generateCoverabilityGraphOldMethod();
+            this._drawPanningService.fitViewToGraph(this.completeCoverabilityGraphDiagram());
+        } else {
+            if (this.userCoverabilityGraphDiagram().nodes.length > 1) {
+                this._drawPanningService.fitViewToGraph(this.userCoverabilityGraphDiagram());
+            }
+        }
+    }
+
+    readonly generateTooltip = computed(() =>
+        this.showCompleteGraph() ? 'COVERABILITY_GRAPH.HIDE_COMPLETE_GRAPH' : 'COVERABILITY_GRAPH.SHOW_COMPLETE_GRAPH',
+    );
+
+    readonly generateIcon = computed(() => (this.showCompleteGraph() ? 'visibility_off' : 'account_tree'));
+
+    private onValidate() {
+        this._coverabilityGraphService.checkCoverabilityGraphCompleteness();
+    }
+
+    private toggleViewMode() {
+        this.viewMode.update((mode) => (mode === VIEW_MODES.SIMPLE ? VIEW_MODES.DESCRIPTIVE : VIEW_MODES.SIMPLE));
+    }
+
+    protected computePosition(node: CoverabilityStateNode) {
+        return node.x - this.calculateWidth(node) / 2;
+    }
+}

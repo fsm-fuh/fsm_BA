@@ -1,0 +1,1052 @@
+import { inject, Injectable, signal, Signal, WritableSignal } from '@angular/core';
+import {
+    CoverabilityFiringEdge,
+    CoverabilityGraph,
+    CoverabilityStateNode,
+    CovMarkingStringSaver,
+} from '../classes/coverability-graph';
+import { ModeService } from './mode.service';
+import { SourcePetriNetService } from './source-petri-net.service';
+import { Diagram } from '../classes/diagram/diagram';
+import { DiagramTransition } from '../classes/diagram/diagram-transition';
+import { DiagramPlace } from '../classes/diagram/diagram-place';
+import { ToasterNotificationService } from './toaster-notification.service';
+import { Tab } from '../classes/tabs';
+import { PanningService } from './panning.service';
+import { MatDialog } from '@angular/material/dialog';
+import { ToastList } from '../classes/toast';
+import { SpringEmbedderService } from './spring-embedder.service';
+import { CgMarkingDialogComponent } from '../components/tab-toolbar/coverability-graph/cg-marking-dialog/cg-marking-dialog.component';
+
+@Injectable({
+    providedIn: 'root',
+})
+export class CoverabilityGraphService {
+    private _coverabilityGraph: WritableSignal<CoverabilityGraph> = signal(new CoverabilityGraph());
+    private _completeCoverabilityGraph: WritableSignal<CoverabilityGraph> = signal(new CoverabilityGraph());
+    private _modeService: ModeService = inject(ModeService);
+    private _sourceNetService = inject(SourcePetriNetService);
+    private _startMarkingCG: Record<string, number> = {};
+    private _currentMarkingCG = signal<Record<string, number>>(this._startMarkingCG);
+    private _lastProcessedDiagram: Diagram | null = null;
+    private _cachedCompleteGraphDiagram: Diagram | null = null;
+    private _notificationService = inject(ToasterNotificationService);
+    private _panningService = inject(PanningService);
+    private _springEmbeddingService = inject(SpringEmbedderService);
+    private _showingCompleteGraph = signal(false);
+    private checkedStateNode: CoverabilityStateNode | undefined;
+    readonly _dialog = inject(MatDialog);
+
+    private existingOmegaLabels: string[] = [];
+    private existingAutoGraphOmegaLabels: string[] = [];
+    // private omegaLabelsExistInPetriNet:boolean=false;
+    private netOmegaPositions: boolean[] = [];
+    private autoNetOmegaPositions: boolean[] = [];
+    private autoCompleteTempLabel = '';
+    private oldLabelOfFirstOmegaNode = '';
+    private userMarkingComparisonArray: string[] = [];
+
+    private currentSourceCgId = 'CG1';
+
+    set startMarkingCG(marking: Record<string, number>) {
+        this._startMarkingCG = marking;
+    }
+
+    set currentMarkingCG(marking: Record<string, number>) {
+        this._currentMarkingCG.set(marking);
+    }
+
+    get coverabilityGraphSignal(): Signal<CoverabilityGraph> {
+        return this._coverabilityGraph.asReadonly();
+    }
+
+    get completeCoverabilityGraph(): Signal<CoverabilityGraph> {
+        return this._completeCoverabilityGraph;
+    }
+
+    get showingCompleteCoverabilityGraph(): Signal<boolean> {
+        return this._showingCompleteGraph.asReadonly();
+    }
+
+    setShowingCompleteCoverabilityGraph(show: boolean) {
+        this._showingCompleteGraph.set(show);
+    }
+
+    /**
+     * Method to initialize first CoverabilityStateNode of Coverability Graph
+     * Extracts marking from coverability-graph-display
+     * beim Initialisieren direkt den ersten Knoten anlegen
+     * dies not set Omega values, since first node cannot have Omega
+     *
+     */
+    initializeCoverabilityGraphFirstStateNode() {
+        console.log('initializeCoverability Graph method started');
+        const currentNet = this._sourceNetService.getCurrentSourceNet();
+        if (!currentNet) {
+            this._coverabilityGraph.set(new CoverabilityGraph());
+            this._lastProcessedDiagram = null;
+            return;
+        }
+
+        if (this._lastProcessedDiagram === currentNet) {
+            return;
+        }
+
+        this._lastProcessedDiagram = currentNet;
+
+        //Current marking auslesen
+        this._startMarkingCG = currentNet.startMarking || {};
+        const initialCoverabilityLabel: string = Object.values(this._startMarkingCG).join(' ');
+        //x und y Startwert konstant festlegen
+        const initialX = 300;
+        const initialY = 50;
+        //neuen StateNode erzeugen
+        const initialId = 'CG1';
+        this.currentSourceCgId = initialId;
+
+        const initialStateNode = new CoverabilityStateNode(
+            initialId,
+            initialX,
+            initialY,
+            initialCoverabilityLabel,
+            this._startMarkingCG,
+        );
+        initialStateNode.isStartingState = true;
+
+        //Omega-Array des Service initialisieren
+        this.initializeNetOmegaPositions(this._startMarkingCG);
+
+        if (!this._modeService.isExamMode(Tab.COVERABILITY_GRAPH)) {
+            //AUTOMATISCH StateNode erzeugen
+            const newGraph = new CoverabilityGraph();
+            newGraph.nodes = [initialStateNode];
+            newGraph.edges = [];
+            this._coverabilityGraph.set(newGraph);
+
+            console.log('initialCoverabilityLabel' + initialCoverabilityLabel);
+        } else if (this._modeService.isExamMode(Tab.COVERABILITY_GRAPH)) {
+            //nur im Hintergrund vergleichen, User gibt NodeLabel, also Marking, selbst ein und bekommt Feedback
+            this.getCorrectUserMarking(initialStateNode, () => {
+                const newGraph = new CoverabilityGraph();
+                newGraph.nodes = [initialStateNode];
+                newGraph.edges = [];
+                this._coverabilityGraph.set(newGraph);
+            });
+        }
+    }
+
+    /**
+     * Gets firing entry from play service
+     * Converts marking to CG ID (only displays token numbers sorted ascending by place id (alphanumerical))
+     *
+     * @param diagram The current diagram.
+     * @param label The label of the fired transition.
+     */
+    convertFiringEntryLabelToCoverabilityGraphID(diagram: Diagram, label: string) {
+        let markingExists = false;
+        let connectionExists = false;
+
+        let currentCoverabilityLabel: string = Object.entries(diagram.marking)
+            .map(([, value]) => `${value}`)
+            .join(' ');
+        //add omega at correct positions of label
+        const tempCovLabelMarkingNumbers = Object.values(diagram.marking);
+        const tempCovLabelMarkingStrings = tempCovLabelMarkingNumbers.join().split(',');
+        for (let j = 0; j < Object.values(diagram.marking).length; j++) {
+            if (this.netOmegaPositions[j] === true) {
+                tempCovLabelMarkingStrings[j] = 'w';
+            }
+        }
+        currentCoverabilityLabel = tempCovLabelMarkingStrings.join(' ');
+
+        const graph = this._coverabilityGraph();
+        const nextNodeIndex = graph.nodes.length + 1;
+        let currentCgId = 'CG' + nextNodeIndex;
+        const nextEdgeIndex = graph.edges.length + 1;
+        const currentCgEdgeId = 'Edge' + nextEdgeIndex;
+        let compareCgSourceStateNode: CoverabilityStateNode;
+        let compareCgTargetStateNode: CoverabilityStateNode;
+
+        //prüfen, ob aktuelle Zielmarkierung bereits vorhanden
+        for (const nodeElement of graph.nodes) {
+            const existingNodeLabel: string = nodeElement.label;
+            if (existingNodeLabel === currentCoverabilityLabel) {
+                markingExists = true;
+                currentCgId = nodeElement.id;
+                compareCgTargetStateNode = nodeElement;
+
+                // Vorhandensein der Verbindung prüfen, wenn Markierung bereits existiert;
+                // so wird sichergestellt, dass eine Markierung, die von einer anderen Transiion
+                // erzeugt wurde, ebenfalls verbunden bzw. eingefügt wird
+                //displayLabel, source und target der Verbindungen vergleichen, um Gleichheit eindeutig zu prüfen
+                for (const edgeElement of graph.edges) {
+                    const existingArcDisplayLabel: string = edgeElement.displayLabel;
+                    const existingArcSource: string = edgeElement.source;
+                    const existingArcTarget: string = edgeElement.target;
+
+                    if (
+                        existingArcDisplayLabel === label &&
+                        existingArcSource === this.currentSourceCgId &&
+                        existingArcTarget === currentCgId
+                    ) {
+                        connectionExists = true;
+                    }
+                }
+            }
+        }
+
+        if (!markingExists && !connectionExists) {
+            // neuer Knoten und neue Kante
+
+            const { x: currentX, y: currentY } = this.calculateRandomPosition();
+
+            //neuen StateNode erzeugen
+            const previousNode = graph.nodes.find((node) => node.id === this.currentSourceCgId);
+
+            const firingPath = previousNode && previousNode.firingPath ? previousNode.firingPath + ' ' + label : label;
+            const currentStateNode = new CoverabilityStateNode(
+                currentCgId,
+                currentX,
+                currentY,
+                currentCoverabilityLabel,
+                { ...diagram.marking } as Record<string, number>,
+                firingPath,
+            );
+
+            const currentFiringEdge = new CoverabilityFiringEdge(
+                currentCgEdgeId,
+                this.currentSourceCgId,
+                currentCgId,
+                label,
+                firingPath,
+            );
+
+            //add predecessors and successors to StateNodes
+            for (const graphNodeElement of graph.nodes) {
+                compareCgSourceStateNode = graphNodeElement;
+
+                if (compareCgSourceStateNode.id === this.currentSourceCgId) {
+                    currentStateNode.predecessors.push(compareCgSourceStateNode);
+                    compareCgSourceStateNode.successors.push(currentStateNode);
+                }
+            }
+            //check for infinity after addition of each new StateNode
+            this.checkForInfinity(currentStateNode);
+
+            const proceed = () => {
+                this._coverabilityGraph.update((graph) => {
+                    const newGraph = new CoverabilityGraph();
+                    newGraph.nodes = [...graph.nodes, currentStateNode];
+                    newGraph.edges = [...graph.edges, currentFiringEdge];
+                    return newGraph;
+                });
+
+                if (this._coverabilityGraph().isUnlimited) {
+                    this._notificationService.showInfo(
+                        'TOASTER.HEADER.PETRI_NET_UNLIMITED',
+                        'TOASTER.BODY.PETRI_NET_UNLIMITED',
+                    );
+                }
+
+                //change target to new source for arcs
+                this.currentSourceCgId = currentCgId;
+                console.log('current COV label' + currentCoverabilityLabel);
+            };
+
+            if (!this._modeService.isExamMode(Tab.COVERABILITY_GRAPH)) {
+                proceed();
+            } else if (this._modeService.isExamMode(Tab.COVERABILITY_GRAPH)) {
+                //nur im Hintergrund vergleichen, User gibt NodeLabel, also Marking, selbst ein und bekommt Feedback
+                this.getCorrectUserMarking(currentStateNode, proceed, previousNode?.covMarkingAsStringRecord);
+            }
+            this._springEmbeddingService.calculateLayout(graph).catch(console.error);
+
+            return;
+        }
+
+        if (markingExists && !connectionExists) {
+            // neue Kante zu vorhandenem Markierungsknoten
+            const previousNode = graph.nodes.find((node) => node.id === this.currentSourceCgId);
+            const firingPath = previousNode && previousNode.firingPath ? previousNode.firingPath + ' ' + label : label;
+            const currentFiringEdge = new CoverabilityFiringEdge(
+                currentCgEdgeId,
+                this.currentSourceCgId,
+                currentCgId,
+                label,
+                firingPath,
+            );
+
+            //Automatically show new graph in Learn Mode
+            //Also show new graph in Exam mode if StateNode already exists to prevent confusion
+            this._coverabilityGraph.update((graph) => {
+                const newGraph = new CoverabilityGraph();
+                newGraph.nodes = [...graph.nodes];
+                newGraph.edges = [...graph.edges, currentFiringEdge];
+                return newGraph;
+            });
+
+            this._springEmbeddingService.calculateLayout(graph).catch(console.error);
+
+            // }
+
+            //add predecessors and successors to StateNodes
+            for (const nodeElementIterator of graph.nodes) {
+                compareCgSourceStateNode = nodeElementIterator;
+
+                //TO-DO check for better way than ! or check that value can never be unassigned
+                if (compareCgSourceStateNode.id === this.currentSourceCgId) {
+                    compareCgTargetStateNode!.predecessors.push(compareCgSourceStateNode);
+                    compareCgSourceStateNode.successors.push(compareCgTargetStateNode!);
+                }
+            }
+
+            this._notificationService.showInfo('TOASTER.HEADER.STATENODE_EXISTING', 'TOASTER.BODY.STATENODE_EXISTING');
+
+            this.currentSourceCgId = currentCgId;
+            console.log('current COV label' + currentCoverabilityLabel);
+            return;
+        }
+
+        if (markingExists && connectionExists) {
+            // State wechseln, damit Hinzufügen beim nächsten Aufruf der Methode an der richtigen Stelle passiert
+            //wird nach Durchlaufen aller if-Schleifen getriggert
+            this._notificationService.showInfo(
+                'TOASTER.HEADER.STATENODE_ARC_EXISTING',
+                'TOASTER.BODY.STATENODE_ARC_EXISTING',
+            );
+
+            this.currentSourceCgId = currentCgId;
+            console.log('current COV label' + currentCoverabilityLabel);
+            return;
+        }
+    }
+
+    /**
+     * Changes state of the PetriNet to the State of a CoverabilityGraph StateNode, meaning the marking is adjusted.
+     * Triggered by clicking a StateNode in the CG.
+     * Uses the "saved" Marking of the coverability graph model where each StateNode saves it's corresponding marking.
+     * @param node The clicked StateNode
+     */
+    //TODO überarbeiten für Omega
+    switchPnStateToClickedState(node: CoverabilityStateNode) {
+        console.log('Cov ChangeStateMethod started.');
+        console.log('CovStateNode ID' + node.id);
+        console.log('CovStateNodeLabel' + node.label);
+        console.log('CovStateNodeMarking' + node.covMarking);
+
+        if (!this._sourceNetService.getCurrentSourceNet()) {
+            this._notificationService.showError('TOASTER.HEADER.READ_ERROR', 'TOASTER.BODY.LOAD_NET_FIRST');
+            return;
+        } else {
+            const oldPetriNet: Diagram | null = this._sourceNetService.getCurrentSourceNet();
+            if (!oldPetriNet) {
+                return;
+            }
+
+            console.log('Cov Old PN nodes: ' + oldPetriNet.allNodes + ' ' + 'marking ' + oldPetriNet.currentMarking$);
+            oldPetriNet.marking = node.covMarking;
+            //change state of net
+            this.currentSourceCgId = node.id;
+
+            oldPetriNet.updateMarking();
+            this._sourceNetService.updateEditedNet(oldPetriNet, { triggeredByFiring: false });
+            // console.log('Changed PN:' + oldPetriNet.currentMarking$);
+            this._notificationService.showSuccess('TOASTER.HEADER.SUCCESS', 'TOASTER.BODY.SWITCHED_STATE_SUCCESSFULLY');
+        }
+    }
+
+    /**
+     * Method to check for infinity of Coverability Graph.
+     * Triggered after each firing of a transition in the Petri Net.
+     * Goes backward from newly added StateNode and checks if there is a Combination of StateNodes which has indefinite growth
+     * Uses recursive method as well as comparison method for markings
+     * checkForInfinity initializes the recursion
+     * @param node The current StateNode
+     * @param graph The current graph, distinguishes between user-generated and auto-generated Coverablitiy Graph
+     */
+    checkForInfinity(node: CoverabilityStateNode, graph?: CoverabilityGraph) {
+        const targetGraph = graph ?? this._coverabilityGraph();
+        console.log('Cov CheckForInfinity');
+        for (const cgStateNode of targetGraph.nodes) {
+            cgStateNode.nodeVisitedStateForLimitCheck = false;
+        }
+
+        for (const cgEdge of targetGraph.edges) {
+            cgEdge.isPartOfUnlimitedPath = false;
+        }
+
+        this.checkedStateNode = node;
+        this.recursiveCheckForInfinity(node, targetGraph);
+    }
+
+    /**
+     * Method to check for infinity of Coverability Graph.
+     * Triggered after each firing of a transition in the Petri Net.
+     * Goes backward from newly added StateNode and checks if there is a Combination of StateNodes which has indefinite growth
+     * Uses recursive method as well as comparison method for markings
+     * checkForInfinity initializes the recursion
+     * @param node The current StateNode
+     * @param graph The current graph, distinguishes between user-generated and auto-generated Coverablitiy Graph
+     */
+    checkForAutoGraphInfinity(node: CoverabilityStateNode, graph?: CoverabilityGraph) {
+        const targetGraph = graph ?? this._coverabilityGraph();
+        console.log('Cov CheckForInfinity');
+        for (const cgStateNode of targetGraph.nodes) {
+            cgStateNode.nodeVisitedStateForLimitCheck = false;
+        }
+
+        for (const cgEdge of targetGraph.edges) {
+            cgEdge.isPartOfUnlimitedPath = false;
+        }
+
+        this.checkedStateNode = node;
+        this.recursiveCheckForAutoGraphInfinity(node, targetGraph);
+    }
+
+    /**
+     * Helper method for recursive check of method checkForInfinity
+     */
+    recursiveCheckForInfinity(node: CoverabilityStateNode, graph: CoverabilityGraph) {
+        console.log('Cov Recursive CheckforInfinity');
+        node.nodeVisitedStateForLimitCheck = true;
+        let areTokensGettingBigger = false;
+        if (this.checkedStateNode) {
+            console.log('Cov Rec CheckForInfinity - If this.CheckedStateNode');
+            for (const checkPredecessor of node.predecessors) {
+                if (!checkPredecessor.nodeVisitedStateForLimitCheck) {
+                    console.log('Cov Rec CheckForInfinity - !checkPredecessor.nodeVisitedStateForLimitCheck');
+                    areTokensGettingBigger = this.compareTwoMarkings(
+                        this.checkedStateNode.covMarking,
+                        checkPredecessor.covMarking,
+                    );
+                    console.log('Cov Are tokens getting bigger - ' + areTokensGettingBigger);
+                    console.log('Cov this.checkedStateNode.tokenSum ' + this.checkedStateNode.tokenSum);
+                    console.log('Cov checkPredecessor.tokenSum' + checkPredecessor.tokenSum);
+
+                    if (
+                        this.checkedStateNode.tokenSum > checkPredecessor.tokenSum &&
+                        areTokensGettingBigger &&
+                        !graph.isUnlimited
+                    ) {
+                        console.log('Cov PN Unbeschränkt');
+                        graph.isUnlimited = true;
+                        checkPredecessor.isMorMStrich = true;
+                        this.checkedStateNode.isMorMStrich = true;
+                        //TODO ÜBERPRÜFEN
+                        this.setOmegaValues(this.checkedStateNode, checkPredecessor);
+                        graph.omegaValuesExistInGraph = true;
+
+                        if (checkPredecessor.isStartingState) {
+                            graph.breakLoop = true;
+                            return;
+                        }
+                        return;
+                    } else {
+                        if (checkPredecessor.isStartingState) {
+                            this._coverabilityGraph().breakLoop = true;
+                            return;
+                        }
+                        this.recursiveCheckForInfinity(checkPredecessor, graph);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Helper method for recursive check of method checkForInfinity
+     */
+    recursiveCheckForAutoGraphInfinity(node: CoverabilityStateNode, graph: CoverabilityGraph) {
+        console.log('Cov Recursive CheckforInfinity');
+        node.nodeVisitedStateForLimitCheck = true;
+        let areTokensGettingBigger = false;
+        if (this.checkedStateNode) {
+            console.log('Cov Rec CheckForInfinity - If this.CheckedStateNode');
+            for (const checkPredecessor of node.predecessors) {
+                if (!checkPredecessor.nodeVisitedStateForLimitCheck) {
+                    console.log('Cov Rec CheckForInfinity - !checkPredecessor.nodeVisitedStateForLimitCheck');
+                    areTokensGettingBigger = this.compareTwoMarkings(
+                        this.checkedStateNode.covMarking,
+                        checkPredecessor.covMarking,
+                    );
+                    console.log('Cov Are tokens getting bigger - ' + areTokensGettingBigger);
+                    console.log('Cov this.checkedStateNode.tokenSum ' + this.checkedStateNode.tokenSum);
+                    console.log('Cov checkPredecessor.tokenSum' + checkPredecessor.tokenSum);
+
+                    if (
+                        this.checkedStateNode.tokenSum > checkPredecessor.tokenSum &&
+                        areTokensGettingBigger &&
+                        !graph.isUnlimited
+                    ) {
+                        console.log('Cov PN Unbeschränkt');
+                        graph.isUnlimited = true;
+                        checkPredecessor.isMorMStrich = true;
+                        this.checkedStateNode.isMorMStrich = true;
+                        //TODO ÜBERPRÜFEN
+                        this.setAutoGraphOmegaValues(this.checkedStateNode, checkPredecessor);
+                        graph.omegaValuesExistInGraph = true;
+
+                        if (checkPredecessor.isStartingState) {
+                            graph.breakLoop = true;
+                            return;
+                        }
+                        return;
+                    } else {
+                        if (checkPredecessor.isStartingState) {
+                            this._coverabilityGraph().breakLoop = true;
+                            return;
+                        }
+                        this.recursiveCheckForAutoGraphInfinity(checkPredecessor, graph);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Compares Marking of StateNode with Marking of previous StateNode to check for "real growth".
+     * Returns "true" when current marking "bigger" than previous marking on same path.
+     * Needed for InfinityCheck.
+     * @param currentlyVisitedMarking
+     * @param previouslyVisitedMarking
+     */
+    compareTwoMarkings(
+        currentlyVisitedMarking: Record<string, number>,
+        previouslyVisitedMarking: Record<string, number>,
+    ): boolean {
+        let currentMarkingHigher = true;
+
+        const currentPlaceMarking = Object.values(currentlyVisitedMarking);
+        const previousPlaceMarking = Object.values(previouslyVisitedMarking);
+
+        for (let i = 0; i < currentPlaceMarking.length; i++) {
+            if (previousPlaceMarking[i] > currentPlaceMarking[i]) currentMarkingHigher = false;
+        }
+
+        return currentMarkingHigher;
+    }
+
+    /**Compares User input of type marking with Marking of the next StateNode
+     * created from firing a transition.
+     * Used in Exam Mode to determine if user can define marking correctly.
+     * @param userInputMarkingAsStringSaver Marking inputted by user with dialog. Target: Should contain the "next" marking after firing. Strring type so that omega can be handled.
+     * @param nextStateNode StateNode after firing, only saved in model before this method, visualized after successful comparison.
+     * @returns boolean comparison value, handled by calling method
+     */
+    compareUserInputWithTargetState(
+        userInputMarkingAsStringSaver: CovMarkingStringSaver[],
+        nextStateNode: CoverabilityStateNode,
+    ): boolean {
+        let comparison = true;
+        //reinitialize comparison array
+        this.userMarkingComparisonArray = [];
+        const userMarking = Object.values(userInputMarkingAsStringSaver);
+        const actualTargetMarking = Object.values(nextStateNode.covMarkingAsStringRecord);
+
+        for (let i = 0; i < userMarking.length; i++) {
+            if (
+                actualTargetMarking[i].markingKeyString != userMarking[i].markingKeyString ||
+                actualTargetMarking[i].markingValueString != userMarking[i].markingValueString
+            ) {
+                comparison = false;
+                this.userMarkingComparisonArray.push(actualTargetMarking[i].markingKeyString);
+            }
+        }
+        return comparison;
+    }
+
+    /**
+     * Opens up a dialog where user can input a marking, handles checking of the user marking.
+     * If the marking is correct or the user dismisses the dialog (auto-fill), the onCorrect callback is executed.
+     * Calls compareUserInputWithTargetState method.
+     *
+     * @param node The node for which the marking is checked; determined by the calling method.
+     * @param onCorrect Callback function to be executed when the marking is correct or the dialog is dismissed.
+     * @param startMarking Optional marking to pre-fill the dialog with. If not provided, defaults to 0s.
+     */
+
+    getCorrectUserMarking(
+        node: CoverabilityStateNode,
+        onCorrect: () => void,
+        startMarking?: CovMarkingStringSaver[],
+    ): void {
+        const correctMarking: CovMarkingStringSaver[] = node.covMarkingAsStringRecord;
+
+        const userInputtedMarking: CovMarkingStringSaver[] = [];
+
+        // Initialize user input marking
+        if (startMarking) {
+            for (let k = 0; k < correctMarking.length; k++) {
+                //temporary StringSaver with correct place IDs and empty strings as values
+                const tempCovMarkingStringSaver: CovMarkingStringSaver = new CovMarkingStringSaver(
+                    startMarking[k].markingKeyString ?? '0',
+                    '',
+                );
+                userInputtedMarking[k] = tempCovMarkingStringSaver;
+            }
+        } else {
+            // Initialize with 0s for user input
+            for (let l = 0; l < correctMarking.length; l++) {
+                const tempCovMarkingStringSaver2: CovMarkingStringSaver = new CovMarkingStringSaver('0', '');
+                userInputtedMarking[l] = tempCovMarkingStringSaver2;
+            }
+        }
+
+        const markingDialogRef = this._dialog.open(CgMarkingDialogComponent, {
+            data: {
+                title: 'CGMARKING_DIALOG.TITLE',
+                userInputMarking: userInputtedMarking,
+                expectedCorrectMarking: correctMarking,
+                message: 'CGMARKING_DIALOG.MESSAGE_DEFAULT',
+            },
+        });
+        markingDialogRef.afterClosed().subscribe((result: CovMarkingStringSaver[] | undefined) => {
+            if (result) {
+                const isUserMarkingCorrect = this.compareUserInputWithTargetState(result, node);
+                if (isUserMarkingCorrect) {
+                    this._notificationService.showSuccess(
+                        'TOASTER.HEADER.MARKING_INPUT_CORRECT',
+                        'TOASTER.BODY.MARKING_INPUT_CORRECT',
+                    );
+                    onCorrect();
+                } else {
+                    // const userInputWrongPlacesList: ToastList[] = this.userMarkingComparisonArray.map((item) => {
+                    //     return {
+                    //         message: `${item}`,
+                    //     };
+                    // });
+
+                    // for (const element of userInputWrongPlacesList) {
+                    //     console.log('userInpputWQrongPlacesList element ' + element.message)
+
+                    // }
+
+                    this._notificationService.showError(
+                        'TOASTER.HEADER.MARKING_INPUT_WRONG',
+                        'TOASTER.BODY.MARKING_INPUT_WRONG',
+                        // { list: userInputWrongPlacesList },
+                    );
+                }
+            } else {
+                this._notificationService.showInfo(
+                    'TOASTER.HEADER.MARKING_DIALOG_DISMISSED',
+                    'TOASTER.BODY.MARKING_DIALOG_DISMISSED',
+                );
+                onCorrect();
+            }
+        });
+    }
+
+    /**
+     * Calculates the complete Coverability Graph for the current source Petri net.
+     * Follows Algorithm 2.2.4 (Calculation of the Reachability Graph).
+     * Stops if the graph becomes too large or unlimited.
+     *
+     * @returns The calculated Coverability Graph.
+     */
+
+    calculateCompleteCoverabilityGraph(): CoverabilityGraph {
+        const diagram = this._sourceNetService.getCurrentSourceNet();
+        if (!diagram) {
+            return new CoverabilityGraph();
+        }
+
+        if (this._cachedCompleteGraphDiagram === diagram) {
+            return this._completeCoverabilityGraph();
+        }
+
+        const { graph, Q, processedNodeIds, nodeByLabel, counters } =
+            this.initializeCoverabilityGraphCalculation(diagram);
+
+        while (Q.length > 0) {
+            //TODO anpassen, damit funktioniert
+            // if (this.shouldStopCovGraphCalculation(graph)) {
+            //     break;
+            // }
+
+            const m = Q.shift()!;
+
+            //TODO check compared id to avoid creating same stateNode multiple times
+            // Q <- Q \ M is implicitly handled here by skipping if already processed
+            if (processedNodeIds.has(m.id)) {
+                continue;
+            }
+
+            const enabledTransitions = this.getEnabledTransitions(diagram, m.covMarking);
+
+            //FOR EACH t ∈ T DO && IF m --[t]--> m' THEN
+            for (const transition of enabledTransitions) {
+                const nextMarking = this.computeNextMarking(m.covMarking, transition);
+                // const nextStateNodeLabelWithOmega = this.autoCompleteTempLabel;
+
+                const m_prime = this.getOrCreateNextNode(graph, nodeByLabel, diagram.places, nextMarking, counters);
+
+                // Q <- Q U {m'}
+                if (!Q.includes(m_prime)) {
+                    Q.push(m_prime);
+                }
+
+                this.processEdge(graph, m, m_prime, transition, counters);
+
+                //hier nochmal überprüfen, um erstes OmegaLabel zu ersetzen, da sonst erster OmegaNode 2mal erzeugt wiurd, da Infinity erst am Ende geprüft
+                if (m_prime.label !== this.oldLabelOfFirstOmegaNode) {
+                    nodeByLabel.delete(this.oldLabelOfFirstOmegaNode);
+                    nodeByLabel.set(m_prime.label, m_prime);
+                }
+
+                //TODO vermutlich hier ausblenden? durch Omega sollte ja kein Fehler passieren können
+                // if (graph.isUnlimited) break;
+            }
+
+            //TODO vermutlich hier ausblenden? durch Omega sollte ja kein Fehler passieren können
+            // if (graph.isUnlimited) {
+            //     break;
+            // }
+
+            // M <- M U {m}
+            processedNodeIds.add(m.id);
+        }
+
+        this._cachedCompleteGraphDiagram = diagram;
+        this._completeCoverabilityGraph.set(graph);
+        this._springEmbeddingService.calculateLayout(graph).catch(console.error);
+        return graph;
+    }
+
+    private initializeCoverabilityGraphCalculation(diagram: Diagram) {
+        const graph = new CoverabilityGraph();
+        const startMarking = diagram.startMarking;
+        const places = diagram.places;
+        const startLabel = places.map((p) => startMarking[p.id] ?? 0).join(' ');
+        //TODO Marking schon hier mit Omegas? eher später
+
+        const startNode = new CoverabilityStateNode('CG1', 300, 50, startLabel, startMarking);
+        startNode.isStartingState = true;
+
+        graph.nodes.push(startNode);
+
+        return {
+            graph,
+            Q: [startNode],
+            processedNodeIds: new Set<string>(),
+            nodeByLabel: new Map<string, CoverabilityStateNode>([[startLabel, startNode]]),
+            counters: { nodeId: 1, edgeId: 0 },
+        };
+    }
+
+    private shouldStopCovGraphCalculation(graph: CoverabilityGraph): boolean {
+        if (graph.nodes.length > 2000) {
+            graph.isUnlimited = true;
+            return true;
+        }
+        return graph.isUnlimited || graph.breakLoop;
+    }
+
+    private getEnabledTransitions(diagram: Diagram, marking: Record<string, number>): DiagramTransition[] {
+        return diagram.transitions.filter((t) => {
+            return t.getInputFlow().every((flow) => {
+                const tokens = marking[flow.place.id] || 0;
+                return tokens >= flow.weight;
+            });
+        });
+    }
+
+    private computeNextMarking(
+        currentMarking: Record<string, number>,
+        transition: DiagramTransition,
+    ): Record<string, number> {
+        const nextMarking = { ...currentMarking };
+        transition.getInputFlow().forEach((flow) => {
+            const currentTokens = nextMarking[flow.place.id] ?? 0;
+            nextMarking[flow.place.id] = currentTokens - flow.weight;
+        });
+        transition.getOutputFlow().forEach((flow) => {
+            nextMarking[flow.place.id] = (nextMarking[flow.place.id] || 0) + flow.weight;
+        });
+
+        //add omega at correct positions of label
+        const tempCovLabelMarkingNumbers = Object.values(nextMarking);
+        const tempCovLabelMarkingStrings = tempCovLabelMarkingNumbers.join().split(',');
+        for (let j = 0; j < Object.values(nextMarking).length; j++) {
+            if (this.autoNetOmegaPositions[j] === true) {
+                tempCovLabelMarkingStrings[j] = 'w';
+            }
+        }
+
+        this.autoCompleteTempLabel = tempCovLabelMarkingStrings.join(' ');
+        return nextMarking;
+    }
+
+    private calculateRandomPosition(): { x: number; y: number } {
+        const viewBox = this._panningService.viewBox();
+        const width = Math.max(viewBox.width, 400);
+        const height = Math.max(viewBox.height, 300);
+        const startX = viewBox.minX;
+        const startY = viewBox.minY;
+
+        const x: number = startX + Math.random() * width;
+        const y: number = startY + Math.random() * height;
+        return { x, y };
+    }
+
+    private getOrCreateNextNode(
+        graph: CoverabilityGraph,
+        nodeByLabel: Map<string, CoverabilityStateNode>,
+        places: DiagramPlace[],
+        nextMarking: Record<string, number>,
+        counters: { nodeId: number },
+    ): CoverabilityStateNode {
+        this.oldLabelOfFirstOmegaNode = places.map((p) => nextMarking[p.id] ?? 0).join(' ');
+        const nextLabel = this.autoCompleteTempLabel;
+
+        let m_prime = nodeByLabel.get(nextLabel);
+
+        if (!m_prime) {
+            counters.nodeId++;
+            const { x, y } = this.calculateRandomPosition();
+            m_prime = new CoverabilityStateNode(`CG${counters.nodeId}`, x, y, nextLabel, nextMarking);
+            graph.nodes.push(m_prime);
+            nodeByLabel.set(nextLabel, m_prime);
+        }
+        // nodeByLabel.set(nextLabel, m_prime);
+        return m_prime;
+    }
+
+    private processEdge(
+        graph: CoverabilityGraph,
+        source: CoverabilityStateNode,
+        target: CoverabilityStateNode,
+        transition: DiagramTransition,
+        counters: { edgeId: number },
+    ): void {
+        const edgeExists = graph.edges.some(
+            (e) => e.source === source.id && e.target === target.id && e.displayLabel === transition.label,
+        );
+
+        if (!edgeExists) {
+            counters.edgeId++;
+            const edge = new CoverabilityFiringEdge(
+                `Edge${counters.edgeId}`,
+                source.id,
+                target.id,
+                transition.label,
+                '',
+            );
+            graph.edges.push(edge);
+            target.predecessors.push(source);
+            source.successors.push(target);
+
+            this.checkForAutoGraphInfinity(target, graph);
+        }
+    }
+
+    /**
+     * Clears the current Coverability Graph and resets the last processed diagram as well as the marking.
+     * @param reinitialize If true, re-initializes the graph with the first state node of the current net.
+     */
+    clear(reinitialize = true) {
+        this._coverabilityGraph.set(new CoverabilityGraph());
+        this._completeCoverabilityGraph.set(new CoverabilityGraph());
+        this._cachedCompleteGraphDiagram = null;
+        this._lastProcessedDiagram?.resetMarking();
+        this._lastProcessedDiagram = null;
+
+        if (reinitialize) {
+            this.initializeCoverabilityGraphFirstStateNode();
+        }
+    }
+
+    /**
+     * Checks if the current Reachability Graph is complete compared to the calculated one.
+     * Uses ToasterNotificationService to inform the user.
+     */
+    checkCoverabilityGraphCompleteness(): void {
+        this._completeCoverabilityGraph.set(this.calculateCompleteCoverabilityGraph());
+        const completeGraph = this._completeCoverabilityGraph();
+
+        // if (completeGraph.isUnlimited) {
+        //     this._notificationService.showInfo(
+        //         'TOASTER.HEADER.PETRI_NET_UNLIMITED',
+        //         'TOASTER.BODY.PETRI_NET_UNLIMITED',
+        //     );
+        //     return;
+        // }
+
+        const userGraph = this._coverabilityGraph();
+        const missingReachableEdges: {
+            source: CoverabilityStateNode;
+            target: CoverabilityStateNode;
+            edge: CoverabilityFiringEdge;
+        }[] = [];
+
+        for (const cEdge of completeGraph.edges) {
+            const cSource = completeGraph.nodes.find((n) => n.id === cEdge.source);
+            const cTarget = completeGraph.nodes.find((n) => n.id === cEdge.target);
+
+            if (!cSource || !cTarget) continue;
+
+            const uSource = userGraph.nodes.find((n) => n.label === cSource.label);
+
+            if (!uSource) continue;
+
+            const uTarget = userGraph.nodes.find((n) => n.label === cTarget.label);
+
+            let edgeExists = false;
+            if (uTarget) {
+                edgeExists = userGraph.edges.some(
+                    (uEdge) =>
+                        uEdge.source === uSource.id &&
+                        uEdge.target === uTarget.id &&
+                        uEdge.displayLabel === cEdge.displayLabel,
+                );
+            }
+
+            if (!edgeExists) {
+                missingReachableEdges.push({ source: cSource, target: cTarget, edge: cEdge });
+            }
+        }
+
+        if (missingReachableEdges.length > 0) {
+            const list: ToastList[] = missingReachableEdges.slice(0, 5).map((item) => {
+                return {
+                    message: `${item.source.displayLabel} -[${item.edge.displayLabel}]-> ${item.target.displayLabel}`,
+                };
+            });
+
+            if (missingReachableEdges.length > 5) {
+                list.push({ message: '...' });
+            }
+
+            this._notificationService.showError(
+                'TOASTER.HEADER.CG_CHECK_INCOMPLETE',
+                'TOASTER.BODY.CG_CHECK_MISSING_EDGES_LIST',
+                { list },
+            );
+            return;
+        }
+
+        this._notificationService.showSuccess('TOASTER.HEADER.RG_CHECK_SUCCESS', 'TOASTER.BODY.RG_CHECK_SUCCESS');
+    }
+
+    /**
+     * Generates the complete Coverability Graph for the current source Petri net.
+     */
+    generateCoverabilityGraphOldMethod() {
+        const graph = this.calculateCompleteCoverabilityGraph();
+        if (graph.isUnlimited) {
+            this._notificationService.showInfo(
+                'TOASTER.HEADER.PETRI_NET_UNLIMITED',
+                'TOASTER.BODY.PETRI_NET_UNLIMITED',
+            );
+        }
+    }
+
+    // omega can never be changed back to not omega on the same path
+
+    /**
+     * sets Omega value at the position which increased, method is only triggered when criteria for "Unlimited PN" were met
+     * @param node coverabilityStateNode, which was detected when unlimitability of ReachGraph was detected (RG-->CovGraph)
+     */
+    setOmegaValues(currentCovStateNode: CoverabilityStateNode, previousCovStateNode: CoverabilityStateNode) {
+        const currentPlaceMarking = Object.values(currentCovStateNode.covMarking);
+        const previousPlaceMarking = Object.values(previousCovStateNode.covMarking);
+        for (let j = 0; j < Object.values(currentCovStateNode.covMarking).length; j++) {
+            if (currentPlaceMarking[j] > previousPlaceMarking[j]) {
+                currentCovStateNode.omegaPositions[j] = true;
+                //TODO Testen, oib marking so korrekt auf w geändert
+                this.netOmegaPositions[j] = true;
+
+                //TODO das passiert zu spät, erst nach Dialog
+                currentCovStateNode.covMarkingAsStringRecord[j].markingValueString = 'w';
+                console.log(
+                    'TEST currentCovStateNode.covMarkingAsStringRecord[j].markingKeyString   ' +
+                        currentCovStateNode.covMarkingAsStringRecord[j].markingKeyString +
+                        '   value   ' +
+                        currentCovStateNode.covMarkingAsStringRecord[j].markingValueString,
+                );
+            }
+            //TODO update model and  StringSaver of node
+            this.setOmegaLabel(currentCovStateNode);
+        }
+    }
+
+    /**
+     * sets Omega value at the position which increased, method is only triggered when criteria for "Unlimited PN" were met
+     * @param node coverabilityStateNode, which was detected when unlimitability of ReachGraph was detected (RG-->CovGraph)
+     */
+    setAutoGraphOmegaValues(currentCovStateNode: CoverabilityStateNode, previousCovStateNode: CoverabilityStateNode) {
+        const currentPlaceMarking = Object.values(currentCovStateNode.covMarking);
+        const previousPlaceMarking = Object.values(previousCovStateNode.covMarking);
+        for (let j = 0; j < Object.values(currentCovStateNode.covMarking).length; j++) {
+            if (currentPlaceMarking[j] > previousPlaceMarking[j]) {
+                currentCovStateNode.omegaPositions[j] = true;
+                //TODO Testen, oib marking so korrekt auf w geändert
+                this.autoNetOmegaPositions[j] = true;
+
+                //TODO das passiert zu spät, erst nach Dialog
+                currentCovStateNode.covMarkingAsStringRecord[j].markingValueString = 'w';
+                console.log(
+                    'TEST currentCovStateNode.covMarkingAsStringRecord[j].markingKeyString   ' +
+                        currentCovStateNode.covMarkingAsStringRecord[j].markingKeyString +
+                        '   value   ' +
+                        currentCovStateNode.covMarkingAsStringRecord[j].markingValueString,
+                );
+            }
+            //TODO update model and  StringSaver of node
+            this.setAutoGraphOmegaLabel(currentCovStateNode);
+        }
+    }
+
+    /**
+     * Method to update label of coverabilityStateNode
+     * Label will be completely changed, but number of tokens will stay the same
+     *
+     */
+    setOmegaLabel(node: CoverabilityStateNode) {
+        const tempMarkingNumbers = Object.values(node.covMarking);
+        const tempMarkingStrings = tempMarkingNumbers.join().split(',');
+        for (let k = 0; k < Object.values(node.covMarking).length; k++) {
+            if (node.omegaPositions[k] === true) {
+                tempMarkingStrings[k] = 'w';
+            }
+        }
+        node.label = tempMarkingStrings.join(' ');
+        //save to array for comparison
+        this.existingOmegaLabels.push(node.label);
+    }
+
+    /**
+     * Method to update label of coverabilityStateNode
+     * Label will be completely changed, but number of tokens will stay the same
+     *
+     */
+    setAutoGraphOmegaLabel(node: CoverabilityStateNode) {
+        const tempMarkingNumbers = Object.values(node.covMarking);
+        const tempMarkingStrings = tempMarkingNumbers.join().split(',');
+        for (let k = 0; k < Object.values(node.covMarking).length; k++) {
+            if (node.omegaPositions[k] === true) {
+                tempMarkingStrings[k] = 'w';
+            }
+        }
+        node.label = tempMarkingStrings.join(' ');
+        //save to array for comparison
+        this.existingAutoGraphOmegaLabels.push(node.label);
+    }
+
+    initializeNetOmegaPositions(marking: Record<string, number>) {
+        console.log('initialize Net OmegaPositionsArray ');
+        this.netOmegaPositions = [];
+        for (const positions of Object.entries(marking)) {
+            this.netOmegaPositions.push(false);
+        }
+    }
+
+    getLabelStringByNodeValue(map: Map<string, CoverabilityStateNode>, searchValue: string): string | undefined {
+        for (const [key, value] of map.entries()) {
+            if (value.label === searchValue) {
+                return key;
+            }
+        }
+        return;
+    }
+}

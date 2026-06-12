@@ -15,6 +15,7 @@ import { PanningService } from './panning.service';
 import { DiagramNode } from '../classes/diagram/diagram-node';
 import { applyParallelOffsetsToArcs } from './arc-parallel-offset.util';
 import { ReachabilityGraphService } from '../reachability-graph.service';
+import { CoverabilityGraphService } from './coverability-graph.service';
 
 @Injectable({
     providedIn: 'root',
@@ -32,6 +33,7 @@ export class PetriNetLoaderService {
     private _processNetSateService = inject(ProcessNetStateService);
     private _panningService = inject(PanningService);
     private _reachabilityGraphService = inject(ReachabilityGraphService);
+    private _coverabilityGraphService = inject(CoverabilityGraphService);
 
     /**
      * Processes an uploaded file (File object).
@@ -95,6 +97,7 @@ export class PetriNetLoaderService {
             if (parsedNet) {
                 this._processNetSateService.clear();
                 this._reachabilityGraphService.clear(false);
+                this._coverabilityGraphService.clear(false);
                 const inDrawTab = this._tabStateService.currentTab() === Tab.DRAW;
                 this._sourcePetriNetService.loadNewNet(parsedNet, content);
                 this._tabStateService.setAllLastMarkings(parsedNet.marking);

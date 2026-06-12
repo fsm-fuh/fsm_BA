@@ -1,0 +1,21 @@
+<h2 mat-dialog-title>{{ data.title | translate }}</h2>
+<mat-dialog-content>
+    <p>{{ data.message | translate }}</p>
+    <div class="marking-container">
+        @for (item of currentDialogMarking; track item.markingKeyString) {
+            <div class="marking-entry">
+                <span>{{ item.markingKeyString }}: {{ item.markingValueString }}</span>
+
+                <input type="text" matInput [(ngModel)]="item.markingValueString" />
+            </div>
+        }
+    </div>
+</mat-dialog-content>
+<!-- TODO Anpassen der Dialoge für Omega? -->
+<mat-dialog-actions align="end">
+    <button mat-button color="warn" (click)="discard()">{{ 'CGMARKING_DIALOG.AUTOFILL' | translate }}</button>
+    <button mat-flat-button color="primary" (click)="keep()">{{ 'CGMARKING_DIALOG.USERVALUE' | translate }}</button>
+    <button mat-raised-button color="accent" [disabled]="hintButtonDisabled" (click)="hint()">
+        {{ 'CGMARKING_DIALOG.HINT' | translate }}
+    </button>
+</mat-dialog-actions>

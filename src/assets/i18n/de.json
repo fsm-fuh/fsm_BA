@@ -6,6 +6,7 @@
     "TAB_PLAY": "Schalten",
     "TAB_REACHABILITY": "Erreichbarkeitsgraph",
     "TAB_PROCESS": "Prozessnetz",
+    "TAB_COVERABILITY": "Ueberdeckungsgraph",
     "REACHABILITY_GRAPH": {
         "TOGGLE_VIEW": "Ansichtsmodus umschalten",
         "BUTTON_VALIDATE_NET": "Erreichbarkeitsgraph validieren",
@@ -27,6 +28,27 @@
         "INSTRUCTION_HIDECOMPLETEGRAPH": "Blendet den automatisch erzeugten vollständigen Erreichbarkeitsgraphen aus und wechselt zurück zum durch den User erzeugten EG.",
         "LABEL_CALCULATED_GRAPH": "Vollständiger Graph (Berechnet)"
     },
+    "COVERABILITY_GRAPH": {
+        "TOGGLE_VIEW": "Ansichtsmodus umschalten",
+        "BUTTON_VALIDATE_NET": "Überdeckungsgraphen validieren",
+        "SHOW_COMPLETE_GRAPH": "Vollständigen Graphen anzeigen",
+        "HIDE_COMPLETE_GRAPH": "Vollständigen Graphen ausblenden",
+        "ACTION_BUILD": "Graph aufbauen",
+        "INSTRUCTION_BUILD": "Schalte aktivierte Transitionen im Petri-Netz, um den Überdeckungsgraphen schrittweise zu erkunden.",
+        "ACTION_MOVE": "Knoten verschieben",
+        "INSTRUCTION_MOVE": "Linksklick und Ziehen, um Zustandsknoten frei anzuordnen.",
+        "ACTION_RESET": "Zu Zustand springen",
+        "INSTRUCTION_RESET": "Doppelklick auf einen Zustandsknoten, um das Petri-Netz auf diese Markierung zurückzusetzen. Danach kann von dort aus weitergeschaltet werden.",
+        "ACTION_VALIDATE": "Überdeckungsgraphen validieren",
+        "INSTRUCTION_VALIDATE": "Validiert den Überdeckungsgraphen und prüft auf Vollständigkeit. Dies prüft, ob alle aktivierten Transitionen, die vom aktuellen Zustand des Petrinetzes aus erreichbar sind, geschaltet wurden. Funktioniert nicht, wenn der automatisch erzeugte vollständige ÜG angezeigt wird.",
+        "ACTION_TOGGLEVIEW": "Ansichtsmodus umschalten",
+        "INSTRUCTION_TOGGLEVIEW": "Schaltet zwischen der Überdeckungsgraph-Ansicht, die im Kurstext verwendet wird und einer weiteren Ansicht, in der die Markierungen direkt an den Zustandsknoten angezeigt werden, um.",
+        "ACTION_SHOWCOMPLETEGRAPH": "Vollständigen Graph anzeigen",
+        "INSTRUCTION_SHOWCOMPLETEGRAPH": "Zeigt den vollständigen Überdeckungsgraphen eines Petrinetzes an.",
+        "ACTION_HIDECOMPLETEGRAPH": "Vollständigen Graph ausblenden",
+        "INSTRUCTION_HIDECOMPLETEGRAPH": "Blendet den automatisch erzeugten vollständigen Überdeckungsgraphen aus und wechselt zurück zum durch den User erzeugten ÜG.",
+        "LABEL_CALCULATED_GRAPH": "Vollständiger Graph (Berechnet)"
+    },
     "TOGGLE_MODE": "Modus umschalten",
     "CONFIRM_DIALOG": {
         "TITLE": "Modus wechseln",
@@ -42,6 +64,16 @@
         "USERVALUE": "Bestaetigen",
         "KEEP": "Behalten",
         "DISCARD": "Verwerfen"
+    },
+    "CGMARKING_DIALOG": {
+        "TITLE": "Markierung eingeben",
+        "MESSAGE_DEFAULT": "Bitte geben Sie die korrekte Markierung des Petrinetzes nach dem Schalten ein. Für Omega bitte den Kleinbuchstaben w eingeben.",
+        "AUTOFILL": "Loesungsvorschlag",
+        "USERVALUE": "Bestaetigen",
+        "KEEP": "Behalten",
+        "HINT": "Hinweis",
+        "DISCARD": "Verwerfen",
+        "DESCRIPTION": "Für Omega bitte den Kleinbuchstaben w eingeben."
     },
     "SWITCH_TO_LEARNING_MODE": "Wechsel zu Lernmodus",
     "SWITCH_TO_EXAM_MODE": "Wechsel zu Prüfungsmodus",
@@ -136,8 +168,8 @@
         "NOT_PRESENT": "nicht vorhanden",
         "NOT_ACTIVATED": "nicht aktiviert"
     },
-    "HEADER_SUBTITLE": "Fachpraktikum Programmiersysteme WiSe25/26 von",
-    "HEADER_SUBTITLE_NAMES": "Marie G., Alexander K., Ben L. & Florian M.",
+    "HEADER_SUBTITLE": "Bachelorarbeit, SoSe26 von",
+    "HEADER_SUBTITLE_NAMES": "Florian M.",
     "TOASTER": {
         "HEADER": {
             "SAVE_IMPOSSIBLE": "Speichern nicht möglich",
@@ -158,11 +190,15 @@
             "STATENODE_ARC_EXISTING": "Zustandsknoten und Verbindung vorhanden",
             "PETRI_NET_UNLIMITED": "Petrinetz unbeschränkt",
             "MARKING_INPUT_WRONG": "Eingegebene Markierung fehlerhaft",
+            "MARKING_INPUT_WRONG_HINT": "Eingegebene Markierung fehlerhaft - Hinweis",
             "MARKING_INPUT_CORRECT": "Korrekte Markierungseingabe",
             "MARKING_DIALOG_DISMISSED": "Dialog abgebrochen",
             "RG_CHECK_SUCCESS": "Erreichbarkeitsgraph vollständig",
             "RG_CHECK_INCOMPLETE": "Unvollständiger Graph",
-            "RG_INFO": "Wechsel zum selbst erstellten Graphen notwendig"
+            "RG_INFO": "Wechsel zum selbst erstellten Graphen notwendig",
+            "CG_CHECK_SUCCESS": "Überdeckungsgraph vollständig",
+            "CG_CHECK_INCOMPLETE": "Unvollständiger Graph",
+            "CG_INFO": "Wechsel zum selbst erstellten Graphen notwendig"
         },
         "BODY": {
             "NO_NET_TO_SAVE": "Es ist kein Petri-Netz zum Speichern vorhanden.",
@@ -192,12 +228,17 @@
             "STATENODE_ARC_EXISTING": "Der Zustandsknoten und die Verbindung existieren bereits, EG-Status wurde angepasst.",
             "PETRI_NET_UNLIMITED": "Das Petrinetz ist unbeschränkt.",
             "MARKING_INPUT_WRONG": "Die eingegebene Markierung entspricht nicht der Zielmarkierung, die das Petrinetz nach dem Schalten erreicht.",
+            "MARKING_INPUT_WRONG_HINT": "Die eingegebene Markierung entspricht für folgende Stellen nicht der Zielmarkierung, die das Petrinetz nach dem Schalten erreicht:",
             "MARKING_INPUT_CORRECT": "Die eingegebene Markierung ist korrekt.",
             "MARKING_DIALOG_DISMISSED": "Keine Eingabe getätigt, Knoten wurde automatisch erstellt.",
             "RG_CHECK_SUCCESS": "Der erstellte Erreichbarkeitsgraph ist vollständig und korrekt.",
             "RG_CHECK_MISSING_EDGES": "Fehlende Transitionen: {{edges}}",
             "RG_CHECK_MISSING_EDGES_LIST": "Die folgenden Transitionen fehlen:",
-            "SWITCH_BACK_TO_USER_GRAPH": "Bitte wechseln Sie zurück zum selbst erstellten Graphen, um fortzufahren."
+            "SWITCH_BACK_TO_USER_GRAPH": "Bitte wechseln Sie zurück zum selbst erstellten Graphen, um fortzufahren.",
+            "CG_CHECK_SUCCESS": "Der erstellte Überdeckungsgraph ist vollständig und korrekt.",
+            "CG_CHECK_MISSING_EDGES": "Fehlende Transitionen: {{edges}}",
+            "CG_CHECK_MISSING_EDGES_LIST": "Die folgenden Transitionen fehlen:",
+            "CG_SWITCH_BACK_TO_USER_GRAPH": "Bitte wechseln Sie zurück zum selbst erstellten Graphen, um fortzufahren."
         },
         "VALIDATION_MESSAGES": {
             "TRANSITION_NO_MATCH": "❌ Transition {{label}} hat keine passende Beschriftung im Petri-Netz.",

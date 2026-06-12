@@ -19,6 +19,8 @@ import { StateNode } from '../../classes/reachability-graph.model';
 import { GRAPH_FILENAMES, GRAPH_IDS, GraphId } from './display.constants';
 import { ProcessNetFiringService } from '../../services/process-net-firing.service';
 import { ToasterNotificationService } from '../../services/toaster-notification.service';
+import { CoverabilityGraphService } from 'src/app/services/coverability-graph.service';
+import { CoverabilityStateNode } from 'src/app/classes/coverability-graph';
 
 @Component({
     selector: 'app-display',
@@ -42,6 +44,7 @@ export class DisplayComponent implements OnInit, OnDestroy {
     protected _reachabilityGraphService = inject(ReachabilityGraphService);
     protected _processNetFiringService = inject(ProcessNetFiringService);
     private _notificationService = inject(ToasterNotificationService);
+    protected _coverabilityGraphService = inject(CoverabilityGraphService);
 
     readonly viewBox = this._panningService.viewBoxAsString;
     readonly viewBoxObj = this._panningService.viewBox;
@@ -51,10 +54,12 @@ export class DisplayComponent implements OnInit, OnDestroy {
         () =>
             this._tabStateService.currentTab() === Tab.PLAY ||
             this._tabStateService.currentTab() === Tab.REACHABILITY_GRAPH ||
+            this._tabStateService.currentTab() === Tab.COVERABILITY_GRAPH ||
             this._tabStateService.currentTab() === Tab.PROCESS_NET,
     );
     readonly isReachabilityGraphEnabled = computed(() => this._tabStateService.currentTab() === Tab.REACHABILITY_GRAPH);
     readonly isProcessNetEnabled = computed(() => this._tabStateService.currentTab() === Tab.PROCESS_NET);
+    readonly isCoverabilityGraphEnabled = computed(() => this._tabStateService.currentTab() === Tab.COVERABILITY_GRAPH);
 
     protected graphId: GraphId = GRAPH_IDS.PETRI_NET;
 
@@ -120,6 +125,20 @@ export class DisplayComponent implements OnInit, OnDestroy {
                 );
             }
         }
+        if (currentTab === Tab.COVERABILITY_GRAPH) {
+            if (node.isActivated()) {
+                this._playService.fireTransition(node, diagram, true);
+                this._coverabilityGraphService.convertFiringEntryLabelToCoverabilityGraphID(diagram, node.label);
+                //TODO: AKTIONEN für COVERABILITY GRAPH EINFÜGEN
+            } else {
+                this._notificationService.showWarning(
+                    'TOASTER.HEADER.TRANSITION_NOT_ACTIVATED',
+                    'TOASTER.BODY.TRANSITION_NOT_ACTIVATED',
+                    { messageParams: { label: node.label } },
+                );
+            }
+        }
+
         this._sourcePetriNetService.updateEditedNet(diagram, { triggeredByFiring: true });
     }
 
@@ -127,6 +146,14 @@ export class DisplayComponent implements OnInit, OnDestroy {
         if (this.isReachabilityGraphEnabled() && node instanceof StateNode) {
             console.log('StateNode clicked.' + node.id);
             this._reachabilityGraphService.switchPnStateToClickedState(node as StateNode);
+        }
+    }
+
+    public coverabilityGraphStateNodeClicked(node: DisplayableNode) {
+        if (this.isCoverabilityGraphEnabled() && node instanceof CoverabilityStateNode) {
+            console.log('CoverabilityStateNode clicked.' + node.id);
+            this._coverabilityGraphService.switchPnStateToClickedState(node as CoverabilityStateNode);
+            //TODO Funktion für CovGraph ergänzen
         }
     }
 
