@@ -71,6 +71,7 @@
         "AUTOFILL": "Loesungsvorschlag",
         "USERVALUE": "Bestaetigen",
         "KEEP": "Behalten",
+        "HINT": "Hinweis",
         "DISCARD": "Verwerfen",
         "DESCRIPTION": "Für Omega bitte den Kleinbuchstaben w eingeben."
     },
@@ -189,6 +190,7 @@
             "STATENODE_ARC_EXISTING": "Zustandsknoten und Verbindung vorhanden",
             "PETRI_NET_UNLIMITED": "Petrinetz unbeschränkt",
             "MARKING_INPUT_WRONG": "Eingegebene Markierung fehlerhaft",
+            "MARKING_INPUT_WRONG_HINT": "Eingegebene Markierung fehlerhaft - Hinweis",
             "MARKING_INPUT_CORRECT": "Korrekte Markierungseingabe",
             "MARKING_DIALOG_DISMISSED": "Dialog abgebrochen",
             "RG_CHECK_SUCCESS": "Erreichbarkeitsgraph vollständig",
@@ -226,6 +228,7 @@
             "STATENODE_ARC_EXISTING": "Der Zustandsknoten und die Verbindung existieren bereits, EG-Status wurde angepasst.",
             "PETRI_NET_UNLIMITED": "Das Petrinetz ist unbeschränkt.",
             "MARKING_INPUT_WRONG": "Die eingegebene Markierung entspricht nicht der Zielmarkierung, die das Petrinetz nach dem Schalten erreicht.",
+            "MARKING_INPUT_WRONG_HINT": "Die eingegebene Markierung entspricht für folgende Stellen nicht der Zielmarkierung, die das Petrinetz nach dem Schalten erreicht:",
             "MARKING_INPUT_CORRECT": "Die eingegebene Markierung ist korrekt.",
             "MARKING_DIALOG_DISMISSED": "Keine Eingabe getätigt, Knoten wurde automatisch erstellt.",
             "RG_CHECK_SUCCESS": "Der erstellte Erreichbarkeitsgraph ist vollständig und korrekt.",

@@ -11,6 +11,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { FormsModule } from '@angular/forms';
 import { KeyValuePipe } from '@angular/common';
 import { ToasterNotificationService } from '../../../../services/toaster-notification.service';
+import { ToastList } from 'src/app/classes/toast';
 import { CovMarkingStringSaver } from 'src/app/classes/coverability-graph';
 import { log } from 'node:console';
 
@@ -49,6 +50,9 @@ export class CgMarkingDialogComponent {
     protected currentDialogMarking: CovMarkingStringSaver[] = this.data.userInputMarking;
     private correctDialogMarking: CovMarkingStringSaver[] = this.data.expectedCorrectMarking;
 
+    private dialogUserMarkingComparisonArray: string[] = [];
+    hintButtonDisabled =true;
+
     // incrementMarking(placeId: string): void {
     //     // this.currentDialogMarking[placeId] = (this.currentDialogMarking[placeId] || '0') + 1;
     // }
@@ -61,23 +65,26 @@ export class CgMarkingDialogComponent {
 
     keep() {
         let isCorrect = true;
+        this.dialogUserMarkingComparisonArray=[];
 
         for (let i = 0; i < this.correctDialogMarking.length; i++) {
-            console.log(
-                'keep function currentMarkingKeyString  ' +
-                    this.currentDialogMarking[i].markingKeyString +
-                    '  keep function currentMarkingValueString  ' +
-                    this.currentDialogMarking[i].markingValueString,
-            );
+            // console.log(
+            //     'keep function currentMarkingKeyString  ' +
+            //         this.currentDialogMarking[i].markingKeyString +
+            //         '  keep function currentMarkingValueString  ' +
+            //         this.currentDialogMarking[i].markingValueString,
+            // );
             if (this.currentDialogMarking[i].markingValueString !== this.correctDialogMarking[i].markingValueString) {
                 isCorrect = false;
-                break;
+                this.dialogUserMarkingComparisonArray.push(this.currentDialogMarking[i].markingKeyString)
+                // break;
             }
         }
 
         if (isCorrect) {
             this._dialogRef.close(this.currentDialogMarking);
         } else {
+            this.hintButtonDisabled=false;
             this._notificationService.showError(
                 //TODO Toaster anpassen für Omega?
                 'TOASTER.HEADER.MARKING_INPUT_WRONG',
@@ -85,6 +92,32 @@ export class CgMarkingDialogComponent {
             );
         }
     }
+
+
+    hint(){        
+        
+        const userInputWrongPlacesList: ToastList[] = this.dialogUserMarkingComparisonArray.map((item) => {
+            return {
+                message: `${item}`,
+            };
+        });
+        
+        for (const element of userInputWrongPlacesList) {
+            console.log('userInputWrongPlacesList element ' + element.message)
+            
+        }
+        
+        this._notificationService.showError(
+            'TOASTER.HEADER.MARKING_INPUT_WRONG_HINT',
+            'TOASTER.BODY.MARKING_INPUT_WRONG_HINT',
+            { list: userInputWrongPlacesList },
+        );
+    }
+    
+
+
+
+
 
     discard() {
         this._dialogRef.close(this.correctDialogMarking);

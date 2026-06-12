@@ -610,16 +610,21 @@ export class CoverabilityGraphService {
                     );
                     onCorrect();
                 } else {
-                    const list: ToastList[] = this.userMarkingComparisonArray.map((item) => {
-                        return {
-                            message: `${item}`,
-                        };
-                    });
+                    // const userInputWrongPlacesList: ToastList[] = this.userMarkingComparisonArray.map((item) => {
+                    //     return {
+                    //         message: `${item}`,
+                    //     };
+                    // });
+
+                    // for (const element of userInputWrongPlacesList) {
+                    //     console.log('userInpputWQrongPlacesList element ' + element.message)
+                        
+                    // }
 
                     this._notificationService.showError(
                         'TOASTER.HEADER.MARKING_INPUT_WRONG',
                         'TOASTER.BODY.MARKING_INPUT_WRONG',
-                        { list },
+                        // { list: userInputWrongPlacesList },
                     );
                 }
             } else {
@@ -913,8 +918,8 @@ export class CoverabilityGraphService {
             }
 
             this._notificationService.showError(
-                'TOASTER.HEADER.RG_CHECK_INCOMPLETE',
-                'TOASTER.BODY.RG_CHECK_MISSING_EDGES_LIST',
+                'TOASTER.HEADER.CG_CHECK_INCOMPLETE',
+                'TOASTER.BODY.CG_CHECK_MISSING_EDGES_LIST',
                 { list },
             );
             return;

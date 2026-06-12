@@ -71,6 +71,7 @@
         "AUTOFILL": "Give Solution",
         "USERVALUE": "Input Value",
         "KEEP": "Keep",
+        "HINT": "Hint",
         "DISCARD": "Discard",
         "DESCRIPTION": "For Omega please input small letter w."
     },
@@ -188,6 +189,7 @@
             "STATENODE_ARC_EXISTING": "StateNode and arc exist",
             "PETRI_NET_UNLIMITED": "Petri Net unlimited",
             "MARKING_INPUT_WRONG": "Incorrect Marking Input",
+            "MARKING_INPUT_WRONG_HINT": "Incorrect Marking Input - Hint",
             "MARKING_INPUT_CORRECT": "Correct Marking Input",
             "MARKING_DIALOG_DISMISSED": "Dialog Dismissed",
             "RG_CHECK_SUCCESS": "Reachability Graph Complete",
@@ -225,6 +227,7 @@
             "STATENODE_ARC_EXISTING": "StateNode and arc already exist, state of RG was updated.",
             "PETRI_NET_UNLIMITED": "Petri Net is unlimited.",
             "MARKING_INPUT_WRONG": "The input marking does not match the target marking.",
+            "MARKING_INPUT_WRONG_HINT": "The input marking does not match the target marking for the following places:",
             "MARKING_INPUT_CORRECT": "The entered marking is correct.",
             "MARKING_DIALOG_DISMISSED": "No entry made, node created automatically.",
             "RG_CHECK_SUCCESS": "The created reachability graph is complete and correct.",
