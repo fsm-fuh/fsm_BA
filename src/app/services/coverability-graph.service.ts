@@ -534,13 +534,12 @@ export class CoverabilityGraphService {
                     );
                     onCorrect();
                 } else {
-                    const list: ToastList[]= this.userMarkingComparisonArray.map((item) => {
-                return {
-                    message: `${item}`,
-                };
-            });;
+                    const list: ToastList[] = this.userMarkingComparisonArray.map((item) => {
+                        return {
+                            message: `${item}`,
+                        };
+                    });
 
-                    
                     this._notificationService.showError(
                         'TOASTER.HEADER.MARKING_INPUT_WRONG',
                         'TOASTER.BODY.MARKING_INPUT_WRONG',
@@ -609,8 +608,7 @@ export class CoverabilityGraphService {
                 this.processEdge(graph, m, m_prime, transition, counters);
 
                 //hier nochmal überprüfen, um erstes OmegaLabel zu ersetzen, da sonst erster OmegaNode 2mal erzeugt wiurd, da Infinity erst am Ende geprüft
-                if (m_prime.label !== this.oldLabelOfFirstOmegaNode) {          
-                    
+                if (m_prime.label !== this.oldLabelOfFirstOmegaNode) {
                     nodeByLabel.delete(this.oldLabelOfFirstOmegaNode);
                     nodeByLabel.set(m_prime.label, m_prime);
                 }
@@ -917,14 +915,12 @@ export class CoverabilityGraphService {
         }
     }
 
- getLabelStringByNodeValue(map:Map <string,CoverabilityStateNode>, searchValue:string) : string | undefined{
-  for (let [key, value] of map.entries()) {
-    if (value.label === searchValue){
-      return key;
+    getLabelStringByNodeValue(map: Map<string, CoverabilityStateNode>, searchValue: string): string | undefined {
+        for (let [key, value] of map.entries()) {
+            if (value.label === searchValue) {
+                return key;
+            }
+        }
+        return;
     }
-
-  }
-  return;
-}
-
 }
