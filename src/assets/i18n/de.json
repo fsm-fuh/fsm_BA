@@ -168,8 +168,8 @@
         "NOT_PRESENT": "nicht vorhanden",
         "NOT_ACTIVATED": "nicht aktiviert"
     },
-    "HEADER_SUBTITLE": "Bachelorarbeit, SoSe26 von",
-    "HEADER_SUBTITLE_NAMES": "Florian M.",
+    "HEADER_SUBTITLE": "TaCov - Erweiterung des Taco-Tools um das Thema Überdeckungsgraphen",
+    "HEADER_SUBTITLE_NAMES": "Bachelorarbeit, SoSe26, Florian M.",
     "TOASTER": {
         "HEADER": {
             "SAVE_IMPOSSIBLE": "Speichern nicht möglich",

@@ -167,8 +167,8 @@
         "NOT_PRESENT": "not present",
         "NOT_ACTIVATED": "not activated"
     },
-    "HEADER_SUBTITLE": "Bachelor Thesis, SoSe26 by",
-    "HEADER_SUBTITLE_NAMES": "Florian M.",
+    "HEADER_SUBTITLE": "TaCov - Modification of  TAco tool for COVerability graph",
+    "HEADER_SUBTITLE_NAMES": "Bachelor Thesis, SoSe26, Florian M.",
     "TOASTER": {
         "HEADER": {
             "SAVE_IMPOSSIBLE": "Save impossible",
