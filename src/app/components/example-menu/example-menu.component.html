@@ -13,6 +13,14 @@
         <mat-icon matMenuItemIcon>description</mat-icon>
         {{ 'EXAMPLE_MENU.EXAMPLE_NET' | translate }}
     </button>
+        <button
+        mat-menu-item
+        [matMenuTriggerFor]="menuCOV"
+        (mouseenter)="setActiveMenu('COV')"
+        (mouseleave)="setActiveMenu(null)">
+        <mat-icon matMenuItemIcon>{{ getFolderIcon('COV') }}</mat-icon>
+        {{ 'EXAMPLE_MENU.COV' | translate }}
+    </button>
     <button
         mat-menu-item
         [matMenuTriggerFor]="menuMK"
@@ -86,6 +94,17 @@
         {{ 'EXAMPLE_MENU.TASK1' | translate }}
     </button>
     <button mat-menu-item (click)="loadExampleFromCategory('SS25', 'task2.json')">
+        <mat-icon matMenuItemIcon>description</mat-icon>
+        {{ 'EXAMPLE_MENU.TASK2' | translate }}
+    </button>
+</mat-menu>
+
+<mat-menu #menuCOV="matMenu">
+    <button mat-menu-item (click)="loadExampleFromCategory('COV', 'CovTask1.json')">
+        <mat-icon matMenuItemIcon>description</mat-icon>
+        {{ 'EXAMPLE_MENU.TASK1' | translate }}
+    </button>
+    <button mat-menu-item (click)="loadExampleFromCategory('COV', 'CovTask2.json')">
         <mat-icon matMenuItemIcon>description</mat-icon>
         {{ 'EXAMPLE_MENU.TASK2' | translate }}
     </button>
