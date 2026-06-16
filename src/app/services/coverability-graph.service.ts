@@ -432,7 +432,10 @@ export class CoverabilityGraphService {
                         graph.isUnlimited = true;
                         checkPredecessor.isMorMStrich = true;
                         this.checkedStateNode.isMorMStrich = true;
-                        //TODO ÜBERPRÜFEN
+                        //TODO Hier PN-Marking anpassen, dass Omega 20000
+
+
+                        
                         this.setOmegaValues(this.checkedStateNode, checkPredecessor);
                         graph.omegaValuesExistInGraph = true;
 
@@ -951,10 +954,19 @@ export class CoverabilityGraphService {
         const currentPlaceMarking = Object.values(currentCovStateNode.covMarking);
         const previousPlaceMarking = Object.values(previousCovStateNode.covMarking);
         for (let j = 0; j < Object.values(currentCovStateNode.covMarking).length; j++) {
+            //set PN Omega values to hiogh value
+            // if (currentPlaceMarking[j]>10000) {
+            //     currentPlaceMarking[j]=20000
+            // }
+            // if (previousPlaceMarking[j]>10000) {
+            //     previousPlaceMarking[j]=20000
+            // }
             if (currentPlaceMarking[j] > previousPlaceMarking[j]) {
                 currentCovStateNode.omegaPositions[j] = true;
                 //TODO Testen, oib marking so korrekt auf w geändert
                 this.netOmegaPositions[j] = true;
+
+                // currentCovStateNode.covMarking[j]=20000;
 
                 //TODO das passiert zu spät, erst nach Dialog
                 currentCovStateNode.covMarkingAsStringRecord[j].markingValueString = 'w';
@@ -1008,8 +1020,10 @@ export class CoverabilityGraphService {
         for (let k = 0; k < Object.values(node.covMarking).length; k++) {
             if (node.omegaPositions[k] === true) {
                 tempMarkingStrings[k] = 'w';
+                node.covMarking[k]=20000;
             }
         }
+        this.switchPnStateToClickedState(node);
         node.label = tempMarkingStrings.join(' ');
         //save to array for comparison
         this.existingOmegaLabels.push(node.label);
