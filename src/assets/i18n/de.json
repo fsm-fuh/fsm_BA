@@ -291,6 +291,8 @@
         "WS24": "WS24",
         "COV": "COV",
         "TASK1": "Aufgabe 1",
-        "TASK2": "Aufgabe 2"
+        "TASK2": "Aufgabe 2",
+        "TASK3": "Aufgabe 3",
+        "TASK4": "Aufgabe 4"
     }
 }
