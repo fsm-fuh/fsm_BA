@@ -1016,11 +1016,13 @@ export class CoverabilityGraphService {
      */
     setOmegaLabel(node: CoverabilityStateNode) {
         const tempMarkingNumbers = Object.values(node.covMarking);
+        const tempMarkingKeys = Object.keys(node.covMarking);
         const tempMarkingStrings = tempMarkingNumbers.join().split(',');
         for (let k = 0; k < Object.values(node.covMarking).length; k++) {
             if (node.omegaPositions[k] === true) {
                 tempMarkingStrings[k] = 'w';
-                node.covMarking[k]=20000;
+                const placeKeyForOmega = tempMarkingKeys[k];
+                node.covMarking[placeKeyForOmega]=20000;
             }
         }
         this.switchPnStateToClickedState(node);
