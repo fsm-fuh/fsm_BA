@@ -953,14 +953,23 @@ export class CoverabilityGraphService {
     setOmegaValues(currentCovStateNode: CoverabilityStateNode, previousCovStateNode: CoverabilityStateNode) {
         const currentPlaceMarking = Object.values(currentCovStateNode.covMarking);
         const previousPlaceMarking = Object.values(previousCovStateNode.covMarking);
+        const tempMarkingKeys = Object.keys(currentCovStateNode.covMarking);
+
         for (let j = 0; j < Object.values(currentCovStateNode.covMarking).length; j++) {
             //set PN Omega values to hiogh value
-            // if (currentPlaceMarking[j]>10000) {
+            if (currentPlaceMarking[j]>10000) {
+                const placeKeyForOmega = tempMarkingKeys[j];
+                currentCovStateNode.covMarking[placeKeyForOmega]=20000;
             //     currentPlaceMarking[j]=20000
-            // }
-            // if (previousPlaceMarking[j]>10000) {
-            //     previousPlaceMarking[j]=20000
-            // }
+            }
+            if (previousPlaceMarking[j]>10000) {
+                const placeKeyForOmega = tempMarkingKeys[j];
+                previousCovStateNode.covMarking[placeKeyForOmega]=20000;
+            }
+
+
+
+
             if (currentPlaceMarking[j] > previousPlaceMarking[j]) {
                 currentCovStateNode.omegaPositions[j] = true;
                 //TODO Testen, oib marking so korrekt auf w geändert
