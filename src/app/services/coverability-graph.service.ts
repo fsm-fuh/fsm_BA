@@ -151,12 +151,24 @@ export class CoverabilityGraphService {
             .join(' ');
         //add omega at correct positions of label
         const tempCovLabelMarkingNumbers = Object.values(diagram.marking);
+        const tempMarkingKeys = Object.keys(diagram.marking);
         const tempCovLabelMarkingStrings = tempCovLabelMarkingNumbers.join().split(',');
         for (let j = 0; j < Object.values(diagram.marking).length; j++) {
-            if (this.netOmegaPositions[j] === true) {
+                if (this.netOmegaPositions[j] === true) {
                 tempCovLabelMarkingStrings[j] = 'w';
             }
         }
+        
+                 
+
+
+        // const currentPlaceMarking = Object.values(currentCovStateNode.covMarking);
+        // const previousPlaceMarking = Object.values(previousCovStateNode.covMarking);
+
+        // for (let j = 0; j < Object.values(currentCovStateNode.covMarking).length; j++) {
+        //     //set PN Omega values to hiogh value
+
+
         currentCoverabilityLabel = tempCovLabelMarkingStrings.join(' ');
 
         const graph = this._coverabilityGraph();
@@ -953,19 +965,19 @@ export class CoverabilityGraphService {
     setOmegaValues(currentCovStateNode: CoverabilityStateNode, previousCovStateNode: CoverabilityStateNode) {
         const currentPlaceMarking = Object.values(currentCovStateNode.covMarking);
         const previousPlaceMarking = Object.values(previousCovStateNode.covMarking);
-        const tempMarkingKeys = Object.keys(currentCovStateNode.covMarking);
+        // const tempMarkingKeys = Object.keys(currentCovStateNode.covMarking);
 
         for (let j = 0; j < Object.values(currentCovStateNode.covMarking).length; j++) {
             //set PN Omega values to hiogh value
-            if (currentPlaceMarking[j]>10000) {
-                const placeKeyForOmega = tempMarkingKeys[j];
-                currentCovStateNode.covMarking[placeKeyForOmega]=20000;
-            //     currentPlaceMarking[j]=20000
-            }
-            if (previousPlaceMarking[j]>10000) {
-                const placeKeyForOmega = tempMarkingKeys[j];
-                previousCovStateNode.covMarking[placeKeyForOmega]=20000;
-            }
+            // if (currentPlaceMarking[j]>10000) {
+            //     const placeKeyForOmega = tempMarkingKeys[j];
+            //     currentCovStateNode.covMarking[placeKeyForOmega]=20000;
+            // //     currentPlaceMarking[j]=20000
+            // }
+            // if (previousPlaceMarking[j]>10000) {
+            //     const placeKeyForOmega = tempMarkingKeys[j];
+            //     previousCovStateNode.covMarking[placeKeyForOmega]=20000;
+            // }
 
 
 
