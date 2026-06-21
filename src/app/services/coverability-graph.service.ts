@@ -382,7 +382,7 @@ export class CoverabilityGraphService {
      * Changes state of the PetriNet to the State of a CoverabilityGraph StateNode, meaning the marking is adjusted.
      * Used for updating the PetriNet and giving it "Omega nodes"
      * Uses the "saved" Marking of the coverability graph model where each StateNode saves it's corresponding marking.
-     * @param node The StateNode with Imega Marking
+     * @param modeMarking the respective Omega Marking
      */
     //TODO überarbeiten für Omega
     setOmegaInPetriNet(nodeMarking: Record<string,number>) {
@@ -412,6 +412,39 @@ export class CoverabilityGraphService {
         }
     }
 
+        /**
+     * Changes state of the PetriNet to the State of a CoverabilityGraph StateNode, meaning the marking is adjusted.
+     * Used for updating the PetriNet and giving it "Omega nodes"
+     * Uses the "saved" Marking of the coverability graph model where each StateNode saves it's corresponding marking.
+     * @param modeMarking the respective Omega Marking
+     */
+    //TODO überarbeiten für Omega
+    setOmegaInPetriNetForAutoGraph(nodeMarking: Record<string,number>) {
+        console.log('Cov setOmegaInPetriNet started.');
+        // console.log('setOmegaInPetriNet ID' + node.id);
+        // console.log('setOmegaInPetriNet CovStateNodeLabel' + node.label);
+        // console.log('CovStateNodeMarking' + node.covMarking);
+
+        if (!this._sourceNetService.getCurrentSourceNet()) {
+            this._notificationService.showError('TOASTER.HEADER.READ_ERROR', 'TOASTER.BODY.LOAD_NET_FIRST');
+            return;
+        } else {
+            const oldPetriNet: Diagram | null = this._sourceNetService.getCurrentSourceNet();
+            if (!oldPetriNet) {
+                return;
+            }
+
+            console.log('Cov Old PN nodes: ' + oldPetriNet.allNodes + ' ' + 'marking ' + oldPetriNet.currentMarking$);
+            oldPetriNet.marking = nodeMarking;
+            //change state of net
+            // this.currentSourceCgId = node.id;
+
+            oldPetriNet.updateMarking();
+            this._sourceNetService.updateEditedNet(oldPetriNet, { triggeredByFiring: false });
+            // console.log('Changed PN:' + oldPetriNet.currentMarking$);
+            // this._notificationService.showSuccess('TOASTER.HEADER.SUCCESS', 'TOASTER.BODY.SWITCHED_STATE_SUCCESSFULLY');
+        }
+    }
 
 
 
@@ -990,7 +1023,7 @@ export class CoverabilityGraphService {
             return;
         }
 
-        this._notificationService.showSuccess('TOASTER.HEADER.RG_CHECK_SUCCESS', 'TOASTER.BODY.RG_CHECK_SUCCESS');
+        this._notificationService.showSuccess('TOASTER.HEADER.CG_CHECK_SUCCESS', 'TOASTER.BODY.CG_CHECK_SUCCESS');
     }
 
     /**
