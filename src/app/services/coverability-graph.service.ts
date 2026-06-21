@@ -145,6 +145,8 @@ export class CoverabilityGraphService {
     convertFiringEntryLabelToCoverabilityGraphID(diagram: Diagram, label: string) {
         let markingExists = false;
         let connectionExists = false;
+        let tempMarking = diagram.marking;
+
 
         let currentCoverabilityLabel: string = Object.entries(diagram.marking)
             .map(([, value]) => `${value}`)
@@ -154,19 +156,29 @@ export class CoverabilityGraphService {
         const tempMarkingKeys = Object.keys(diagram.marking);
         const tempCovLabelMarkingStrings = tempCovLabelMarkingNumbers.join().split(',');
         for (let j = 0; j < Object.values(diagram.marking).length; j++) {
+            if (tempCovLabelMarkingNumbers[j]>10000) {
+                const placeKeyForOmega = tempMarkingKeys[j];
+                tempMarking[placeKeyForOmega]=20000;
+                this.setOmegaInPetriNet(tempMarking);
+
+                
+            }
                 if (this.netOmegaPositions[j] === true) {
                 tempCovLabelMarkingStrings[j] = 'w';
             }
         }
         
-                 
+            //TODO später auch hier umbauen damit falsche Kante nicht gebildet??
+//
+//
+
+            // if (node.omegaPositions[k] === true) {
+                // tempMarkingStrings[k] = 'w';
+        //     }
+        // }
 
 
-        // const currentPlaceMarking = Object.values(currentCovStateNode.covMarking);
-        // const previousPlaceMarking = Object.values(previousCovStateNode.covMarking);
-
-        // for (let j = 0; j < Object.values(currentCovStateNode.covMarking).length; j++) {
-        //     //set PN Omega values to hiogh value
+        
 
 
         currentCoverabilityLabel = tempCovLabelMarkingStrings.join(' ');
@@ -366,6 +378,44 @@ export class CoverabilityGraphService {
             this._notificationService.showSuccess('TOASTER.HEADER.SUCCESS', 'TOASTER.BODY.SWITCHED_STATE_SUCCESSFULLY');
         }
     }
+    /**
+     * Changes state of the PetriNet to the State of a CoverabilityGraph StateNode, meaning the marking is adjusted.
+     * Used for updating the PetriNet and giving it "Omega nodes"
+     * Uses the "saved" Marking of the coverability graph model where each StateNode saves it's corresponding marking.
+     * @param node The StateNode with Imega Marking
+     */
+    //TODO überarbeiten für Omega
+    setOmegaInPetriNet(nodeMarking: Record<string,number>) {
+        console.log('Cov setOmegaInPetriNet started.');
+        // console.log('setOmegaInPetriNet ID' + node.id);
+        // console.log('setOmegaInPetriNet CovStateNodeLabel' + node.label);
+        // console.log('CovStateNodeMarking' + node.covMarking);
+
+        if (!this._sourceNetService.getCurrentSourceNet()) {
+            this._notificationService.showError('TOASTER.HEADER.READ_ERROR', 'TOASTER.BODY.LOAD_NET_FIRST');
+            return;
+        } else {
+            const oldPetriNet: Diagram | null = this._sourceNetService.getCurrentSourceNet();
+            if (!oldPetriNet) {
+                return;
+            }
+
+            console.log('Cov Old PN nodes: ' + oldPetriNet.allNodes + ' ' + 'marking ' + oldPetriNet.currentMarking$);
+            oldPetriNet.marking = nodeMarking;
+            //change state of net
+            // this.currentSourceCgId = node.id;
+
+            oldPetriNet.updateMarking();
+            this._sourceNetService.updateEditedNet(oldPetriNet, { triggeredByFiring: false });
+            // console.log('Changed PN:' + oldPetriNet.currentMarking$);
+            // this._notificationService.showSuccess('TOASTER.HEADER.SUCCESS', 'TOASTER.BODY.SWITCHED_STATE_SUCCESSFULLY');
+        }
+    }
+
+
+
+
+
 
     /**
      * Method to check for infinity of Coverability Graph.
@@ -1046,7 +1096,7 @@ export class CoverabilityGraphService {
                 node.covMarking[placeKeyForOmega]=20000;
             }
         }
-        this.switchPnStateToClickedState(node);
+        this.setOmegaInPetriNet(node.covMarking);
         node.label = tempMarkingStrings.join(' ');
         //save to array for comparison
         this.existingOmegaLabels.push(node.label);
