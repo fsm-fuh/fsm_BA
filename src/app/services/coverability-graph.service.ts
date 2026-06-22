@@ -160,7 +160,7 @@ export class CoverabilityGraphService {
                 const placeKeyForOmega = tempMarkingKeys[j];
                 tempMarking[placeKeyForOmega]=20000;
                 this.setOmegaInPetriNet(tempMarking);
-
+                tempCovLabelMarkingStrings[j] = 'w';
                 
             }
                 if (this.netOmegaPositions[j] === true) {
@@ -168,17 +168,7 @@ export class CoverabilityGraphService {
             }
         }
         
-            //TODO später auch hier umbauen damit falsche Kante nicht gebildet??
-//
-//
-
-            // if (node.omegaPositions[k] === true) {
-                // tempMarkingStrings[k] = 'w';
-        //     }
-        // }
-
-
-        
+   
 
 
         currentCoverabilityLabel = tempCovLabelMarkingStrings.join(' ');
@@ -1051,19 +1041,6 @@ export class CoverabilityGraphService {
         // const tempMarkingKeys = Object.keys(currentCovStateNode.covMarking);
 
         for (let j = 0; j < Object.values(currentCovStateNode.covMarking).length; j++) {
-            //set PN Omega values to hiogh value
-            // if (currentPlaceMarking[j]>10000) {
-            //     const placeKeyForOmega = tempMarkingKeys[j];
-            //     currentCovStateNode.covMarking[placeKeyForOmega]=20000;
-            // //     currentPlaceMarking[j]=20000
-            // }
-            // if (previousPlaceMarking[j]>10000) {
-            //     const placeKeyForOmega = tempMarkingKeys[j];
-            //     previousCovStateNode.covMarking[placeKeyForOmega]=20000;
-            // }
-
-
-
 
             if (currentPlaceMarking[j] > previousPlaceMarking[j]) {
                 currentCovStateNode.omegaPositions[j] = true;
