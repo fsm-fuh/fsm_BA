@@ -1071,7 +1071,7 @@ export class CoverabilityGraphService {
         const currentPlaceMarking = Object.values(currentCovStateNode.covMarking);
         const previousPlaceMarking = Object.values(previousCovStateNode.covMarking);
         for (let j = 0; j < Object.values(currentCovStateNode.covMarking).length; j++) {
-            if (currentPlaceMarking[j] > previousPlaceMarking[j]) {
+            if (currentPlaceMarking[j] > previousPlaceMarking[j]|| currentPlaceMarking[j]== 20000) {
                 currentCovStateNode.omegaPositions[j] = true;
                 //TODO Testen, oib marking so korrekt auf w geändert
                 this.autoNetOmegaPositions[j] = true;
@@ -1119,12 +1119,17 @@ export class CoverabilityGraphService {
      */
     setAutoGraphOmegaLabel(node: CoverabilityStateNode) {
         const tempMarkingNumbers = Object.values(node.covMarking);
+        const tempMarkingKeys = Object.keys(node.covMarking);
         const tempMarkingStrings = tempMarkingNumbers.join().split(',');
         for (let k = 0; k < Object.values(node.covMarking).length; k++) {
             if (node.omegaPositions[k] === true) {
                 tempMarkingStrings[k] = 'w';
+                const placeKeyForOmega = tempMarkingKeys[k];
+                node.covMarking[placeKeyForOmega]=20000;
             }
         }
+        this.setOmegaInPetriNetForAutoGraph(node.covMarking);
+
         node.label = tempMarkingStrings.join(' ');
         //save to array for comparison
         this.existingAutoGraphOmegaLabels.push(node.label);
