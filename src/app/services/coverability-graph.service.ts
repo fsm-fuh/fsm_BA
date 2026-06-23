@@ -1042,7 +1042,7 @@ export class CoverabilityGraphService {
 
         for (let j = 0; j < Object.values(currentCovStateNode.covMarking).length; j++) {
 
-            if (currentPlaceMarking[j] > previousPlaceMarking[j]) {
+            if (currentPlaceMarking[j] > previousPlaceMarking[j] || currentPlaceMarking[j]== 20000 ) {
                 currentCovStateNode.omegaPositions[j] = true;
                 //TODO Testen, oib marking so korrekt auf w geändert
                 this.netOmegaPositions[j] = true;
