@@ -1133,8 +1133,11 @@ export class CoverabilityGraphService {
     initializeNetOmegaPositions(marking: Record<string, number>) {
         console.log('initialize Net OmegaPositionsArray ');
         this.netOmegaPositions = [];
+        this.autoNetOmegaPositions=[];
         for (const positions of Object.entries(marking)) {
             this.netOmegaPositions.push(false);
+            //TODO prüfen
+            this.autoNetOmegaPositions.push(false);
         }
     }
 
