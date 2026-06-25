@@ -147,7 +147,6 @@ export class CoverabilityGraphService {
         let connectionExists = false;
         let tempMarking = diagram.marking;
 
-
         let currentCoverabilityLabel: string = Object.entries(diagram.marking)
             .map(([, value]) => `${value}`)
             .join(' ');
@@ -156,20 +155,16 @@ export class CoverabilityGraphService {
         const tempMarkingKeys = Object.keys(diagram.marking);
         const tempCovLabelMarkingStrings = tempCovLabelMarkingNumbers.join().split(',');
         for (let j = 0; j < Object.values(diagram.marking).length; j++) {
-            if (tempCovLabelMarkingNumbers[j]>10000) {
+            if (tempCovLabelMarkingNumbers[j] > 10000) {
                 const placeKeyForOmega = tempMarkingKeys[j];
-                tempMarking[placeKeyForOmega]=20000;
+                tempMarking[placeKeyForOmega] = 20000;
                 this.setOmegaInPetriNet(tempMarking);
                 tempCovLabelMarkingStrings[j] = 'w';
-                
             }
-                if (this.netOmegaPositions[j] === true) {
+            if (this.netOmegaPositions[j] === true) {
                 tempCovLabelMarkingStrings[j] = 'w';
             }
         }
-        
-   
-
 
         currentCoverabilityLabel = tempCovLabelMarkingStrings.join(' ');
 
@@ -375,7 +370,7 @@ export class CoverabilityGraphService {
      * @param modeMarking the respective Omega Marking
      */
     //TODO überarbeiten für Omega
-    setOmegaInPetriNet(nodeMarking: Record<string,number>) {
+    setOmegaInPetriNet(nodeMarking: Record<string, number>) {
         console.log('Cov setOmegaInPetriNet started.');
         // console.log('setOmegaInPetriNet ID' + node.id);
         // console.log('setOmegaInPetriNet CovStateNodeLabel' + node.label);
@@ -402,14 +397,14 @@ export class CoverabilityGraphService {
         }
     }
 
-        /**
+    /**
      * Changes state of the PetriNet to the State of a CoverabilityGraph StateNode, meaning the marking is adjusted.
      * Used for updating the PetriNet and giving it "Omega nodes"
      * Uses the "saved" Marking of the coverability graph model where each StateNode saves it's corresponding marking.
      * @param modeMarking the respective Omega Marking
      */
     //TODO überarbeiten für Omega
-    setOmegaInPetriNetForAutoGraph(nodeMarking: Record<string,number>) {
+    setOmegaInPetriNetForAutoGraph(nodeMarking: Record<string, number>) {
         console.log('Cov setOmegaInPetriNet started.');
         // console.log('setOmegaInPetriNet ID' + node.id);
         // console.log('setOmegaInPetriNet CovStateNodeLabel' + node.label);
@@ -435,10 +430,6 @@ export class CoverabilityGraphService {
             // this._notificationService.showSuccess('TOASTER.HEADER.SUCCESS', 'TOASTER.BODY.SWITCHED_STATE_SUCCESSFULLY');
         }
     }
-
-
-
-
 
     /**
      * Method to check for infinity of Coverability Graph.
@@ -519,8 +510,6 @@ export class CoverabilityGraphService {
                         this.checkedStateNode.isMorMStrich = true;
                         //TODO Hier PN-Marking anpassen, dass Omega 20000
 
-
-                        
                         this.setOmegaValues(this.checkedStateNode, checkPredecessor);
                         graph.omegaValuesExistInGraph = true;
 
@@ -764,6 +753,8 @@ export class CoverabilityGraphService {
 
             //FOR EACH t ∈ T DO && IF m --[t]--> m' THEN
             for (const transition of enabledTransitions) {
+                //TODO hier wieder auf 20000 setzen?
+
                 const nextMarking = this.computeNextMarking(m.covMarking, transition);
                 // const nextStateNodeLabelWithOmega = this.autoCompleteTempLabel;
 
@@ -844,6 +835,7 @@ export class CoverabilityGraphService {
         transition: DiagramTransition,
     ): Record<string, number> {
         const nextMarking = { ...currentMarking };
+        let tempMarking = currentMarking;
         transition.getInputFlow().forEach((flow) => {
             const currentTokens = nextMarking[flow.place.id] ?? 0;
             nextMarking[flow.place.id] = currentTokens - flow.weight;
@@ -854,8 +846,15 @@ export class CoverabilityGraphService {
 
         //add omega at correct positions of label
         const tempCovLabelMarkingNumbers = Object.values(nextMarking);
+        const tempMarkingKeys = Object.keys(nextMarking);
         const tempCovLabelMarkingStrings = tempCovLabelMarkingNumbers.join().split(',');
         for (let j = 0; j < Object.values(nextMarking).length; j++) {
+            if (tempCovLabelMarkingNumbers[j] > 10000) {
+                const placeKeyForOmega = tempMarkingKeys[j];
+                tempMarking[placeKeyForOmega] = 20000;
+                this.setOmegaInPetriNet(tempMarking);
+                tempCovLabelMarkingStrings[j] = 'w';
+            }
             if (this.autoNetOmegaPositions[j] === true) {
                 tempCovLabelMarkingStrings[j] = 'w';
             }
@@ -1041,8 +1040,7 @@ export class CoverabilityGraphService {
         // const tempMarkingKeys = Object.keys(currentCovStateNode.covMarking);
 
         for (let j = 0; j < Object.values(currentCovStateNode.covMarking).length; j++) {
-
-            if (currentPlaceMarking[j] > previousPlaceMarking[j] || currentPlaceMarking[j]== 20000 ) {
+            if (currentPlaceMarking[j] > previousPlaceMarking[j] || currentPlaceMarking[j] == 20000) {
                 currentCovStateNode.omegaPositions[j] = true;
                 //TODO Testen, oib marking so korrekt auf w geändert
                 this.netOmegaPositions[j] = true;
@@ -1071,7 +1069,7 @@ export class CoverabilityGraphService {
         const currentPlaceMarking = Object.values(currentCovStateNode.covMarking);
         const previousPlaceMarking = Object.values(previousCovStateNode.covMarking);
         for (let j = 0; j < Object.values(currentCovStateNode.covMarking).length; j++) {
-            if (currentPlaceMarking[j] > previousPlaceMarking[j]|| currentPlaceMarking[j]== 20000) {
+            if (currentPlaceMarking[j] > previousPlaceMarking[j] || currentPlaceMarking[j] == 20000) {
                 currentCovStateNode.omegaPositions[j] = true;
                 //TODO Testen, oib marking so korrekt auf w geändert
                 this.autoNetOmegaPositions[j] = true;
@@ -1103,7 +1101,7 @@ export class CoverabilityGraphService {
             if (node.omegaPositions[k] === true) {
                 tempMarkingStrings[k] = 'w';
                 const placeKeyForOmega = tempMarkingKeys[k];
-                node.covMarking[placeKeyForOmega]=20000;
+                node.covMarking[placeKeyForOmega] = 20000;
             }
         }
         this.setOmegaInPetriNet(node.covMarking);
@@ -1125,7 +1123,7 @@ export class CoverabilityGraphService {
             if (node.omegaPositions[k] === true) {
                 tempMarkingStrings[k] = 'w';
                 const placeKeyForOmega = tempMarkingKeys[k];
-                node.covMarking[placeKeyForOmega]=20000;
+                node.covMarking[placeKeyForOmega] = 20000;
             }
         }
         this.setOmegaInPetriNetForAutoGraph(node.covMarking);
@@ -1138,7 +1136,7 @@ export class CoverabilityGraphService {
     initializeNetOmegaPositions(marking: Record<string, number>) {
         console.log('initialize Net OmegaPositionsArray ');
         this.netOmegaPositions = [];
-        this.autoNetOmegaPositions=[];
+        this.autoNetOmegaPositions = [];
         for (const positions of Object.entries(marking)) {
             this.netOmegaPositions.push(false);
             //TODO prüfen

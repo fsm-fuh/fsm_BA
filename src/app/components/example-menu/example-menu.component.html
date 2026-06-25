@@ -13,7 +13,7 @@
         <mat-icon matMenuItemIcon>description</mat-icon>
         {{ 'EXAMPLE_MENU.EXAMPLE_NET' | translate }}
     </button>
-        <button
+    <button
         mat-menu-item
         [matMenuTriggerFor]="menuCOV"
         (mouseenter)="setActiveMenu('COV')"
@@ -108,13 +108,12 @@
         <mat-icon matMenuItemIcon>description</mat-icon>
         {{ 'EXAMPLE_MENU.TASK2' | translate }}
     </button>
-        <button mat-menu-item (click)="loadExampleFromCategory('COV', 'CovTask3.json')">
+    <button mat-menu-item (click)="loadExampleFromCategory('COV', 'CovTask3.json')">
         <mat-icon matMenuItemIcon>description</mat-icon>
         {{ 'EXAMPLE_MENU.TASK3' | translate }}
     </button>
-        <button mat-menu-item (click)="loadExampleFromCategory('COV', 'CovTask4.json')">
+    <button mat-menu-item (click)="loadExampleFromCategory('COV', 'CovTask4.json')">
         <mat-icon matMenuItemIcon>description</mat-icon>
         {{ 'EXAMPLE_MENU.TASK4' | translate }}
     </button>
 </mat-menu>
-
