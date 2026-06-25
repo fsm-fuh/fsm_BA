@@ -547,6 +547,7 @@ export class CoverabilityGraphService {
                         checkPredecessor.covMarking,
                     );
                     console.log('Cov Are tokens getting bigger - ' + areTokensGettingBigger);
+                    //TODO hier 20001
                     console.log('Cov this.checkedStateNode.tokenSum ' + this.checkedStateNode.tokenSum);
                     console.log('Cov checkPredecessor.tokenSum' + checkPredecessor.tokenSum);
 
@@ -737,9 +738,9 @@ export class CoverabilityGraphService {
 
         while (Q.length > 0) {
             //TODO anpassen, damit funktioniert
-            // if (this.shouldStopCovGraphCalculation(graph)) {
-            //     break;
-            // }
+            if (this.shouldStopCovGraphCalculation(graph)) {
+                break;
+            }
 
             const m = Q.shift()!;
 
@@ -749,11 +750,27 @@ export class CoverabilityGraphService {
                 continue;
             }
 
+
+            
+
             const enabledTransitions = this.getEnabledTransitions(diagram, m.covMarking);
 
             //FOR EACH t ∈ T DO && IF m --[t]--> m' THEN
             for (const transition of enabledTransitions) {
                 //TODO hier wieder auf 20000 setzen?
+
+                let tempMarking=m.covMarking;
+                    const tempCovLabelMarkingNumbers = Object.values(m.covMarking);
+        const tempMarkingKeys = Object.keys(m.covMarking);
+        const tempCovLabelMarkingStrings = tempCovLabelMarkingNumbers.join().split(',');
+        for (let j = 0; j < Object.values(m.covMarking).length; j++) {
+                if (tempCovLabelMarkingNumbers[j] > 10000) {
+                const placeKeyForOmega = tempMarkingKeys[j];
+                tempMarking[placeKeyForOmega] = 20000;
+                this.setOmegaInPetriNetForAutoGraph(tempMarking);
+                tempCovLabelMarkingStrings[j] = 'w';
+            }
+        }
 
                 const nextMarking = this.computeNextMarking(m.covMarking, transition);
                 // const nextStateNodeLabelWithOmega = this.autoCompleteTempLabel;
@@ -814,10 +831,10 @@ export class CoverabilityGraphService {
     }
 
     private shouldStopCovGraphCalculation(graph: CoverabilityGraph): boolean {
-        if (graph.nodes.length > 2000) {
-            graph.isUnlimited = true;
-            return true;
-        }
+        // if (graph.nodes.length > 2000) {
+        //     graph.isUnlimited = true;
+        //     return true;
+        // }
         return graph.isUnlimited || graph.breakLoop;
     }
 
@@ -849,12 +866,12 @@ export class CoverabilityGraphService {
         const tempMarkingKeys = Object.keys(nextMarking);
         const tempCovLabelMarkingStrings = tempCovLabelMarkingNumbers.join().split(',');
         for (let j = 0; j < Object.values(nextMarking).length; j++) {
-            if (tempCovLabelMarkingNumbers[j] > 10000) {
-                const placeKeyForOmega = tempMarkingKeys[j];
-                tempMarking[placeKeyForOmega] = 20000;
-                this.setOmegaInPetriNet(tempMarking);
-                tempCovLabelMarkingStrings[j] = 'w';
-            }
+            // if (tempCovLabelMarkingNumbers[j] > 10000) {
+            //     const placeKeyForOmega = tempMarkingKeys[j];
+            //     tempMarking[placeKeyForOmega] = 20000;
+            //     this.setOmegaInPetriNetForAutoGraph(tempMarking);
+            //     tempCovLabelMarkingStrings[j] = 'w';
+            // }
             if (this.autoNetOmegaPositions[j] === true) {
                 tempCovLabelMarkingStrings[j] = 'w';
             }
