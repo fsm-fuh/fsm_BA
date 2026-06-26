@@ -738,9 +738,9 @@ export class CoverabilityGraphService {
 
         while (Q.length > 0) {
             //TODO anpassen, damit funktioniert
-            if (this.shouldStopCovGraphCalculation(graph)) {
-                break;
-            }
+            // if (this.shouldStopCovGraphCalculation(graph)) {
+                // break;
+            // }
 
             const m = Q.shift()!;
 
@@ -757,7 +757,7 @@ export class CoverabilityGraphService {
 
             //FOR EACH t ∈ T DO && IF m --[t]--> m' THEN
             for (const transition of enabledTransitions) {
-                //TODO hier wieder auf 20000 setzen?
+        //         //TODO hier wieder auf 20000 setzen?
 
                 let tempMarking=m.covMarking;
                     const tempCovLabelMarkingNumbers = Object.values(m.covMarking);
@@ -835,7 +835,8 @@ export class CoverabilityGraphService {
         //     graph.isUnlimited = true;
         //     return true;
         // }
-        return graph.isUnlimited || graph.breakLoop;
+        // return graph.isUnlimited || graph.breakLoop;
+        return graph.breakLoop;
     }
 
     private getEnabledTransitions(diagram: Diagram, marking: Record<string, number>): DiagramTransition[] {
@@ -852,7 +853,7 @@ export class CoverabilityGraphService {
         transition: DiagramTransition,
     ): Record<string, number> {
         const nextMarking = { ...currentMarking };
-        let tempMarking = currentMarking;
+        let tempMarking = nextMarking;
         transition.getInputFlow().forEach((flow) => {
             const currentTokens = nextMarking[flow.place.id] ?? 0;
             nextMarking[flow.place.id] = currentTokens - flow.weight;
@@ -866,12 +867,12 @@ export class CoverabilityGraphService {
         const tempMarkingKeys = Object.keys(nextMarking);
         const tempCovLabelMarkingStrings = tempCovLabelMarkingNumbers.join().split(',');
         for (let j = 0; j < Object.values(nextMarking).length; j++) {
-            // if (tempCovLabelMarkingNumbers[j] > 10000) {
-            //     const placeKeyForOmega = tempMarkingKeys[j];
-            //     tempMarking[placeKeyForOmega] = 20000;
-            //     this.setOmegaInPetriNetForAutoGraph(tempMarking);
-            //     tempCovLabelMarkingStrings[j] = 'w';
-            // }
+            if (tempCovLabelMarkingNumbers[j] > 10000) {
+                const placeKeyForOmega = tempMarkingKeys[j];
+                tempMarking[placeKeyForOmega] = 20000;
+                this.setOmegaInPetriNetForAutoGraph(tempMarking);
+                tempCovLabelMarkingStrings[j] = 'w';
+            }
             if (this.autoNetOmegaPositions[j] === true) {
                 tempCovLabelMarkingStrings[j] = 'w';
             }
