@@ -547,7 +547,6 @@ export class CoverabilityGraphService {
                         checkPredecessor.covMarking,
                     );
                     console.log('Cov Are tokens getting bigger - ' + areTokensGettingBigger);
-                    //TODO hier 20001
                     console.log('Cov this.checkedStateNode.tokenSum ' + this.checkedStateNode.tokenSum);
                     console.log('Cov checkPredecessor.tokenSum' + checkPredecessor.tokenSum);
 
@@ -868,12 +867,12 @@ export class CoverabilityGraphService {
         const tempMarkingKeys = Object.keys(nextMarking);
         const tempCovLabelMarkingStrings = tempCovLabelMarkingNumbers.join().split(',');
         for (let j = 0; j < Object.values(nextMarking).length; j++) {
-            // if (tempCovLabelMarkingNumbers[j] > 10000) {
-            //     const placeKeyForOmega = tempMarkingKeys[j];
-            //     tempMarking[placeKeyForOmega] = 20000;
-            //     this.setOmegaInPetriNetForAutoGraph(tempMarking);
-            //     tempCovLabelMarkingStrings[j] = 'w';
-            // }
+            if (tempCovLabelMarkingNumbers[j] > 10000) {
+                const placeKeyForOmega = tempMarkingKeys[j];
+                nextMarking[placeKeyForOmega] = 20000;
+                // this.setOmegaInPetriNetForAutoGraph(tempMarking);
+                tempCovLabelMarkingStrings[j] = 'w';
+            }
             if (this.autoNetOmegaPositions[j] === true) {
                 tempCovLabelMarkingStrings[j] = 'w';
             }
@@ -902,24 +901,24 @@ export class CoverabilityGraphService {
         nextMarking: Record<string, number>,
         counters: { nodeId: number },
     ): CoverabilityStateNode {
-        let tempMarking = nextMarking;
+        // let tempMarking = nextMarking;
 
 
-                //add omega at correct positions of label
-        const tempCovLabelMarkingNumbers = Object.values(nextMarking);
-        const tempMarkingKeys = Object.keys(nextMarking);
-        const tempCovLabelMarkingStrings = tempCovLabelMarkingNumbers.join().split(',');
-        for (let j = 0; j < Object.values(nextMarking).length; j++) {
-            if (tempCovLabelMarkingNumbers[j] > 10000) {
-                const placeKeyForOmega = tempMarkingKeys[j];
-                tempMarking[placeKeyForOmega] = 20000;
-                this.setOmegaInPetriNetForAutoGraph(tempMarking);
-                tempCovLabelMarkingStrings[j] = 'w';
-            }
-            if (this.autoNetOmegaPositions[j] === true) {
-                tempCovLabelMarkingStrings[j] = 'w';
-            }
-        }
+        //         //add omega at correct positions of label
+        // const tempCovLabelMarkingNumbers = Object.values(nextMarking);
+        // const tempMarkingKeys = Object.keys(nextMarking);
+        // const tempCovLabelMarkingStrings = tempCovLabelMarkingNumbers.join().split(',');
+        // for (let j = 0; j < Object.values(nextMarking).length; j++) {
+        //     if (tempCovLabelMarkingNumbers[j] > 10000) {
+        //         const placeKeyForOmega = tempMarkingKeys[j];
+        //         tempMarking[placeKeyForOmega] = 20000;
+        //         // this.setOmegaInPetriNetForAutoGraph(tempMarking);
+        //         tempCovLabelMarkingStrings[j] = 'w';
+        //     }
+        //     if (this.autoNetOmegaPositions[j] === true) {
+        //         tempCovLabelMarkingStrings[j] = 'w';
+        //     }
+        // }
 
 
 
@@ -1166,6 +1165,11 @@ export class CoverabilityGraphService {
                 node.covMarking[placeKeyForOmega] = 20000;
             }
         }
+
+
+
+
+
         this.setOmegaInPetriNetForAutoGraph(node.covMarking);
 
         node.label = tempMarkingStrings.join(' ');
