@@ -759,18 +759,19 @@ export class CoverabilityGraphService {
             for (const transition of enabledTransitions) {
         //         //TODO hier wieder auf 20000 setzen?
 
-                let tempMarking=m.covMarking;
-                    const tempCovLabelMarkingNumbers = Object.values(m.covMarking);
-        const tempMarkingKeys = Object.keys(m.covMarking);
-        const tempCovLabelMarkingStrings = tempCovLabelMarkingNumbers.join().split(',');
-        for (let j = 0; j < Object.values(m.covMarking).length; j++) {
-                if (tempCovLabelMarkingNumbers[j] > 10000) {
-                const placeKeyForOmega = tempMarkingKeys[j];
-                tempMarking[placeKeyForOmega] = 20000;
-                this.setOmegaInPetriNetForAutoGraph(tempMarking);
-                tempCovLabelMarkingStrings[j] = 'w';
-            }
-        }
+        //         let tempMarking=m.covMarking;
+        //             const tempCovLabelMarkingNumbers = Object.values(m.covMarking);
+        // const tempMarkingKeys = Object.keys(m.covMarking);
+        // const tempCovLabelMarkingStrings = tempCovLabelMarkingNumbers.join().split(',');
+        // for (let j = 0; j < Object.values(m.covMarking).length; j++) {
+        //         if (tempCovLabelMarkingNumbers[j] > 10000) {
+        //         const placeKeyForOmega = tempMarkingKeys[j];
+        //         tempMarking[placeKeyForOmega] = 20000;
+        //         diagram.updateMarking;
+        //         this.setOmegaInPetriNetForAutoGraph(tempMarking);
+        //         tempCovLabelMarkingStrings[j] = 'w';
+        //     }
+        // }
 
                 const nextMarking = this.computeNextMarking(m.covMarking, transition);
                 // const nextStateNodeLabelWithOmega = this.autoCompleteTempLabel;
@@ -867,12 +868,12 @@ export class CoverabilityGraphService {
         const tempMarkingKeys = Object.keys(nextMarking);
         const tempCovLabelMarkingStrings = tempCovLabelMarkingNumbers.join().split(',');
         for (let j = 0; j < Object.values(nextMarking).length; j++) {
-            if (tempCovLabelMarkingNumbers[j] > 10000) {
-                const placeKeyForOmega = tempMarkingKeys[j];
-                tempMarking[placeKeyForOmega] = 20000;
-                this.setOmegaInPetriNetForAutoGraph(tempMarking);
-                tempCovLabelMarkingStrings[j] = 'w';
-            }
+            // if (tempCovLabelMarkingNumbers[j] > 10000) {
+            //     const placeKeyForOmega = tempMarkingKeys[j];
+            //     tempMarking[placeKeyForOmega] = 20000;
+            //     this.setOmegaInPetriNetForAutoGraph(tempMarking);
+            //     tempCovLabelMarkingStrings[j] = 'w';
+            // }
             if (this.autoNetOmegaPositions[j] === true) {
                 tempCovLabelMarkingStrings[j] = 'w';
             }
@@ -901,6 +902,27 @@ export class CoverabilityGraphService {
         nextMarking: Record<string, number>,
         counters: { nodeId: number },
     ): CoverabilityStateNode {
+        let tempMarking = nextMarking;
+
+
+                //add omega at correct positions of label
+        const tempCovLabelMarkingNumbers = Object.values(nextMarking);
+        const tempMarkingKeys = Object.keys(nextMarking);
+        const tempCovLabelMarkingStrings = tempCovLabelMarkingNumbers.join().split(',');
+        for (let j = 0; j < Object.values(nextMarking).length; j++) {
+            if (tempCovLabelMarkingNumbers[j] > 10000) {
+                const placeKeyForOmega = tempMarkingKeys[j];
+                tempMarking[placeKeyForOmega] = 20000;
+                this.setOmegaInPetriNetForAutoGraph(tempMarking);
+                tempCovLabelMarkingStrings[j] = 'w';
+            }
+            if (this.autoNetOmegaPositions[j] === true) {
+                tempCovLabelMarkingStrings[j] = 'w';
+            }
+        }
+
+
+
         this.oldLabelOfFirstOmegaNode = places.map((p) => nextMarking[p.id] ?? 0).join(' ');
         const nextLabel = this.autoCompleteTempLabel;
 
