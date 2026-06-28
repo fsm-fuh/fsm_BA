@@ -24,6 +24,7 @@ export class CoverabilityStateNode implements DisplayableNode {
     _x: WritableSignal<number>;
     _y: WritableSignal<number>;
     label: string;
+    initialComparisonLabel: string;
     covMarking: Record<string, number>;
     nodeVisitedStateForAlgorithm: Visited = Visited.WHITE;
     nodeVisitedStateForLimitCheck = false;
@@ -50,11 +51,13 @@ export class CoverabilityStateNode implements DisplayableNode {
         return signal(0);
     }
 
-    constructor(id: string, x: number, y: number, label: string, marking: Record<string, number>, firingPath = '') {
+    // constructor(id: string, x: number, y: number, label: string, marking: Record<string, number>, firingPath = '') {
+    constructor(id: string, x: number, y: number, label: string, initialComparisonLabel: string, marking: Record<string, number>, firingPath = '') {
         this.id = id;
         this._x = signal(x);
         this._y = signal(y);
         this.label = label;
+        this.initialComparisonLabel =initialComparisonLabel;
         this.covMarking = marking;
         this.firingPath = firingPath;
 

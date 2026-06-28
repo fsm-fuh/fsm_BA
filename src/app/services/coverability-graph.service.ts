@@ -109,6 +109,7 @@ export class CoverabilityGraphService {
             initialX,
             initialY,
             initialCoverabilityLabel,
+            initialCoverabilityLabel,
             this._startMarkingCG,
         );
         initialStateNode.isStartingState = true;
@@ -166,6 +167,15 @@ export class CoverabilityGraphService {
             if (this.netOmegaPositions[j] === true) {
                 tempCovLabelMarkingStrings[j] = 'w';
             }
+
+            // for (const cStateNode of this._coverabilityGraph().nodes) {
+            //     if (cStateNode.omegaPositions[j] === true) {
+            //         tempCovLabelMarkingStrings[j] = 'w';
+            //     }
+                
+            // }
+
+
         }
 
         currentCoverabilityLabel = tempCovLabelMarkingStrings.join(' ');
@@ -181,7 +191,9 @@ export class CoverabilityGraphService {
         //prüfen, ob aktuelle Zielmarkierung bereits vorhanden
         for (const nodeElement of graph.nodes) {
             const existingNodeLabel: string = nodeElement.label;
-            if (existingNodeLabel === currentCoverabilityLabel) {
+             const existingInitialNodeLabel: string = nodeElement.initialComparisonLabel;
+            // if (existingNodeLabel === currentCoverabilityLabel) {
+            if (existingNodeLabel === currentCoverabilityLabel || existingInitialNodeLabel ===currentCoverabilityLabel) {
                 markingExists = true;
                 currentCgId = nodeElement.id;
                 compareCgTargetStateNode = nodeElement;
@@ -219,6 +231,7 @@ export class CoverabilityGraphService {
                 currentCgId,
                 currentX,
                 currentY,
+                currentCoverabilityLabel,
                 currentCoverabilityLabel,
                 { ...diagram.marking } as Record<string, number>,
                 firingPath,
@@ -276,6 +289,12 @@ export class CoverabilityGraphService {
         }
 
         if (markingExists && !connectionExists) {
+            // currentLabel raussuchen und omegaPositions resetten
+            const currentNode = graph.nodes.find((node) => node.label === currentCoverabilityLabel);
+            this.netOmegaPositions = currentNode!.omegaPositions;
+            this.checkForInfinity(currentNode!);
+            this.setOmegaInPetriNet(currentNode!.covMarking);
+
             // neue Kante zu vorhandenem Markierungsknoten
             const previousNode = graph.nodes.find((node) => node.id === this.currentSourceCgId);
             const firingPath = previousNode && previousNode.firingPath ? previousNode.firingPath + ' ' + label : label;
@@ -359,6 +378,8 @@ export class CoverabilityGraphService {
             //change state of net
             this.currentSourceCgId = node.id;
 
+            //TODO CHECK
+            this.netOmegaPositions = node.omegaPositions;
             oldPetriNet.updateMarking();
             this._sourceNetService.updateEditedNet(oldPetriNet, { triggeredByFiring: false });
             // console.log('Changed PN:' + oldPetriNet.currentMarking$);
@@ -829,7 +850,7 @@ export class CoverabilityGraphService {
         const startLabel = places.map((p) => startMarking[p.id] ?? 0).join(' ');
         //TODO Marking schon hier mit Omegas? eher später
 
-        const startNode = new CoverabilityStateNode('CG1', 300, 50, startLabel, startMarking);
+        const startNode = new CoverabilityStateNode('CG1', 300, 50, startLabel,startLabel, startMarking);
         startNode.isStartingState = true;
 
         graph.nodes.push(startNode);
@@ -931,7 +952,7 @@ export class CoverabilityGraphService {
         if (!m_prime) {
             counters.nodeId++;
             const { x, y } = this.calculateRandomPosition();
-            m_prime = new CoverabilityStateNode(`CG${counters.nodeId}`, x, y, nextLabel, nextMarking);
+            m_prime = new CoverabilityStateNode(`CG${counters.nodeId}`, x, y, nextLabel,nextLabel, nextMarking);
             graph.nodes.push(m_prime);
             nodeByLabel.set(nextLabel, m_prime);
         }
