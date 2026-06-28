@@ -161,6 +161,8 @@ export class CoverabilityGraphService {
                 this.setOmegaInPetriNet(tempMarking);
                 tempCovLabelMarkingStrings[j] = 'w';
             }
+
+            
             if (this.netOmegaPositions[j] === true) {
                 tempCovLabelMarkingStrings[j] = 'w';
             }
@@ -527,7 +529,7 @@ export class CoverabilityGraphService {
                         this.checkedStateNode.isMorMStrich = true;
                         //TODO ÜBERPRÜFEN
                         this.setOmegaValues(this.checkedStateNode, checkPredecessor);
-                        graph.omegaValuesExistInGraph = true;
+                        // graph.omegaValuesExistInGraph = true;
 
                         if (checkPredecessor.isStartingState) {
                             graph.breakLoop = true;
