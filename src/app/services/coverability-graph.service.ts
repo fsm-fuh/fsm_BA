@@ -406,9 +406,6 @@ export class CoverabilityGraphService {
     //TODO überarbeiten für Omega
     setOmegaInPetriNetForAutoGraph(nodeMarking: Record<string, number>) {
         console.log('Cov setOmegaInPetriNet started.');
-        // console.log('setOmegaInPetriNet ID' + node.id);
-        // console.log('setOmegaInPetriNet CovStateNodeLabel' + node.label);
-        // console.log('CovStateNodeMarking' + node.covMarking);
 
         if (!this._sourceNetService.getCurrentSourceNet()) {
             this._notificationService.showError('TOASTER.HEADER.READ_ERROR', 'TOASTER.BODY.LOAD_NET_FIRST');
@@ -518,7 +515,27 @@ export class CoverabilityGraphService {
                             return;
                         }
                         return;
-                    } else {
+                    } 
+                                    
+                    else if (
+                        this.checkedStateNode.tokenSum > checkPredecessor.tokenSum &&
+                        areTokensGettingBigger &&
+                        graph.isUnlimited
+                    ) {
+                        console.log('Cov PN Unbeschränkt erneuter Durchlauf');
+                        checkPredecessor.isMorMStrich = true;
+                        this.checkedStateNode.isMorMStrich = true;
+                        //TODO ÜBERPRÜFEN
+                        this.setOmegaValues(this.checkedStateNode, checkPredecessor);
+                        graph.omegaValuesExistInGraph = true;
+
+                        if (checkPredecessor.isStartingState) {
+                            graph.breakLoop = true;
+                            return;
+                        }
+                        return;
+                    }
+                    else {
                         if (checkPredecessor.isStartingState) {
                             this._coverabilityGraph().breakLoop = true;
                             return;
@@ -752,14 +769,12 @@ export class CoverabilityGraphService {
             return this._completeCoverabilityGraph();
         }
 
+        // const { graph, Q, processedNodeIds, nodeByLabel, counters } =
         const { graph, Q, processedNodeIds, nodeByLabel, counters } =
+
             this.initializeCoverabilityGraphCalculation(diagram);
 
         while (Q.length > 0) {
-            //TODO anpassen, damit funktioniert
-            // if (this.shouldStopCovGraphCalculation(graph)) {
-                // break;
-            // }
 
             const m = Q.shift()!;
 
@@ -769,32 +784,13 @@ export class CoverabilityGraphService {
                 continue;
             }
 
-
-            
-
-            // const enabledTransitions = this.getEnabledTransitions(diagram, m.covMarking);
             const enabledTransitions = this.getEnabledTransitions(diagram, m);
 
             //FOR EACH t ∈ T DO && IF m --[t]--> m' THEN
             for (const transition of enabledTransitions) {
-        //         //TODO hier wieder auf 20000 setzen?
-
-        //         let tempMarking=m.covMarking;
-        //             const tempCovLabelMarkingNumbers = Object.values(m.covMarking);
-        // const tempMarkingKeys = Object.keys(m.covMarking);
-        // const tempCovLabelMarkingStrings = tempCovLabelMarkingNumbers.join().split(',');
-        // for (let j = 0; j < Object.values(m.covMarking).length; j++) {
-        //         if (tempCovLabelMarkingNumbers[j] > 10000) {
-        //         const placeKeyForOmega = tempMarkingKeys[j];
-        //         tempMarking[placeKeyForOmega] = 20000;
-        //         diagram.updateMarking;
-        //         this.setOmegaInPetriNetForAutoGraph(tempMarking);
-        //         tempCovLabelMarkingStrings[j] = 'w';
-        //     }
-        // }
+        
 
                 const nextMarking = this.computeNextMarking(m.covMarking, transition);
-                // const nextStateNodeLabelWithOmega = this.autoCompleteTempLabel;
 
                 const m_prime = this.getOrCreateNextNode(graph, nodeByLabel, diagram.places, nextMarking, counters);
 
@@ -811,17 +807,11 @@ export class CoverabilityGraphService {
                     nodeByLabel.set(m_prime.label, m_prime);
                 }
 
-                //TODO vermutlich hier ausblenden? durch Omega sollte ja kein Fehler passieren können
-                // if (graph.isUnlimited) break;
             }
-
-            //TODO vermutlich hier ausblenden? durch Omega sollte ja kein Fehler passieren können
-            // if (graph.isUnlimited) {
-            //     break;
-            // }
 
             // M <- M U {m}
             processedNodeIds.add(m.id);
+            // processedNodeIds.add(m.label);
         }
 
         this._cachedCompleteGraphDiagram = diagram;
@@ -851,14 +841,14 @@ export class CoverabilityGraphService {
         };
     }
 
-    private shouldStopCovGraphCalculation(graph: CoverabilityGraph): boolean {
-        // if (graph.nodes.length > 2000) {
-        //     graph.isUnlimited = true;
-        //     return true;
-        // }
-        // return graph.isUnlimited || graph.breakLoop;
-        return graph.breakLoop;
-    }
+    // private shouldStopCovGraphCalculation(graph: CoverabilityGraph): boolean {
+    //     // if (graph.nodes.length > 2000) {
+    //     //     graph.isUnlimited = true;
+    //     //     return true;
+    //     // }
+    //     // return graph.isUnlimited || graph.breakLoop;
+    //     return graph.breakLoop;
+    // }
 
     // private getEnabledTransitions(diagram: Diagram, marking: Record<string, number>): DiagramTransition[] {
     private getEnabledTransitions(diagram: Diagram, covStateNode: CoverabilityStateNode): DiagramTransition[] {
@@ -906,9 +896,6 @@ export class CoverabilityGraphService {
         //         // this.setOmegaInPetriNetForAutoGraph(tempMarking);
                 tempCovLabelMarkingStrings[j] = 'w';
             }
-            // if (this.autoNetOmegaPositions[j] === true) {
-            //     tempCovLabelMarkingStrings[j] = 'w';
-            // }
         }
 
         this.autoCompleteTempLabel = tempCovLabelMarkingStrings.join(' ');
@@ -934,27 +921,6 @@ export class CoverabilityGraphService {
         nextMarking: Record<string, number>,
         counters: { nodeId: number },
     ): CoverabilityStateNode {
-        // let tempMarking = nextMarking;
-
-
-        //         //add omega at correct positions of label
-        // const tempCovLabelMarkingNumbers = Object.values(nextMarking);
-        // const tempMarkingKeys = Object.keys(nextMarking);
-        // const tempCovLabelMarkingStrings = tempCovLabelMarkingNumbers.join().split(',');
-        // for (let j = 0; j < Object.values(nextMarking).length; j++) {
-        //     if (tempCovLabelMarkingNumbers[j] > 10000) {
-        //         const placeKeyForOmega = tempMarkingKeys[j];
-        //         tempMarking[placeKeyForOmega] = 20000;
-        //         // this.setOmegaInPetriNetForAutoGraph(tempMarking);
-        //         tempCovLabelMarkingStrings[j] = 'w';
-        //     }
-        //     if (this.autoNetOmegaPositions[j] === true) {
-        //         tempCovLabelMarkingStrings[j] = 'w';
-        //     }
-        // }
-
-
-
         this.oldLabelOfFirstOmegaNode = places.map((p) => nextMarking[p.id] ?? 0).join(' ');
         const nextLabel = this.autoCompleteTempLabel;
 
@@ -1022,15 +988,6 @@ export class CoverabilityGraphService {
     checkCoverabilityGraphCompleteness(): void {
         this._completeCoverabilityGraph.set(this.calculateCompleteCoverabilityGraph());
         const completeGraph = this._completeCoverabilityGraph();
-
-        // if (completeGraph.isUnlimited) {
-        //     this._notificationService.showInfo(
-        //         'TOASTER.HEADER.PETRI_NET_UNLIMITED',
-        //         'TOASTER.BODY.PETRI_NET_UNLIMITED',
-        //     );
-        //     return;
-        // }
-
         const userGraph = this._coverabilityGraph();
         const missingReachableEdges: {
             source: CoverabilityStateNode;
