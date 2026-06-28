@@ -553,9 +553,9 @@ export class CoverabilityGraphService {
                     if (
                         this.checkedStateNode.tokenSum > checkPredecessor.tokenSum &&
                         areTokensGettingBigger 
-                        // && !graph.isUnlimited
+                        && !graph.isUnlimited
                     ) {
-                        console.log('Cov PN Unbeschränkt');
+                        console.log('Cov PN Unbeschränkt first time');
                         graph.isUnlimited = true;
                         checkPredecessor.isMorMStrich = true;
                         this.checkedStateNode.isMorMStrich = true;
@@ -568,7 +568,27 @@ export class CoverabilityGraphService {
                             return;
                         }
                         return;
-                    } else {
+                        
+                    }
+                    else if (
+                        this.checkedStateNode.tokenSum > checkPredecessor.tokenSum &&
+                        areTokensGettingBigger 
+                        && graph.isUnlimited
+                    ) {
+                        console.log('Cov PN Unbeschränkt erneuter Durchlauf');
+                        checkPredecessor.isMorMStrich = true;
+                        this.checkedStateNode.isMorMStrich = true;
+                        //TODO ÜBERPRÜFEN
+                        this.setAutoGraphOmegaValues(this.checkedStateNode, checkPredecessor);
+                        graph.omegaValuesExistInGraph = true;
+
+                        if (checkPredecessor.isStartingState) {
+                            graph.breakLoop = true;
+                            return;
+                        }
+                        return;
+                    }
+                     else {
                         if (checkPredecessor.isStartingState) {
                             this._coverabilityGraph().breakLoop = true;
                             return;
@@ -752,7 +772,8 @@ export class CoverabilityGraphService {
 
             
 
-            const enabledTransitions = this.getEnabledTransitions(diagram, m.covMarking);
+            // const enabledTransitions = this.getEnabledTransitions(diagram, m.covMarking);
+            const enabledTransitions = this.getEnabledTransitions(diagram, m);
 
             //FOR EACH t ∈ T DO && IF m --[t]--> m' THEN
             for (const transition of enabledTransitions) {
@@ -839,21 +860,22 @@ export class CoverabilityGraphService {
         return graph.breakLoop;
     }
 
-    private getEnabledTransitions(diagram: Diagram, marking: Record<string, number>): DiagramTransition[] {
+    // private getEnabledTransitions(diagram: Diagram, marking: Record<string, number>): DiagramTransition[] {
+    private getEnabledTransitions(diagram: Diagram, covStateNode: CoverabilityStateNode): DiagramTransition[] {
         //add omega at correct positions of label
-        const tempCovLabelMarkingNumbers = Object.values(marking);
-        const tempMarkingKeys = Object.keys(marking);
+        const tempCovLabelMarkingNumbers = Object.values(covStateNode.covMarking);
+        const tempMarkingKeys = Object.keys(covStateNode.covMarking);
         const tempCovLabelMarkingStrings = tempCovLabelMarkingNumbers.join().split(',');
-        for (let j = 0; j < Object.values(marking).length; j++) {
-            if (this.autoNetOmegaPositions[j] === true) {
+        for (let j = 0; j < Object.values(covStateNode.covMarking).length; j++) {
+            if (covStateNode.omegaPositions[j] === true) {
                 const placeKeyForOmega = tempMarkingKeys[j];
-                marking[placeKeyForOmega] = 20000;
+                covStateNode.covMarking[placeKeyForOmega] = 20000;
                 // this.setOmegaInPetriNetForAutoGraph(tempMarking);
                 // tempCovLabelMarkingStrings[j] = 'w';
             }}
         return diagram.transitions.filter((t) => {
             return t.getInputFlow().every((flow) => {
-                const tokens = marking[flow.place.id] || 0;
+                const tokens = covStateNode.covMarking[flow.place.id] || 0;
                 return tokens >= flow.weight;
             });
         });
@@ -884,9 +906,9 @@ export class CoverabilityGraphService {
         //         // this.setOmegaInPetriNetForAutoGraph(tempMarking);
                 tempCovLabelMarkingStrings[j] = 'w';
             }
-            if (this.autoNetOmegaPositions[j] === true) {
-                tempCovLabelMarkingStrings[j] = 'w';
-            }
+            // if (this.autoNetOmegaPositions[j] === true) {
+            //     tempCovLabelMarkingStrings[j] = 'w';
+            // }
         }
 
         this.autoCompleteTempLabel = tempCovLabelMarkingStrings.join(' ');
@@ -1181,7 +1203,7 @@ export class CoverabilityGraphService {
 
 
 
-        this.setOmegaInPetriNetForAutoGraph(node.covMarking);
+        // this.setOmegaInPetriNetForAutoGraph(node.covMarking);
 
         node.label = tempMarkingStrings.join(' ');
         //save to array for comparison
