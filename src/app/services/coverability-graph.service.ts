@@ -552,8 +552,8 @@ export class CoverabilityGraphService {
 
                     if (
                         this.checkedStateNode.tokenSum > checkPredecessor.tokenSum &&
-                        areTokensGettingBigger &&
-                        !graph.isUnlimited
+                        areTokensGettingBigger 
+                        // && !graph.isUnlimited
                     ) {
                         console.log('Cov PN Unbeschränkt');
                         graph.isUnlimited = true;
@@ -840,6 +840,17 @@ export class CoverabilityGraphService {
     }
 
     private getEnabledTransitions(diagram: Diagram, marking: Record<string, number>): DiagramTransition[] {
+        //add omega at correct positions of label
+        const tempCovLabelMarkingNumbers = Object.values(marking);
+        const tempMarkingKeys = Object.keys(marking);
+        const tempCovLabelMarkingStrings = tempCovLabelMarkingNumbers.join().split(',');
+        for (let j = 0; j < Object.values(marking).length; j++) {
+            if (this.autoNetOmegaPositions[j] === true) {
+                const placeKeyForOmega = tempMarkingKeys[j];
+                marking[placeKeyForOmega] = 20000;
+                // this.setOmegaInPetriNetForAutoGraph(tempMarking);
+                // tempCovLabelMarkingStrings[j] = 'w';
+            }}
         return diagram.transitions.filter((t) => {
             return t.getInputFlow().every((flow) => {
                 const tokens = marking[flow.place.id] || 0;
@@ -870,7 +881,7 @@ export class CoverabilityGraphService {
             if (tempCovLabelMarkingNumbers[j] > 10000) {
                 const placeKeyForOmega = tempMarkingKeys[j];
                 nextMarking[placeKeyForOmega] = 20000;
-                // this.setOmegaInPetriNetForAutoGraph(tempMarking);
+        //         // this.setOmegaInPetriNetForAutoGraph(tempMarking);
                 tempCovLabelMarkingStrings[j] = 'w';
             }
             if (this.autoNetOmegaPositions[j] === true) {
