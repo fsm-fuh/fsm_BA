@@ -151,7 +151,7 @@ export class CoverabilityGraphService {
     convertFiringEntryLabelToCoverabilityGraphID(diagram: Diagram, label: string) {
         for (const prevStateNode of this._coverabilityGraph().nodes) {
             if (prevStateNode.id ===this.currentSourceCgId) {
-                this.netOmegaPositions=prevStateNode.netOmegaPositionsOnTimeOfCovStateNodeCreation;
+                // this.netOmegaPositions=prevStateNode.netOmegaPositionsOnTimeOfCovStateNodeCreation;
                 // this.setOmegaInPetriNet(prevStateNode.covMarking);
                 
             }
