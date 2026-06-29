@@ -34,8 +34,11 @@ export class CoverabilityStateNode implements DisplayableNode {
     isMorMStrich = false;
     tokenSum = 0;
     firingPath: string;
-    //Array, in which positions of omega values are marked with boolean, initially empty
+    //Array, in which positions of omega values for the node are marked with boolean, initially empty
     omegaPositions: boolean[] = [];
+    //Array to save the state of netOmegaNodes for switching covGraph states (different to array above due to time of creation of nodes in service)
+    netOmegaPositionsOnTimeOfCovStateNodeCreation: boolean[] = [];
+
 
     //additional marking as string, string, which is always updated when marking changes (on each new stateNode)
     covMarkingAsStringRecord: CovMarkingStringSaver[] = [];

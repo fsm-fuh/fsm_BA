@@ -144,6 +144,16 @@ export class CoverabilityGraphService {
      * @param label The label of the fired transition.
      */
     convertFiringEntryLabelToCoverabilityGraphID(diagram: Diagram, label: string) {
+        for (const prevStateNode of this._coverabilityGraph().nodes) {
+            if (prevStateNode.id ===this.currentSourceCgId) {
+                this.netOmegaPositions=prevStateNode.netOmegaPositionsOnTimeOfCovStateNodeCreation;
+                // this.setOmegaInPetriNet(prevStateNode.covMarking);
+                
+            }
+            
+        }
+
+
         let markingExists = false;
         let connectionExists = false;
         let tempMarking = diagram.marking;
@@ -291,9 +301,9 @@ export class CoverabilityGraphService {
         if (markingExists && !connectionExists) {
             // currentLabel raussuchen und omegaPositions resetten
             const currentNode = graph.nodes.find((node) => node.label === currentCoverabilityLabel);
-            this.netOmegaPositions = currentNode!.omegaPositions;
-            this.checkForInfinity(currentNode!);
-            this.setOmegaInPetriNet(currentNode!.covMarking);
+            // this.netOmegaPositions = currentNode!.omegaPositions;
+            // this.checkForInfinity(currentNode!);
+            // this.setOmegaInPetriNet(currentNode!.covMarking);
 
             // neue Kante zu vorhandenem Markierungsknoten
             const previousNode = graph.nodes.find((node) => node.id === this.currentSourceCgId);
@@ -379,7 +389,7 @@ export class CoverabilityGraphService {
             this.currentSourceCgId = node.id;
 
             //TODO CHECK
-            this.netOmegaPositions = node.omegaPositions;
+            this.netOmegaPositions = node.netOmegaPositionsOnTimeOfCovStateNodeCreation;
             oldPetriNet.updateMarking();
             this._sourceNetService.updateEditedNet(oldPetriNet, { triggeredByFiring: false });
             // console.log('Changed PN:' + oldPetriNet.currentMarking$);
@@ -1109,8 +1119,10 @@ export class CoverabilityGraphService {
                 );
             }
             //TODO update model and  StringSaver of node
-            this.setOmegaLabel(currentCovStateNode);
         }
+        //save netOmegaPositions in node for switching states
+        currentCovStateNode.netOmegaPositionsOnTimeOfCovStateNodeCreation = this.netOmegaPositions;
+        this.setOmegaLabel(currentCovStateNode);
     }
 
     /**
