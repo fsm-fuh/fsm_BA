@@ -116,6 +116,11 @@ export class CoverabilityGraphService {
 
         //Omega-Array des Service initialisieren
         this.initializeNetOmegaPositions(this._startMarkingCG);
+              for (const element of Object.entries(initialStateNode.covMarking)) {
+                initialStateNode.omegaPositions.push(false);
+                initialStateNode.netOmegaPositionsOnTimeOfCovStateNodeCreation.push(false);
+                
+            }
 
         if (!this._modeService.isExamMode(Tab.COVERABILITY_GRAPH)) {
             //AUTOMATISCH StateNode erzeugen
@@ -246,6 +251,20 @@ export class CoverabilityGraphService {
                 { ...diagram.marking } as Record<string, number>,
                 firingPath,
             );
+
+            for (let index = 0; index < Object.entries(currentStateNode.covMarking).length; index++) {
+                
+            // }
+            // for (const element of Object.entries(currentStateNode.covMarking)) {
+                // currentStateNode.omegaPositions.push(false);
+                currentStateNode.netOmegaPositionsOnTimeOfCovStateNodeCreation.push(false);
+                                console.log('NEW OMEGAPOSIUTIONS: ' + currentStateNode.omegaPositions[index]);
+
+            }
+               for (const element of this.netOmegaPositions) {
+                
+                console.log('NEW netOmegaPositions: ' + element);
+            }
 
             const currentFiringEdge = new CoverabilityFiringEdge(
                 currentCgEdgeId,
@@ -401,7 +420,12 @@ export class CoverabilityGraphService {
             this.currentSourceCgId = node.id;
 
             //TODO CHECK
-            this.netOmegaPositions = node.netOmegaPositionsOnTimeOfCovStateNodeCreation;
+            this.netOmegaPositions = node.omegaPositions;
+            for (const element of this.netOmegaPositions) {
+                
+                console.log('NEW netOmegaPositions: ' + element);
+            }
+
             oldPetriNet.updateMarking();
             this._sourceNetService.updateEditedNet(oldPetriNet, { triggeredByFiring: false });
             // console.log('Changed PN:' + oldPetriNet.currentMarking$);
