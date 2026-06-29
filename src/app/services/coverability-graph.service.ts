@@ -669,7 +669,7 @@ export class CoverabilityGraphService {
             }
         }
     }
-//change
+
     /**
      * Compares Marking of StateNode with Marking of previous StateNode to check for "real growth".
      * Returns "true" when current marking "bigger" than previous marking on same path.
