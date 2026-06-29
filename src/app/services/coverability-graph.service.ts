@@ -150,11 +150,11 @@ export class CoverabilityGraphService {
      */
     convertFiringEntryLabelToCoverabilityGraphID(diagram: Diagram, label: string) {
         for (const prevStateNode of this._coverabilityGraph().nodes) {
-            if (prevStateNode.id ===this.currentSourceCgId) {
-                // this.netOmegaPositions=prevStateNode.netOmegaPositionsOnTimeOfCovStateNodeCreation;
-                // this.setOmegaInPetriNet(prevStateNode.covMarking);
+            // if (prevStateNode.id ===this.currentSourceCgId) {
+            //     // this.netOmegaPositions=prevStateNode.netOmegaPositionsOnTimeOfCovStateNodeCreation;
+            //     // this.setOmegaInPetriNet(prevStateNode.covMarking);
                 
-            }
+            // }
             
         }
 
@@ -258,7 +258,7 @@ export class CoverabilityGraphService {
             // for (const element of Object.entries(currentStateNode.covMarking)) {
                 // currentStateNode.omegaPositions.push(false);
                 currentStateNode.netOmegaPositionsOnTimeOfCovStateNodeCreation.push(false);
-                                console.log('NEW OMEGAPOSIUTIONS: ' + currentStateNode.omegaPositions[index]);
+                                console.log('NEW OMEGAPOSITIONS: ' + currentStateNode.omegaPositions[index]);
 
             }
                for (const element of this.netOmegaPositions) {
