@@ -300,6 +300,12 @@ export class CoverabilityGraphService {
 
         if (markingExists && !connectionExists) {
             // currentLabel raussuchen und omegaPositions resetten
+            for (const node of this._coverabilityGraph().nodes) {
+                if (node.id === currentCgId) {
+                    this.setOmegaInPetriNet(node.covMarking);
+                    
+                }
+            }
             const currentNode = graph.nodes.find((node) => node.label === currentCoverabilityLabel);
             // this.netOmegaPositions = currentNode!.omegaPositions;
             // this.checkForInfinity(currentNode!);
@@ -348,6 +354,12 @@ export class CoverabilityGraphService {
         }
 
         if (markingExists && connectionExists) {
+            for (const node of this._coverabilityGraph().nodes) {
+                if (node.id === currentCgId) {
+                    this.setOmegaInPetriNet(node.covMarking);
+                    
+                }
+            }
             // State wechseln, damit Hinzufügen beim nächsten Aufruf der Methode an der richtigen Stelle passiert
             //wird nach Durchlaufen aller if-Schleifen getriggert
             this._notificationService.showInfo(
