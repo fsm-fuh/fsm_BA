@@ -39,7 +39,6 @@ export class CoverabilityStateNode implements DisplayableNode {
     //Array to save the state of netOmegaNodes for switching covGraph states (different to array above due to time of creation of nodes in service)
     netOmegaPositionsOnTimeOfCovStateNodeCreation: boolean[] = [];
 
-
     //additional marking as string, string, which is always updated when marking changes (on each new stateNode)
     covMarkingAsStringRecord: CovMarkingStringSaver[] = [];
 
@@ -55,12 +54,20 @@ export class CoverabilityStateNode implements DisplayableNode {
     }
 
     // constructor(id: string, x: number, y: number, label: string, marking: Record<string, number>, firingPath = '') {
-    constructor(id: string, x: number, y: number, label: string, initialComparisonLabel: string, marking: Record<string, number>, firingPath = '') {
+    constructor(
+        id: string,
+        x: number,
+        y: number,
+        label: string,
+        initialComparisonLabel: string,
+        marking: Record<string, number>,
+        firingPath = '',
+    ) {
         this.id = id;
         this._x = signal(x);
         this._y = signal(y);
         this.label = label;
-        this.initialComparisonLabel =initialComparisonLabel;
+        this.initialComparisonLabel = initialComparisonLabel;
         this.covMarking = marking;
         this.firingPath = firingPath;
 

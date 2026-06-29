@@ -116,11 +116,10 @@ export class CoverabilityGraphService {
 
         //Omega-Array des Service initialisieren
         this.initializeNetOmegaPositions(this._startMarkingCG);
-              for (const element of Object.entries(initialStateNode.covMarking)) {
-                initialStateNode.omegaPositions.push(false);
-                initialStateNode.netOmegaPositionsOnTimeOfCovStateNodeCreation.push(false);
-                
-            }
+        for (const element of Object.entries(initialStateNode.covMarking)) {
+            initialStateNode.omegaPositions.push(false);
+            initialStateNode.netOmegaPositionsOnTimeOfCovStateNodeCreation.push(false);
+        }
 
         if (!this._modeService.isExamMode(Tab.COVERABILITY_GRAPH)) {
             //AUTOMATISCH StateNode erzeugen
@@ -153,15 +152,12 @@ export class CoverabilityGraphService {
             // if (prevStateNode.id ===this.currentSourceCgId) {
             //     // this.netOmegaPositions=prevStateNode.netOmegaPositionsOnTimeOfCovStateNodeCreation;
             //     // this.setOmegaInPetriNet(prevStateNode.covMarking);
-                
             // }
-            
         }
-
 
         let markingExists = false;
         let connectionExists = false;
-        let tempMarking = diagram.marking;
+        const tempMarking = diagram.marking;
 
         let currentCoverabilityLabel: string = Object.entries(diagram.marking)
             .map(([, value]) => `${value}`)
@@ -178,7 +174,6 @@ export class CoverabilityGraphService {
                 tempCovLabelMarkingStrings[j] = 'w';
             }
 
-            
             if (this.netOmegaPositions[j] === true) {
                 tempCovLabelMarkingStrings[j] = 'w';
             }
@@ -187,10 +182,8 @@ export class CoverabilityGraphService {
             //     if (cStateNode.omegaPositions[j] === true) {
             //         tempCovLabelMarkingStrings[j] = 'w';
             //     }
-                
+
             // }
-
-
         }
 
         currentCoverabilityLabel = tempCovLabelMarkingStrings.join(' ');
@@ -206,9 +199,12 @@ export class CoverabilityGraphService {
         //prüfen, ob aktuelle Zielmarkierung bereits vorhanden
         for (const nodeElement of graph.nodes) {
             const existingNodeLabel: string = nodeElement.label;
-             const existingInitialNodeLabel: string = nodeElement.initialComparisonLabel;
+            const existingInitialNodeLabel: string = nodeElement.initialComparisonLabel;
             // if (existingNodeLabel === currentCoverabilityLabel) {
-            if (existingNodeLabel === currentCoverabilityLabel || existingInitialNodeLabel ===currentCoverabilityLabel) {
+            if (
+                existingNodeLabel === currentCoverabilityLabel ||
+                existingInitialNodeLabel === currentCoverabilityLabel
+            ) {
                 markingExists = true;
                 currentCgId = nodeElement.id;
                 compareCgTargetStateNode = nodeElement;
@@ -253,16 +249,13 @@ export class CoverabilityGraphService {
             );
 
             for (let index = 0; index < Object.entries(currentStateNode.covMarking).length; index++) {
-                
-            // }
-            // for (const element of Object.entries(currentStateNode.covMarking)) {
+                // }
+                // for (const element of Object.entries(currentStateNode.covMarking)) {
                 // currentStateNode.omegaPositions.push(false);
                 currentStateNode.netOmegaPositionsOnTimeOfCovStateNodeCreation.push(false);
-                                console.log('NEW OMEGAPOSITIONS: ' + currentStateNode.omegaPositions[index]);
-
+                console.log('NEW OMEGAPOSITIONS: ' + currentStateNode.omegaPositions[index]);
             }
-               for (const element of this.netOmegaPositions) {
-                
+            for (const element of this.netOmegaPositions) {
                 console.log('NEW netOmegaPositions: ' + element);
             }
 
@@ -322,7 +315,6 @@ export class CoverabilityGraphService {
             for (const node of this._coverabilityGraph().nodes) {
                 if (node.id === currentCgId) {
                     this.setOmegaInPetriNet(node.covMarking);
-                    
                 }
             }
             const currentNode = graph.nodes.find((node) => node.label === currentCoverabilityLabel);
@@ -376,7 +368,6 @@ export class CoverabilityGraphService {
             for (const node of this._coverabilityGraph().nodes) {
                 if (node.id === currentCgId) {
                     this.setOmegaInPetriNet(node.covMarking);
-                    
                 }
             }
             // State wechseln, damit Hinzufügen beim nächsten Aufruf der Methode an der richtigen Stelle passiert
@@ -422,7 +413,6 @@ export class CoverabilityGraphService {
             //TODO CHECK
             this.netOmegaPositions = node.omegaPositions;
             for (const element of this.netOmegaPositions) {
-                
                 console.log('NEW netOmegaPositions: ' + element);
             }
 
@@ -584,9 +574,7 @@ export class CoverabilityGraphService {
                             return;
                         }
                         return;
-                    } 
-                                    
-                    else if (
+                    } else if (
                         this.checkedStateNode.tokenSum > checkPredecessor.tokenSum &&
                         areTokensGettingBigger &&
                         graph.isUnlimited
@@ -603,8 +591,7 @@ export class CoverabilityGraphService {
                             return;
                         }
                         return;
-                    }
-                    else {
+                    } else {
                         if (checkPredecessor.isStartingState) {
                             this._coverabilityGraph().breakLoop = true;
                             return;
@@ -638,8 +625,8 @@ export class CoverabilityGraphService {
 
                     if (
                         this.checkedStateNode.tokenSum > checkPredecessor.tokenSum &&
-                        areTokensGettingBigger 
-                        && !graph.isUnlimited
+                        areTokensGettingBigger &&
+                        !graph.isUnlimited
                     ) {
                         console.log('Cov PN Unbeschränkt first time');
                         graph.isUnlimited = true;
@@ -654,12 +641,10 @@ export class CoverabilityGraphService {
                             return;
                         }
                         return;
-                        
-                    }
-                    else if (
+                    } else if (
                         this.checkedStateNode.tokenSum > checkPredecessor.tokenSum &&
-                        areTokensGettingBigger 
-                        && graph.isUnlimited
+                        areTokensGettingBigger &&
+                        graph.isUnlimited
                     ) {
                         console.log('Cov PN Unbeschränkt erneuter Durchlauf');
                         checkPredecessor.isMorMStrich = true;
@@ -673,8 +658,7 @@ export class CoverabilityGraphService {
                             return;
                         }
                         return;
-                    }
-                     else {
+                    } else {
                         if (checkPredecessor.isStartingState) {
                             this._coverabilityGraph().breakLoop = true;
                             return;
@@ -840,11 +824,9 @@ export class CoverabilityGraphService {
 
         // const { graph, Q, processedNodeIds, nodeByLabel, counters } =
         const { graph, Q, processedNodeIds, nodeByLabel, counters } =
-
             this.initializeCoverabilityGraphCalculation(diagram);
 
         while (Q.length > 0) {
-
             const m = Q.shift()!;
 
             //TODO check compared id to avoid creating same stateNode multiple times
@@ -857,8 +839,6 @@ export class CoverabilityGraphService {
 
             //FOR EACH t ∈ T DO && IF m --[t]--> m' THEN
             for (const transition of enabledTransitions) {
-        
-
                 const nextMarking = this.computeNextMarking(m.covMarking, transition);
 
                 const m_prime = this.getOrCreateNextNode(graph, nodeByLabel, diagram.places, nextMarking, counters);
@@ -875,7 +855,6 @@ export class CoverabilityGraphService {
                     nodeByLabel.delete(this.oldLabelOfFirstOmegaNode);
                     nodeByLabel.set(m_prime.label, m_prime);
                 }
-
             }
 
             // M <- M U {m}
@@ -896,7 +875,7 @@ export class CoverabilityGraphService {
         const startLabel = places.map((p) => startMarking[p.id] ?? 0).join(' ');
         //TODO Marking schon hier mit Omegas? eher später
 
-        const startNode = new CoverabilityStateNode('CG1', 300, 50, startLabel,startLabel, startMarking);
+        const startNode = new CoverabilityStateNode('CG1', 300, 50, startLabel, startLabel, startMarking);
         startNode.isStartingState = true;
 
         graph.nodes.push(startNode);
@@ -931,7 +910,8 @@ export class CoverabilityGraphService {
                 covStateNode.covMarking[placeKeyForOmega] = 20000;
                 // this.setOmegaInPetriNetForAutoGraph(tempMarking);
                 // tempCovLabelMarkingStrings[j] = 'w';
-            }}
+            }
+        }
         return diagram.transitions.filter((t) => {
             return t.getInputFlow().every((flow) => {
                 const tokens = covStateNode.covMarking[flow.place.id] || 0;
@@ -945,7 +925,7 @@ export class CoverabilityGraphService {
         transition: DiagramTransition,
     ): Record<string, number> {
         const nextMarking = { ...currentMarking };
-        let tempMarking = nextMarking;
+        const tempMarking = nextMarking;
         transition.getInputFlow().forEach((flow) => {
             const currentTokens = nextMarking[flow.place.id] ?? 0;
             nextMarking[flow.place.id] = currentTokens - flow.weight;
@@ -962,7 +942,7 @@ export class CoverabilityGraphService {
             if (tempCovLabelMarkingNumbers[j] > 10000) {
                 const placeKeyForOmega = tempMarkingKeys[j];
                 nextMarking[placeKeyForOmega] = 20000;
-        //         // this.setOmegaInPetriNetForAutoGraph(tempMarking);
+                //         // this.setOmegaInPetriNetForAutoGraph(tempMarking);
                 tempCovLabelMarkingStrings[j] = 'w';
             }
         }
@@ -998,7 +978,7 @@ export class CoverabilityGraphService {
         if (!m_prime) {
             counters.nodeId++;
             const { x, y } = this.calculateRandomPosition();
-            m_prime = new CoverabilityStateNode(`CG${counters.nodeId}`, x, y, nextLabel,nextLabel, nextMarking);
+            m_prime = new CoverabilityStateNode(`CG${counters.nodeId}`, x, y, nextLabel, nextLabel, nextMarking);
             graph.nodes.push(m_prime);
             nodeByLabel.set(nextLabel, m_prime);
         }
@@ -1226,10 +1206,6 @@ export class CoverabilityGraphService {
                 node.covMarking[placeKeyForOmega] = 20000;
             }
         }
-
-
-
-
 
         // this.setOmegaInPetriNetForAutoGraph(node.covMarking);
 
